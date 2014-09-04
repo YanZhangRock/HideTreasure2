@@ -21,7 +21,7 @@
         "src/editor/EditorLayer.js",
         "src/editor/MapEditor.js",
         "src/editor/MapPainter.js",
-        "src/editor/MapTile.js",
+        "src/editor/ObjTile.js",
         "src/game/GameLayer.js",
         "src/game/Mover.js",
         "src/game/Thief.js",

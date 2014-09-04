@@ -5,7 +5,6 @@
 var EditorLayer = cc.Layer.extend({
     mapFileIO: null,
     mapPainter: null,
-    mapTile: null,
     objTile: null,
     mapEditor: null,
     mapIO: null,
@@ -39,13 +38,11 @@ var EditorLayer = cc.Layer.extend({
         this.map.unserializeObjs();
         this._initSaveUI();
         this._initMapPainter();
-        this._initMapTile();
         this._initObjTile();
         this._initMapEditor();
         this._createCurTile();
         this._createListener();
         this.startGame();
-
     },
 
 
@@ -108,11 +105,6 @@ var EditorLayer = cc.Layer.extend({
             oriGrid: Def.ORI_GRID,
             gridScale: Def.GRID_SCALE
         });
-    },
-
-    _initMapTile: function() {
-        this.mapTile = new MapTile( this, EditorLayer.Z.UI );
-        this.mapTile.createTiles();
     },
 
     _initObjTile: function() {

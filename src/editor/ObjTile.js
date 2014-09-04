@@ -1,8 +1,8 @@
 /**
- * Created by Rock on 9/4/14.
+ * Created by Rock on 8/24/14.
  */
 
-var MapTile = cc.Class.extend({
+var ObjTile = cc.Class.extend({
     layer: null,
     zOrder: 0,
     listener: null,
@@ -16,7 +16,6 @@ var MapTile = cc.Class.extend({
 
     createTiles: function() {
         this._createListener();
-        this._createTerrains();
         this._createObjs();
     },
 
@@ -41,36 +40,16 @@ var MapTile = cc.Class.extend({
         this.listener = listener;
     },
 
-    _createTerrains: function() {
-        var i = 0;
-        for( var tile in Def.TILE2IMG ) {
-            var imgName = Def.TILE2IMG[tile];
-            var img = "#" + Def.TILE2IMG[tile];
-            var tileBtn = new cc.Sprite( img );
-            tileBtn.attr({
-                x: g_size.width * MapTile.ORI_GRID.x + ( Def.GRID_SIZE + MapTile.EDGE ) * i,
-                y: g_size.height * MapTile.ORI_GRID.y,
-                anchorX: 0.5,
-                anchorY: 0.5
-            });
-            this.tile2Img[tile] = imgName;
-            this.tile2Btn[tile] = tileBtn;
-            this.layer.addChild( tileBtn, this.zOrder );
-            cc.eventManager.addListener(this.listener.clone(), tileBtn);
-            i++;
-        }
-    },
-
     _createObjs: function() {
-        var names = ["THIEF", "MONEY"]
+        var names = ["MONEY", "TRAP"]
         for( var i in names ) {
             var name = names[i];
             var imgName = Def.OBJ2IMG[name];
             var img = "#" + Def.OBJ2IMG[name];
             var tileBtn = new cc.Sprite( img );
             tileBtn.attr({
-                x: g_size.width * MapTile.ORI_GRID.x + ( Def.GRID_SIZE + MapTile.EDGE ) * i,
-                y: g_size.height * MapTile.ORI_GRID.y - MapTile.EDGE - Def.GRID_SIZE,
+                x: g_size.width * ObjTile.ORI_GRID.x + ( Def.GRID_SIZE + ObjTile.EDGE ) * i,
+                y: g_size.height * ObjTile.ORI_GRID.y - ObjTile.EDGE - Def.GRID_SIZE,
                 anchorX: 0.5,
                 anchorY: 0.5
             });
@@ -92,7 +71,7 @@ var MapTile = cc.Class.extend({
     }
 });
 
-MapTile.EDGE = 16;
-MapTile.ORI_GRID = {
-    x: 0.15, y: 0.7
+ObjTile.EDGE = 16;
+ObjTile.ORI_GRID = {
+    x: 0.4, y: 0.15
 };

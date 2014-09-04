@@ -16,6 +16,10 @@ var ObjIO = cc.Class.extend({
         return ObjIO.URL+this.map.userid;
     },
 
+    getSaveURL: function() {
+        return ObjIO.URL+this.map.saveUserid+"&name="+this.map.owner+"&mid="+this.map.saveMapid;
+    },
+
     loadObjs: function( callBack ) {
         this.loadObjCallBack = callBack;
         var self = this;
@@ -35,6 +39,19 @@ var ObjIO = cc.Class.extend({
         if( this.loadObjCallBack ) {
             this.loadObjCallBack();
         }
+    },
+
+    saveObjs: function( callBack ) {
+        this.saveObjCallBack = callBack;
+        var saveData = this.map.serializeObjs();
+        var self = this;
+        Util.postHTML( this.getSaveURL(), JSON.stringify( saveData ),
+            function(){
+                if( self.saveObjCallBack ) {
+                    self.saveObjCallBack();
+                }
+            }
+        );
     }
 
 });

@@ -12,8 +12,10 @@ var MapData = cc.Class.extend({
     grids: null,
     loadMapCallBack: null,
     saveMapCallBack: null,
-    mapid: 1,
-    userid: 1,
+    mapid: 2001,
+    userid: 2001,
+    saveMapid: 2001,
+    saveUserid: 2001,
 
     ctor: function (layer) {
         this.layer = layer;
@@ -35,11 +37,11 @@ var MapData = cc.Class.extend({
 
     serializeMap: function() {
         var data = new Object();
-        data.owner = this.owner;
         data.width = this.width;
         data.height = this.height;
         data.thiefPos = {};
-        data.moneyPos = [];
+        //data.moneyPos = [];
+        data.guardPos = [];
         data.gridsData = [];
         for( var i=0; i<this.width; i++ ) {
             for (var j = 0; j < this.height; j++) {
@@ -47,8 +49,13 @@ var MapData = cc.Class.extend({
                 if( grid.thief ) {
                     data.thiefPos = { x: i, y: j };
                 }
-                if( grid.money ) {
-                    data.moneyPos.push(
+//                if( grid.money ) {
+//                    data.moneyPos.push(
+//                        { x: i, y: j }
+//                    );
+//                }
+                if( grid.guard ) {
+                    data.guardPos.push(
                         { x: i, y: j }
                     );
                 }
@@ -63,7 +70,6 @@ var MapData = cc.Class.extend({
     unserializeMap: function() {
         var rawData = this.rawMapData;
         if( !rawData ) return;
-        this.owner = rawData.owner;
         var grids = {}
         for( var i=0; i<rawData.width; i++) {
             for( var j=0; j<rawData.height; j++ ) {
@@ -75,9 +81,11 @@ var MapData = cc.Class.extend({
             var d = rawData["thiefPos"];
             grids[d.x][d.y].thief = true;
         }
-        for( var i in rawData["moneyPos"] ){
-            var d = rawData["moneyPos"][i];
-            grids[d.x][d.y].money = true;
+        if( rawData["guardPos"] ) {
+            for( var i in rawData["guardPos"] ){
+                var d = rawData["guardPos"][i];
+                grids[d.x][d.y].guard = true;
+            }
         }
         for( var i in rawData["gridsData"] ){
             var d = rawData["gridsData"][i];
@@ -91,7 +99,8 @@ var MapData = cc.Class.extend({
     serializeObjs: function() {
         var data = new Object();
         data.trapPos = [];
-        data.guardPos = [];
+        //data.guardPos = [];
+        data.moneyPos = [];
         for( var i=0; i<this.width; i++ ) {
             for (var j = 0; j < this.height; j++) {
                 var grid = this.grids[i][j];
@@ -100,8 +109,13 @@ var MapData = cc.Class.extend({
                         { x: i, y: j }
                     );
                 }
-                if( grid.guard ) {
-                    data.guardPos.push(
+//                if( grid.guard ) {
+//                    data.guardPos.push(
+//                        { x: i, y: j }
+//                    );
+//                }
+                if( grid.money ) {
+                    data.moneyPos.push(
                         { x: i, y: j }
                     );
                 }
@@ -120,10 +134,10 @@ var MapData = cc.Class.extend({
                 grids[d.x][d.y].trap = true;
             }
         }
-        if( rawData["guardPos"] ) {
-            for( var i in rawData["guardPos"] ){
-                var d = rawData["guardPos"][i];
-                grids[d.x][d.y].guard = true;
+        if( rawData["moneyPos"] ) {
+            for (var i in rawData["moneyPos"]) {
+                var d = rawData["moneyPos"][i];
+                grids[d.x][d.y].money = true;
             }
         }
     }

@@ -16,7 +16,6 @@ var EditorLayer = cc.Layer.extend({
     touchBaganLoc: null,
     curTile: {sprite: null, name: "", img: ""},
     gridMoved: null,
-    saveMapMenu: null,
     saveObjsMenu: null,
     msgNote: null,
 
@@ -30,9 +29,6 @@ var EditorLayer = cc.Layer.extend({
         this.addChild( label, EditorLayer.Z.UI );
         this._initMapData();
         this._initObjIO();
-        //Util.getHTML("http://minihugscorecenter.appspot.com/map?mid=1");
-        //Util.postHTML("http://minihugscorecenter.appspot.com/map?mid=1", "lalala");
-        //Util.postHTML("http://192.168.0.101:8888/map?mid=1", "l");
     },
 
     onLoadObjsData: function() {
@@ -40,7 +36,7 @@ var EditorLayer = cc.Layer.extend({
     },
 
     onLoadMapdata: function() {
-        this.objIO.initObjs();
+        this.map.unserializeObjs();
         this._initSaveUI();
         this._initMapPainter();
         this._initMapTile();
@@ -74,19 +70,6 @@ var EditorLayer = cc.Layer.extend({
     },
 
     _initSaveUI: function() {
-        // save map label
-        var label = new cc.LabelTTF("保存地图", "Arial", 40);
-        var self = this;
-        var save = new cc.MenuItemLabel( label,
-            function(){
-                self.mapIO.saveMap( function(){self.onMapSaved();} );
-            }
-        );
-        var menu = new cc.Menu( save );
-        menu.x = g_size.width * 0.9;
-        menu.y = g_size.height * 0.8;
-        this.saveMapMenu = menu;
-        this.addChild( menu, EditorLayer.Z.UI );
         // save objs label
         var label = new cc.LabelTTF("保存机关", "Arial", 40);
         var self = this;

@@ -2,7 +2,9 @@ var res = {
     Tile_png : "res/map.png",
     Tile_plist : "res/map.plist",
     Objs_png: "res/objs.png",
-    Objs_plist: "res/objs.plist"
+    Objs_plist: "res/objs.plist",
+    Grey : "res/grey.png",
+    Share : "res/share.png"
 };
 
 var g_resources = [];

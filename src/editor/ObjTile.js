@@ -73,5 +73,5 @@ var ObjTile = cc.Class.extend({
 
 ObjTile.EDGE = 16;
 ObjTile.ORI_GRID = {
-    x: 0.4, y: 0.15
+    x: 0.25, y: 0.15
 };

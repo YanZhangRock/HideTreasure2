@@ -17,6 +17,7 @@ var EditorLayer = cc.Layer.extend({
     gridMoved: null,
     saveObjsMenu: null,
     msgNote: null,
+    shareMenu: null,
 
     ctor: function () {
         this._super();
@@ -49,18 +50,10 @@ var EditorLayer = cc.Layer.extend({
     startGame: function() {
         this.mapPainter.drawMap();
         this.remindLabel.setString(this.map.owner);
-        //this.createMsgNote();
-    },
-
-    onMapSaved: function() {
-        this.remindLabel.setString("地图保存成功");
-        this.schedule( function(){
-            this.remindLabel.setString("");
-        }, 1.5, 0 );
     },
 
     onObjsSaved: function() {
-        this.remindLabel.setString("机关保存成功");
+        this.remindLabel.setString("地图提交成功");
         this.schedule( function(){
             this.remindLabel.setString("");
         }, 1.5, 0 );
@@ -68,7 +61,7 @@ var EditorLayer = cc.Layer.extend({
 
     _initSaveUI: function() {
         // save objs label
-        var label = new cc.LabelTTF("保存机关", "Arial", 40);
+        var label = new cc.LabelTTF("提交地图", "Arial", 40);
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
@@ -76,8 +69,8 @@ var EditorLayer = cc.Layer.extend({
             }
         );
         var menu = new cc.Menu( save );
-        menu.x = g_size.width * 0.9;
-        menu.y = g_size.height * 0.7;
+        menu.x = g_size.width * 0.8;
+        menu.y = g_size.height * 0.07;
         this.saveObjsMenu = menu;
         this.addChild( menu, EditorLayer.Z.UI );
     },
@@ -121,8 +114,8 @@ var EditorLayer = cc.Layer.extend({
         sprite.attr({
             anchorX: 0.5,
             anchorY: 0.5,
-            x: g_size.width * 0.18,
-            y: g_size.height * 0.82,
+            x: g_size.width * 0.55,
+            y: g_size.height * 0.07,
             scale: Def.GRID_SCALE
         });
         this.curTile.sprite = sprite;
@@ -159,16 +152,65 @@ var EditorLayer = cc.Layer.extend({
     },
 
     createMsgNote: function() {
-        if( this.msgNote ) {
-            this.msgNote.attachWithIME();
-            return;
-        }
-        var msg = new cc.TextFieldTTF( "lalala", "Arial", 40 );
-        msg.x = g_size.width * 0.5;
-        msg.y = g_size.height * 0.94;
-        msg.attachWithIME();
-        this.msgNote = msg;
-        this.addChild( msg, EditorLayer.Z.UI );
+//        if( this.msgNote ) {
+//            this.msgNote.attachWithIME();
+//            return;
+//        }
+//        var msg = new cc.TextFieldTTF( "lalala", "Arial", 40 );
+//        msg.x = g_size.width * 0.5;
+//        msg.y = g_size.height * 0.94;
+//        msg.attachWithIME();
+//        this.msgNote = msg;
+//        this.addChild( msg, EditorLayer.Z.UI );
+        this.shareResult();
+    },
+
+    shareResult: function() {
+        this.addCoverBtn();
+        this.shareSprite = new cc.Sprite( res.Share );
+        this.shareSprite.attr({
+            x: g_size.width * 0.7,
+            y: g_size.height * 0.9,
+            scale: 1.0
+        });
+        this.addChild( this.shareSprite, EditorLayer.Z.SHARE );
+        document.title = this.getShareResultStr( this.percent );
+        document.location.reload();
+        //history.pushState({},"lalala","?id=1");
+    },
+
+    getShareResultStr: function() {
+        return "lalala";
+    },
+
+    addCoverBtn: function() {
+        var self = this;
+        var btn = new cc.MenuItemImage(
+            res.Grey,
+            res.Grey,
+            function () {
+                self.cancelShare();
+            }, this);
+        btn.attr({
+            x: g_size.width * 0.5,
+            y: g_size.height * 0.5,
+            anchorX: 0.5,
+            anchorY: 0.5
+        });
+        this.shareMenu = new cc.Menu(btn);
+        this.shareMenu.x = 0;
+        this.shareMenu.y = 0;
+        this.shareMenu.setOpacity(180);
+        this.shareMenu.setScale(100);
+        this.addChild(this.shareMenu, EditorLayer.Z.UI);
+    },
+
+    cancelShare: function() {
+        this.removeChild( this.shareMenu );
+        if( this.shareSprite == null ) return;
+        this.removeChild( this.shareSprite );
+        this.shareSprite = null;
+        document.title = "HideTreasure";
     },
 
     onTouchBegan: function( touch ) {
@@ -199,5 +241,6 @@ var EditorLayer = cc.Layer.extend({
 EditorLayer.Z = {
     MAP: 0,
     OBJ: 100,
-    UI: 200
+    UI: 200,
+    SHARE: 201
 };

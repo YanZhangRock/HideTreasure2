@@ -51,7 +51,7 @@ var MapEditor = cc.Class.extend({
             y: p.y,
             scale: Def.GRID_SCALE
         });
-        this.layer.addChild( thief, MainLayer.Z.OBJ );
+        this.layer.addChild( thief, EditorLayer.Z.OBJ );
         grid.thief = thief;
         this.thief = thief;
     },
@@ -73,7 +73,7 @@ var MapEditor = cc.Class.extend({
             y: p.y,
             scale: Def.GRID_SCALE
         });
-        this.layer.addChild( money, MainLayer.Z.OBJ );
+        this.layer.addChild( money, EditorLayer.Z.OBJ );
         grid.money = money;
         this.layer.createMsgNote();
     },

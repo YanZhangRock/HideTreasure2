@@ -13,26 +13,18 @@ var MapData = cc.Class.extend({
     loadMapCallBack: null,
     saveMapCallBack: null,
     mapid: 2001,
-    userid: 2001,
+    uid: 2001,
     saveMapid: 2001,
     saveUserid: 2001,
 
-    ctor: function (layer) {
-        this.layer = layer;
+    ctor: function (uid) {
+        this.uid = uid;
     },
 
-    loadFileList: function() {
-        var url = location.search; //获取url中"?"符后的字串
-        var theRequest = new Object();
-        if (url.indexOf("?") != -1) {
-            var str = url.substr(1);
-            var strs = str.split("&");
-            for(var i = 0; i < strs.length; i ++) {
-                theRequest[strs[i].split("=")[0]]=decodeURI(strs[i].split("=")[1]);
-            }
-            this.layer.testLabel.setString(theRequest["id"]);
-        }
-        return theRequest;
+    createNewID: function() {
+        var id = parseInt( this.uid );
+        id = id + Math.floor( Math.random() * 100 ) + 1;
+        this.saveUserid = id;
     },
 
     serializeMap: function() {

@@ -3,6 +3,8 @@
  */
 
 var GameLayer = cc.Layer.extend({
+    scene: null,
+    uid: 2001,
     map: null,
     mapIO: null,
     objIO: null,
@@ -24,8 +26,10 @@ var GameLayer = cc.Layer.extend({
     restTime: 0,
     goldNum: 0,
 
-    ctor: function() {
+    ctor: function( scene, uid ) {
         this._super();
+        this.scene = scene;
+        this.uid = uid;
         this.state = GameLayer.STATE.END;
         this._initMapData();
         this._initObjIO();
@@ -43,7 +47,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     _initMapData: function() {
-        this.map = new MapData();
+        this.map = new MapData( this.uid );
     },
 
     _initMapIO: function() {
@@ -174,6 +178,8 @@ var GameLayer = cc.Layer.extend({
         for( var i in this.guards ) {
             this.guards[i].startPatrol();
         }
+        // test
+        this.toEditorLevel();
     },
 
     startGame: function() {
@@ -213,6 +219,13 @@ var GameLayer = cc.Layer.extend({
         var self = this;
         Util.getPercent( this.thief.score, function(percent){self.onGetPercent(percent)} );
         this.showResult( true );
+    },
+
+    toEditorLevel: function() {
+        var scene = this.scene;
+        scene.removeChild( scene.layer );
+        scene.layer = new EditorLayer( this.uid );
+        scene.addChild( scene.layer );
     },
 
     onGetPercent: function( percent ) {

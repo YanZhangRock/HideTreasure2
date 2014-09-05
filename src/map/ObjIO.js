@@ -13,7 +13,7 @@ var ObjIO = cc.Class.extend({
     },
 
     getLoadURL: function() {
-        return ObjIO.URL+this.map.userid;
+        return ObjIO.URL+this.map.uid;
     },
 
     getSaveURL: function() {
@@ -32,7 +32,7 @@ var ObjIO = cc.Class.extend({
         var pre = txt.substr( 0, idx );
         var content = txt.substr( idx );
         var strs = pre.split( "," );
-        this.map.userid = strs[0];
+        //this.map.uid = strs[0];
         this.map.owner = strs[1];
         this.map.mapid = strs[2];
         this.map.rawObjsData = JSON.parse( content );

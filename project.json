@@ -18,6 +18,7 @@
         "src/map/MapData.js",
         "src/map/MapIO.js",
         "src/map/ObjIO.js",
+        "src/menu/MenuLayer.js",
         "src/editor/EditorLayer.js",
         "src/editor/MapEditor.js",
         "src/editor/MapPainter.js",

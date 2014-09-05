@@ -18,9 +18,12 @@ var EditorLayer = cc.Layer.extend({
     saveObjsMenu: null,
     msgNote: null,
     shareMenu: null,
+    newOwner: "lalala",
+    uid: 2001,
 
-    ctor: function () {
+    ctor: function ( uid ) {
         this._super();
+        this.uid = uid;
         // score label
         var label = new cc.LabelTTF("随便写写", "Arial", 40);
         label.x = g_size.width * 0.2;
@@ -43,11 +46,10 @@ var EditorLayer = cc.Layer.extend({
         this._initMapEditor();
         this._createCurTile();
         this._createListener();
-        this.startGame();
+        this.startLevel();
     },
 
-
-    startGame: function() {
+    startLevel: function() {
         this.mapPainter.drawMap();
         this.remindLabel.setString(this.map.owner);
     },
@@ -76,7 +78,8 @@ var EditorLayer = cc.Layer.extend({
     },
 
     _initMapData: function() {
-        this.map = new MapData();
+        this.map = new MapData( this.uid );
+        this.map.createNewID();
     },
 
     _initMapIO: function() {

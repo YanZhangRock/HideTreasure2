@@ -1,15 +1,16 @@
 var g_size = {};
 
 var GameScene = cc.Scene.extend({
-    gameLayer: null,
+    layer: null,
 
     onEnter:function () {
         this._super();
         g_size = cc.winSize;
         initRes();
-        //this.gameLayer = new GameLayer();
-        this.gameLayer = new EditorLayer();
-        this.addChild( this.gameLayer );
+        //this.layer = new GameLayer();
+        //this.layer = new EditorLayer();
+        this.layer = new MenuLayer( this );
+        this.addChild( this.layer );
     }
 
 });

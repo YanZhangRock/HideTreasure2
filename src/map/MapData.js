@@ -26,14 +26,14 @@ var MapData = cc.Class.extend({
         var id = parseInt( this.uid );
         id = id + Math.floor( Math.random() * 100 ) + 1;
         this.uidNew = id;
-        this.uidNew = 2002;
+        this.uidNew = 2001;
     },
 
     createNewMapID: function() {
         var id = parseInt( this.uid );
         id = id + Math.floor( Math.random() * 100 ) + 1;
         this.midNew = id;
-        this.midNew = 2002;
+        this.midNew = 2001;
     },
 
     unserializeMap: function() {
@@ -85,13 +85,17 @@ var MapData = cc.Class.extend({
                 }
             }
         }
+        data.owner = this.owner;
         return data;
     },
 
     unserializeObjs: function() {
         var rawData = this.rawObjsData;
         if( !rawData ) return;
-        this.secret = rawData.secret || "nothing";
+        if( rawData["owner"] ) {
+            this.owner = rawData["owner"];
+        }
+        this.secret = rawData["secret"] || "nothing";
         var grids = this.grids;
         if( rawData["trapPos"] ) {
             for( var i in rawData["trapPos"] ){

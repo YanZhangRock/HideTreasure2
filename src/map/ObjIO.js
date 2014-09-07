@@ -18,7 +18,7 @@ var ObjIO = cc.Class.extend({
     },
 
     getSaveURL: function() {
-        return ObjIO.URL+this.map.uidNew+"&name="+this.map.owner+"&mid="+this.map.midNew;
+        return ObjIO.URL+this.map.uidNew+"&name="+"?"+"&mid="+this.map.midNew;
     },
 
     loadObjs: function( uid, callBack, isIgnoreData ) {
@@ -39,7 +39,7 @@ var ObjIO = cc.Class.extend({
         var content = txt.substr( idx );
         var strs = pre.split( "," );
         //this.map.uid = strs[0];
-        this.map.owner = strs[1];
+        //this.map.owner = strs[1];
         this.map.mapid = strs[2];
         if( !this.isIgnoreData ) {
             this.map.rawObjsData = JSON.parse( content );

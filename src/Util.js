@@ -58,7 +58,7 @@ Util.getHTML = function( url, callBack ) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             if( callBack ) {
-                callBack( xhr.responseText );
+                callBack( decodeURI(xhr.responseText) );
             }
         }
     };
@@ -68,17 +68,15 @@ Util.getHTML = function( url, callBack ) {
 Util.postHTML = function( url, param, callBack ) {
     var xhr = cc.loader.getXMLHttpRequest();
     xhr.open( "POST", url, true );
-    //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.setRequestHeader("Content-type", "text/plain");
-    //xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8" );
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             if( callBack ) {
-                callBack( xhr.responseText );
+                callBack( decodeURI(xhr.responseText) );
             }
         }
     };
-    xhr.send( param );
+    xhr.send( encodeURI(param) );
 };
 
 Util.createTextField = function( subtitle, callBack ) {

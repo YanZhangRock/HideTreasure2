@@ -150,9 +150,11 @@ var MenuLayer = cc.Layer.extend({
     _parseOwner: function( txt ) {
         if( txt == "null" ) return;
         var idx = txt.indexOf("{");
-        var pre = txt.substr( 0, idx );
-        var strs = pre.split( "," );
-        this.owner = strs[1];
+        var content = txt.substr( idx );
+        var rawObjsData = JSON.parse( content );
+        if( rawObjsData["owner"] ) {
+            this.owner = rawObjsData["owner"];
+        }
     },
 
     startGame: function() {

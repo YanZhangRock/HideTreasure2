@@ -109,12 +109,6 @@ var GameLayer = cc.Layer.extend({
     },
 
     _initLabels: function() {
-        // score label
-//        var label = new cc.LabelTTF("得分：", "Arial", 40);
-//        this.scoreLabel = label;
-//        label.x = g_size.width * 0.2;
-//        label.y = g_size.height * 0.94;
-//        this.addChild( label, GameLayer.Z.UI );
         // timer label
         var label = new cc.LabelTTF("剩余时间：", "Arial", 40);
         this.timerLabel = label;
@@ -136,7 +130,7 @@ var GameLayer = cc.Layer.extend({
         this.editorMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
         // result label
-        var label = new cc.LabelTTF("你赢了！", "Arial", 58);
+        var label = new cc.LabelTTF("你赢了！", "Arial", 58, cc.size(1200,200), cc.TEXT_ALIGNMENT_LEFT);
         this.resultLabel = label;
         this.addChild( label, GameLayer.Z.UI );
         this.showResult( false );
@@ -145,15 +139,15 @@ var GameLayer = cc.Layer.extend({
     showResult: function( isShow, isWin ) {
         if( isShow ) {
             this.restartMenu.x = g_size.width * 0.52;
-            this.restartMenu.y = g_size.height * 0.46;
+            this.restartMenu.y = g_size.height * 0.60;
             if( isWin ) {
                 this.editorMenu.x = g_size.width * 0.52;
-                this.editorMenu.y = g_size.height * 0.3;
-                this.resultLabel.x = g_size.width * 0.35;
-                this.resultLabel.y = g_size.height * 0.8;
+                this.editorMenu.y = g_size.height * 0.5;
+                this.resultLabel.x = g_size.width * 0.72;
+                this.resultLabel.y = g_size.height * 0.82;
             } else {
-                this.resultLabel.x = g_size.width * 0.52;
-                this.resultLabel.y = g_size.height * 0.8;
+                this.resultLabel.x = g_size.width * 0.8;
+                this.resultLabel.y = g_size.height * 0.72;
             }
         } else {
             this.restartMenu.x = g_size.width * 100;
@@ -189,7 +183,7 @@ var GameLayer = cc.Layer.extend({
             this.guards[i].startPatrol();
         }
         // test
-        this.endGame( false );
+        this.endGame( true );
     },
 
     startGame: function() {

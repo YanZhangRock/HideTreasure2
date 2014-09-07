@@ -16,25 +16,24 @@ var EditorLayer = cc.Layer.extend({
     curTile: {sprite: null, name: "", img: ""},
     gridMoved: null,
     saveObjsMenu: null,
-    msgNote: null,
     shareMenu: null,
-    newOwner: "lalala",
+    challenger: "",
     uid: 2001,
+    midNew: 2002,
 
-    ctor: function ( uid ) {
+    ctor: function ( uid, challenger ) {
         this._super();
         this.uid = uid;
+        this.challenger = challenger;
         // score label
         var label = new cc.LabelTTF("随便写写", "Arial", 40);
         label.x = g_size.width * 0.2;
         label.y = g_size.height * 0.94;
         this.remindLabel = label;
         this.addChild( label, EditorLayer.Z.UI );
+        this._createNewMapID();
         this._initMapData();
         this._initObjIO();
-    },
-
-    onLoadObjsData: function() {
         this._initMapIO();
     },
 
@@ -59,6 +58,13 @@ var EditorLayer = cc.Layer.extend({
         this.schedule( function(){
             this.remindLabel.setString("");
         }, 1.5, 0 );
+        document.location.replace( this._getNewUrl() );
+    },
+
+    _getNewUrl: function() {
+        var url = location.href.split("?")[0];
+        var param = "uid="+this.map.uidNew;
+        return url + "?" + param;
     },
 
     _initSaveUI: function() {
@@ -79,19 +85,21 @@ var EditorLayer = cc.Layer.extend({
 
     _initMapData: function() {
         this.map = new MapData( this.uid );
-        this.map.createNewID();
+        this.map.createNewUserID();
+        this.map.createNewMapID();
+        this.map.owner = this.challenger;
     },
 
     _initMapIO: function() {
         var self = this;
         this.mapIO = new MapIO( this.map );
-        this.mapIO.loadMap( function(){self.onLoadMapdata()} );
+        this.mapIO.loadMap( this.map.midNew, function(){self.onLoadMapdata()} );
     },
 
     _initObjIO: function() {
         var self = this;
         this.objIO = new ObjIO( this.map );
-        this.objIO.loadObjs( function(){self.onLoadObjsData()} );
+        //this.objIO.loadObjs( this.map.uidNew, function(){self.onLoadObjsData()}, true );
     },
 
     _initMapPainter: function() {
@@ -113,7 +121,7 @@ var EditorLayer = cc.Layer.extend({
     },
 
     _createCurTile: function() {
-        var sprite = new cc.Sprite( "#" + Def.TILE2IMG["GRASS"] );
+        var sprite = new cc.Sprite( "#" + Def.OBJ2IMG["MONEY"] );
         sprite.attr({
             anchorX: 0.5,
             anchorY: 0.5,
@@ -122,9 +130,13 @@ var EditorLayer = cc.Layer.extend({
             scale: Def.GRID_SCALE
         });
         this.curTile.sprite = sprite;
-        this.curTile.name = "GRASS";
-        this.curTile.img = Def.TILE2IMG["GRASS"];
+        this.curTile.name = "MONEY";
+        this.curTile.img = Def.OBJ2IMG["MONEY"];
         this.addChild( sprite, EditorLayer.Z.UI );
+    },
+
+    _createNewMapID: function() {
+        this.midNew = 2002;
     },
 
     _createListener: function() {
@@ -154,66 +166,22 @@ var EditorLayer = cc.Layer.extend({
         this.curTile.sprite.setSpriteFrame( frame );
     },
 
-    createMsgNote: function() {
-//        if( this.msgNote ) {
-//            this.msgNote.attachWithIME();
-//            return;
-//        }
-//        var msg = new cc.TextFieldTTF( "lalala", "Arial", 40 );
-//        msg.x = g_size.width * 0.5;
-//        msg.y = g_size.height * 0.94;
-//        msg.attachWithIME();
-//        this.msgNote = msg;
-//        this.addChild( msg, EditorLayer.Z.UI );
-        this.shareResult();
+    onAddMoney: function() {
+        this._askSecret();
     },
 
-    shareResult: function() {
-        this.addCoverBtn();
-        this.shareSprite = new cc.Sprite( res.Share );
-        this.shareSprite.attr({
-            x: g_size.width * 0.7,
-            y: g_size.height * 0.9,
-            scale: 1.0
-        });
-        this.addChild( this.shareSprite, EditorLayer.Z.SHARE );
-        document.title = this.getShareResultStr( this.percent );
-        document.location.reload();
-        //history.pushState({},"lalala","?id=1");
-    },
-
-    getShareResultStr: function() {
-        return "lalala";
-    },
-
-    addCoverBtn: function() {
+    _askSecret: function() {
         var self = this;
-        var btn = new cc.MenuItemImage(
-            res.Grey,
-            res.Grey,
-            function () {
-                self.cancelShare();
-            }, this);
-        btn.attr({
-            x: g_size.width * 0.5,
-            y: g_size.height * 0.5,
-            anchorX: 0.5,
-            anchorY: 0.5
-        });
-        this.shareMenu = new cc.Menu(btn);
-        this.shareMenu.x = 0;
-        this.shareMenu.y = 0;
-        this.shareMenu.setOpacity(180);
-        this.shareMenu.setScale(100);
-        this.addChild(this.shareMenu, EditorLayer.Z.UI);
+        var msg = Util.createTextField(
+            "俺老孙要在此留尿一坨：",
+            function(){ self._onGetSecret(this); }
+        );
+        this.addChild( msg, EditorLayer.Z.FIELD );
     },
 
-    cancelShare: function() {
-        this.removeChild( this.shareMenu );
-        if( this.shareSprite == null ) return;
-        this.removeChild( this.shareSprite );
-        this.shareSprite = null;
-        document.title = "HideTreasure";
+    _onGetSecret: function( msg ) {
+        this.map.secret = msg.getString();
+        //this.map.secret = "lala";
     },
 
     onTouchBegan: function( touch ) {
@@ -245,5 +213,6 @@ EditorLayer.Z = {
     MAP: 0,
     OBJ: 100,
     UI: 200,
-    SHARE: 201
+    SHARE: 201,
+    FIELD: 202
 };

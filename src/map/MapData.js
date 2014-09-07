@@ -14,49 +14,26 @@ var MapData = cc.Class.extend({
     saveMapCallBack: null,
     mapid: 2001,
     uid: 2001,
-    saveMapid: 2001,
-    saveUserid: 2001,
+    uidNew: 2001,
+    midNew: 2001,
+    secret: "nothing",
 
     ctor: function (uid) {
         this.uid = uid;
     },
 
-    createNewID: function() {
+    createNewUserID: function() {
         var id = parseInt( this.uid );
         id = id + Math.floor( Math.random() * 100 ) + 1;
-        this.saveUserid = id;
+        this.uidNew = id;
+        this.uidNew = 2002;
     },
 
-    serializeMap: function() {
-        var data = new Object();
-        data.width = this.width;
-        data.height = this.height;
-        data.thiefPos = {};
-        //data.moneyPos = [];
-        data.guardPos = [];
-        data.gridsData = [];
-        for( var i=0; i<this.width; i++ ) {
-            for (var j = 0; j < this.height; j++) {
-                var grid = this.grids[i][j];
-                if( grid.thief ) {
-                    data.thiefPos = { x: i, y: j };
-                }
-//                if( grid.money ) {
-//                    data.moneyPos.push(
-//                        { x: i, y: j }
-//                    );
-//                }
-                if( grid.guard ) {
-                    data.guardPos.push(
-                        { x: i, y: j }
-                    );
-                }
-                data.gridsData.push(
-                    { x: i, y: j, tile: grid.tile }
-                );
-            }
-        }
-        return data;
+    createNewMapID: function() {
+        var id = parseInt( this.uid );
+        id = id + Math.floor( Math.random() * 100 ) + 1;
+        this.midNew = id;
+        this.midNew = 2002;
     },
 
     unserializeMap: function() {
@@ -90,8 +67,8 @@ var MapData = cc.Class.extend({
 
     serializeObjs: function() {
         var data = new Object();
+        data.secret = this.secret;
         data.trapPos = [];
-        //data.guardPos = [];
         data.moneyPos = [];
         for( var i=0; i<this.width; i++ ) {
             for (var j = 0; j < this.height; j++) {
@@ -101,11 +78,6 @@ var MapData = cc.Class.extend({
                         { x: i, y: j }
                     );
                 }
-//                if( grid.guard ) {
-//                    data.guardPos.push(
-//                        { x: i, y: j }
-//                    );
-//                }
                 if( grid.money ) {
                     data.moneyPos.push(
                         { x: i, y: j }
@@ -119,6 +91,7 @@ var MapData = cc.Class.extend({
     unserializeObjs: function() {
         var rawData = this.rawObjsData;
         if( !rawData ) return;
+        this.secret = rawData.secret || "nothing";
         var grids = this.grids;
         if( rawData["trapPos"] ) {
             for( var i in rawData["trapPos"] ){

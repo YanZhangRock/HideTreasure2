@@ -5,6 +5,7 @@
 var GameLayer = cc.Layer.extend({
     scene: null,
     uid: 2001,
+    challenger: "",
     map: null,
     mapIO: null,
     objIO: null,
@@ -15,9 +16,9 @@ var GameLayer = cc.Layer.extend({
     golds: [],
     state: null,
     restartMenu: null,
+    editorMenu: null,
     resultLabel: null,
     scoreLabel: null,
-    percentLabel: null,
     timerLabel: null,
     touchBaganLoc: null,
     mapBatch: null,
@@ -26,10 +27,11 @@ var GameLayer = cc.Layer.extend({
     restTime: 0,
     goldNum: 0,
 
-    ctor: function( scene, uid ) {
+    ctor: function( scene, uid, challenger ) {
         this._super();
         this.scene = scene;
         this.uid = uid;
+        this.challenger = challenger;
         this.state = GameLayer.STATE.END;
         this._initMapData();
         this._initObjIO();
@@ -53,13 +55,13 @@ var GameLayer = cc.Layer.extend({
     _initMapIO: function() {
         var self = this;
         this.mapIO = new MapIO( this.map );
-        this.mapIO.loadMap( function(){self.onLoadMapdata()} );
+        this.mapIO.loadMap( this.map.mapid, function(){self.onLoadMapdata()} );
     },
 
     _initObjIO: function() {
         var self = this;
         this.objIO = new ObjIO( this.map );
-        this.objIO.loadObjs( function(){self.onLoadObjsData()} );
+        this.objIO.loadObjs( this.map.uid, function(){self.onLoadObjsData()} );
     },
 
     _registerInputs: function() {
@@ -120,38 +122,46 @@ var GameLayer = cc.Layer.extend({
         label.y = g_size.height * 0.05;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
-        var label = new cc.LabelTTF("重新开始", "Arial", 80);
+        var label = new cc.LabelTTF("再玩一次", "Arial", 80);
         var self = this;
         var restart = new cc.MenuItemLabel( label, function(){ self.restartGame(); } );
         var menu = new cc.Menu(restart);
         this.restartMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
+        // editor label
+        var label = new cc.LabelTTF("我也要留一个秘密！", "Arial", 80);
+        var self = this;
+        var editor = new cc.MenuItemLabel( label, function(){ self.toEditorLevel(); } );
+        var menu = new cc.Menu(editor);
+        this.editorMenu = menu;
+        this.addChild( menu, GameLayer.Z.UI );
         // result label
-        var label = new cc.LabelTTF("你赢了！", "Arial", 60);
+        var label = new cc.LabelTTF("你赢了！", "Arial", 58);
         this.resultLabel = label;
-        this.addChild( label, GameLayer.Z.UI );
-        // percent label
-        var label = new cc.LabelTTF("", "Arial", 60);
-        this.percentLabel = label;
         this.addChild( label, GameLayer.Z.UI );
         this.showResult( false );
     },
 
-    showResult: function( isShow ) {
+    showResult: function( isShow, isWin ) {
         if( isShow ) {
             this.restartMenu.x = g_size.width * 0.52;
-            this.restartMenu.y = g_size.height * 0.4;
-            this.resultLabel.x = g_size.width * 0.54;
-            this.resultLabel.y = g_size.height * 0.7;
-            this.percentLabel.x = g_size.width * 0.50;
-            this.percentLabel.y = g_size.height * 0.56;
+            this.restartMenu.y = g_size.height * 0.46;
+            if( isWin ) {
+                this.editorMenu.x = g_size.width * 0.52;
+                this.editorMenu.y = g_size.height * 0.3;
+                this.resultLabel.x = g_size.width * 0.35;
+                this.resultLabel.y = g_size.height * 0.8;
+            } else {
+                this.resultLabel.x = g_size.width * 0.52;
+                this.resultLabel.y = g_size.height * 0.8;
+            }
         } else {
             this.restartMenu.x = g_size.width * 100;
             this.restartMenu.y = g_size.height * 100;
+            this.editorMenu.x = g_size.width * 100;
+            this.editorMenu.y = g_size.height * 100;
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
-            this.percentLabel.x = g_size.width * 100;
-            this.percentLabel.y = g_size.height * 100;
         }
     },
 
@@ -179,7 +189,7 @@ var GameLayer = cc.Layer.extend({
             this.guards[i].startPatrol();
         }
         // test
-        this.toEditorLevel();
+        this.endGame( false );
     },
 
     startGame: function() {
@@ -199,7 +209,6 @@ var GameLayer = cc.Layer.extend({
         this.createGolds();
         this.createObjs();
         this.showResult( false );
-        this.percentLabel.setString("");
         this.setRestTime( GameLayer.TIMEUP );
         this.prepareRunGame();
     },
@@ -212,26 +221,21 @@ var GameLayer = cc.Layer.extend({
             this.guards[i].unscheduleUpdate();
         }
         if( isWin ) {
-            this.resultLabel.setString( "你成功偷走了"+this.map.owner+"的钱钱！" );
+            var str = this.map.owner+"想对你说：\n"+this.map.secret;
+            this.resultLabel.setString( str );
         } else {
             this.resultLabel.setString( "你被"+this.map.owner+"无情的踩死了T_T" );
         }
         var self = this;
-        Util.getPercent( this.thief.score, function(percent){self.onGetPercent(percent)} );
-        this.showResult( true );
+        //Util.getPercent( this.thief.score, function(percent){self.onGetPercent(percent)} );
+        this.showResult( true, isWin );
     },
 
     toEditorLevel: function() {
         var scene = this.scene;
         scene.removeChild( scene.layer );
-        scene.layer = new EditorLayer( this.uid );
+        scene.layer = new EditorLayer( this.uid, this.challenger );
         scene.addChild( scene.layer );
-    },
-
-    onGetPercent: function( percent ) {
-        if( this.state != GameLayer.STATE.END ) return;
-        var str = "得分："+this.thief.score+"\n" + "击败了全球%"+percent+"的玩家!";
-        this.percentLabel.setString(str);
     },
 
     setRestTime: function( time ) {

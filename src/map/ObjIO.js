@@ -6,24 +6,30 @@ var ObjIO = cc.Class.extend({
     map: null,
     loadObjCallBack: null,
     saveObjCallBack: null,
+    isIgnoreData: false,
     uid: 1,
 
     ctor: function ( map ) {
         this.map = map;
     },
 
-    getLoadURL: function() {
-        return ObjIO.URL+this.map.uid;
+    getLoadURL: function( uid ) {
+        return ObjIO.URL+uid;
     },
 
     getSaveURL: function() {
-        return ObjIO.URL+this.map.saveUserid+"&name="+this.map.owner+"&mid="+this.map.saveMapid;
+        return ObjIO.URL+this.map.uidNew+"&name="+this.map.owner+"&mid="+this.map.midNew;
     },
 
-    loadObjs: function( callBack ) {
+    loadObjs: function( uid, callBack, isIgnoreData ) {
         this.loadObjCallBack = callBack;
+        if( isIgnoreData ) {
+            this.isIgnoreData = true;
+        } else {
+            this.isIgnoreData = false;
+        }
         var self = this;
-        Util.getHTML( this.getLoadURL(), function(txt){self.onLoadObjs(txt)} );
+        Util.getHTML( this.getLoadURL( uid ), function(txt){self.onLoadObjs(txt)} );
     },
 
     onLoadObjs: function( txt ) {
@@ -35,7 +41,11 @@ var ObjIO = cc.Class.extend({
         //this.map.uid = strs[0];
         this.map.owner = strs[1];
         this.map.mapid = strs[2];
-        this.map.rawObjsData = JSON.parse( content );
+        if( !this.isIgnoreData ) {
+            this.map.rawObjsData = JSON.parse( content );
+        } else {
+            this.map.rawObjsData = null;
+        }
         if( this.loadObjCallBack ) {
             this.loadObjCallBack();
         }

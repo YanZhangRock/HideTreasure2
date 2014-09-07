@@ -5,6 +5,7 @@
 var MapEditor = cc.Class.extend({
     layer: null,
     thief: null,
+    moneyNum: 0,
 
     ctor: function( layer ) {
         this.layer = layer;
@@ -60,8 +61,10 @@ var MapEditor = cc.Class.extend({
         if( grid.money ) {
             this.layer.removeChild( grid.money );
             grid.money = null;
+            this.moneyNum--;
             return;
         }
+        if( this.moneyNum >= MapEditor.MAX_MONEY ) return;
         if( this.gridHasObj( grid ) ) return;
         if( grid.tile == "TREES" ) return;
         var p = Util.grid2World( grid );
@@ -73,9 +76,10 @@ var MapEditor = cc.Class.extend({
             y: p.y,
             scale: Def.GRID_SCALE
         });
+        this.moneyNum++;
         this.layer.addChild( money, EditorLayer.Z.OBJ );
         grid.money = money;
-        this.layer.createMsgNote();
+        this.layer.onAddMoney();
     },
 
     _addGuard: function( grid, img ) {
@@ -127,3 +131,5 @@ var MapEditor = cc.Class.extend({
         return false;
     }
 });
+
+MapEditor.MAX_MONEY = 1;

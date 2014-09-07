@@ -11,14 +11,14 @@ var MapIO = cc.Class.extend({
         this.map = map;
     },
 
-    getURL: function() {
-        return MapIO.URL+this.map.mapid;
+    getURL: function( mapid ) {
+        return MapIO.URL+mapid;
     },
 
-    loadMap: function( callBack ) {
+    loadMap: function( mapid, callBack ) {
         this.loadMapCallBack = callBack;
         var self = this;
-        Util.getHTML( this.getURL(), function(txt){self.onLoadMap(txt)} );
+        Util.getHTML( this.getURL( mapid ), function(txt){self.onLoadMap(txt)} );
     },
 
     onLoadMap: function( txt ) {

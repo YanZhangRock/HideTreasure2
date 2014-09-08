@@ -44,6 +44,7 @@ var Mover = cc.Sprite.extend({
 
     stopMove: function() {
         this.state = Mover.STATE.IDLE;
+        this.lastState = Mover.STATE.IDLE;
     },
 
     pauseMove: function() {
@@ -52,7 +53,7 @@ var Mover = cc.Sprite.extend({
     },
 
     continueMove: function() {
-        //this.state = this.lastState;
+        if( this.lastState == Mover.STATE.IDLE ) return;
         this.state = Mover.STATE.IDLE;
         this.changeDir( this.nextDir );
     },

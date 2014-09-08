@@ -73,6 +73,7 @@ var EditorLayer = cc.Layer.extend({
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
+                if( self.mapEditor.moneyNum <= 0 ) return;
                 self.objIO.saveObjs( function(){self.onObjsSaved();} );
             }
         );

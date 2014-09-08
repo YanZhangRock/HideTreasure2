@@ -9,10 +9,10 @@ Def.MID = 2000;
 Def.GRID_SIZE = 80;
 Def.ORI_GRID = { x: 10, y: 440 };
 Def.GRID_SCALE = 1.25;
-Def.UP = 1;
-Def.DOWN = 2;
-Def.LEFT = 3;
-Def.RIGHT = 4;
+Def.UP = 0;
+Def.DOWN = 1;
+Def.LEFT = 2;
+Def.RIGHT = 3;
 
 Def.TILE2IMG = {
     GRASS: "Grass0.png",

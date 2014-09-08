@@ -16,16 +16,22 @@ var GameLayer = cc.Layer.extend({
     golds: [],
     state: null,
     restartMenu: null,
+    rebornMenu: null,
     editorMenu: null,
     resultLabel: null,
     scoreLabel: null,
     timerLabel: null,
+    lifeLabel: null,
     touchBaganLoc: null,
     mapBatch: null,
     objBatch: null,
     maxMoney: 0,
     restTime: 0,
     goldNum: 0,
+    arrowOutlines: null,
+    lv: 0,
+    lvTime: 0,
+    life: 0,
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -44,6 +50,7 @@ var GameLayer = cc.Layer.extend({
     onLoadMapdata: function() {
         this.map.unserializeObjs();
         this._initLabels();
+        //this._initCtrlPad();
         this._registerInputs();
         this.startGame();
     },
@@ -113,7 +120,13 @@ var GameLayer = cc.Layer.extend({
         var label = new cc.LabelTTF("剩余时间：", "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.85;
-        label.y = g_size.height * 0.05;
+        label.y = g_size.height * 0.25;
+        this.addChild( label, GameLayer.Z.UI );
+        // life label
+        var label = new cc.LabelTTF("生命：", "Arial", 40);
+        this.lifeLabel = label;
+        label.x = g_size.width * 0.50;
+        label.y = g_size.height * 0.25;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
         var label = new cc.LabelTTF("再玩一次", "Arial", 80);
@@ -121,6 +134,13 @@ var GameLayer = cc.Layer.extend({
         var restart = new cc.MenuItemLabel( label, function(){ self.restartGame(); } );
         var menu = new cc.Menu(restart);
         this.restartMenu = menu;
+        this.addChild( menu, GameLayer.Z.UI );
+        // reborn label
+        var label = new cc.LabelTTF("继续挑战", "Arial", 80);
+        var self = this;
+        var reborn = new cc.MenuItemLabel( label, function(){ self.reborn(); } );
+        var menu = new cc.Menu(reborn);
+        this.rebornMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
         // editor label
         var label = new cc.LabelTTF("我也要留一个秘密！", "Arial", 80);
@@ -133,7 +153,58 @@ var GameLayer = cc.Layer.extend({
         var label = new cc.LabelTTF("你赢了！", "Arial", 58, cc.size(1200,200), cc.TEXT_ALIGNMENT_LEFT);
         this.resultLabel = label;
         this.addChild( label, GameLayer.Z.UI );
-        this.showResult( false );
+    },
+
+    _initCtrlPad: function() {
+        var outlines = [];
+        var cfg = [
+            { x: 0.5, y: 0.23, r: 90 },
+            { x: 0.495, y: 0.07, r: 270 },
+            { x: 0.34, y: 0.15, r: 0 },
+            { x: 0.66, y: 0.15, r: 180 }
+        ];
+        var offset = 0.1;
+        for( var i=0; i<4; i++) {
+            var outline = new cc.Sprite( res.Arrow3 );
+            outline.attr({
+                x: g_size.width * ( cfg[i].x - offset ),
+                y: g_size.height * cfg[i].y,
+                anchorX: 0.5,
+                anchorY: 0.5,
+                rotation: cfg[i].r
+            });
+            outline.setVisible( false );
+            outlines.push(outline);
+            this.addChild(outline, GameLayer.Z.UI);
+        }
+        var self = this;
+        for( var i=0; i<4; i++) {
+            var btn = new cc.MenuItemImage(
+                res.Arrow1,
+                res.Arrow2,
+                function () {
+                    var idx = this-1;
+                    for(var j=0; j<4; j++) {
+                        if( j==idx ) {
+                            outlines[j].setVisible( true );
+                        } else {
+                            outlines[j].setVisible( false );
+                        }
+                    }
+                    self.onClickArrowBtn( idx );
+                }, i+1);
+            btn.attr({
+                x: g_size.width * ( cfg[i].x - offset ),
+                y: g_size.height * cfg[i].y,
+                anchorX: 0.5,
+                anchorY: 0.5,
+                rotation: cfg[i].r
+            });
+            var menu = new cc.Menu(btn);
+            menu.x = 0;
+            menu.y = 0;
+            this.addChild(menu, GameLayer.Z.UI);
+        }
     },
 
     showResult: function( isShow, isWin ) {
@@ -159,6 +230,16 @@ var GameLayer = cc.Layer.extend({
         }
     },
 
+    showReborn: function( isShow ) {
+        if( isShow ) {
+            this.rebornMenu.x = g_size.width * 0.52;
+            this.rebornMenu.y = g_size.height * 0.60;
+        } else {
+            this.rebornMenu.x = g_size.width * 100;
+            this.rebornMenu.y = g_size.height * 100;
+        }
+    },
+
     clearObjs: function() {
         var batch = this.objBatch;
         batch.removeAllChildren();
@@ -180,10 +261,10 @@ var GameLayer = cc.Layer.extend({
         this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
         this.state = GameLayer.STATE.GAME;
         for( var i in this.guards ) {
-            this.guards[i].startPatrol();
+            this.guards[i].init();
         }
         // test
-        this.endGame( true );
+        //this.endGame( true );
     },
 
     startGame: function() {
@@ -192,7 +273,7 @@ var GameLayer = cc.Layer.extend({
         this.drawMap();
         this.createGolds();
         this.createObjs();
-        this.setRestTime( GameLayer.TIMEUP );
+        this.initParams();
         this.prepareRunGame();
     },
 
@@ -202,9 +283,46 @@ var GameLayer = cc.Layer.extend({
         this.map.unserializeObjs();
         this.createGolds();
         this.createObjs();
-        this.showResult( false );
-        this.setRestTime( GameLayer.TIMEUP );
+        this.initParams();
         this.prepareRunGame();
+    },
+
+    reborn: function() {
+        this.showReborn( false );
+        var idx = 0;
+        var map = this.map;
+        for( var i=0; i<map.width; i++ ) {
+            for (var j = 0; j < map.height; j++) {
+                var grid = map.grids[i][j];
+                if( grid.thief ) {
+                    this.thief.setCurGrid( grid );
+                }
+                if( grid.guard ) {
+                    this.guards[idx].setCurGrid( grid );
+                    idx++;
+                }
+            }
+        }
+        this.runGame();
+    },
+
+    initParams: function() {
+        this.lv = 0;
+        this.lvTime = 0;
+        this.setLife( GameLayer.LIFE );
+        this.showResult( false );
+        this.showReborn( false );
+        this.setRestTime( GameLayer.TIMEUP );
+    },
+
+    pauseGame: function() {
+        this.state = GameLayer.STATE.END;
+        this.thief.stopMove();
+        for( var i in this.guards ) {
+            this.guards[i].stopAI();
+        }
+        this.unschedule( this.checkTimeup );
+        this.showReborn( true );
     },
 
     endGame: function( isWin ) {
@@ -232,9 +350,24 @@ var GameLayer = cc.Layer.extend({
         scene.addChild( scene.layer );
     },
 
+    onCaught: function() {
+        if( this.state == GameLayer.STATE.END ) return;
+        this.setLife( --this.life )
+        if( this.life <=0 ) {
+            this.endGame( false );
+        } else {
+            this.pauseGame();
+        }
+    },
+
     setRestTime: function( time ) {
         this.restTime = time;
         this.timerLabel.setString( "剩余时间："+this.restTime );
+    },
+
+    setLife: function( life ) {
+        this.life = life;
+        this.lifeLabel.setString( "生命："+this.life );
     },
 
     checkTimeup: function() {
@@ -242,6 +375,21 @@ var GameLayer = cc.Layer.extend({
         this.setRestTime( this.restTime );
         if( this.restTime <= 0 ) {
             this.endGame( false );
+        }
+        this.lvTime += GameLayer.TIMEUP_INTERVAL;
+        if( this.lvTime >= GameLayer.LV_TIME[this.lv] ) {
+            this.nextLv();
+        }
+    },
+
+    nextLv: function() {
+        if( this.lv >= GameLayer.MAX_LV-1 ) return;
+        this.lvTime = 0;
+        this.lv++;
+        cc.log("nextLv~~~"+this.lv);
+        this.thief.changeLv( this.lv );
+        for( var i in this.guards ) {
+            this.guards[i].changeLv( this.lv );
         }
     },
 
@@ -466,7 +614,13 @@ var GameLayer = cc.Layer.extend({
     },
 
     onSwipe: function( dir ) {
-        if( this.state == GameLayer.STATE.END ) return;
+        if( this.state != GameLayer.STATE.GAME ) return;
+        this.thief.changeDir( dir );
+    },
+
+    onClickArrowBtn: function( dir ) {
+        //cc.log(dir);
+        if( this.state != GameLayer.STATE.GAME ) return;
         this.thief.changeDir( dir );
     }
 });
@@ -493,4 +647,7 @@ GameLayer.STATE = {
 
 GameLayer.TIMEUP = 600;
 GameLayer.TIMEUP_INTERVAL = 1;
-GameLayer.SWIPE_DIST = 10;
+GameLayer.SWIPE_DIST = 5;
+GameLayer.LV_TIME = [ 8, 10 ];
+GameLayer.MAX_LV = 3;
+GameLayer.LIFE = 3;

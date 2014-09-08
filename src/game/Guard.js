@@ -5,13 +5,25 @@
 var Guard = Mover.extend({
     aiState: null,
     thief: null,
+    speedType: null,
+    lv: 0,
 
     ctor: function( layer ) {
         this._super( "#guard.png", layer );
-        this.speed = Guard.PATROL_SPEED;
         this.aiState = Guard.AI_STATE.IDLE;
         this.arriveCallBack = this.onArriveGrid;
         this.updateCallBack = this.onUpdate;
+    },
+
+    init: function() {
+        this.aiState = Guard.AI_STATE.IDLE;
+        this.changeSpeed( Guard.PATROL_SPEED );
+        this.startPatrol();
+    },
+
+    stopAI: function() {
+        this.aiState = Guard.AI_STATE.IDLE;
+        this.stopMove();
     },
 
     onUpdate: function( dt ) {
@@ -46,7 +58,7 @@ var Guard = Mover.extend({
     },
 
     startPatrol: function() {
-        this.speed = Guard.PATROL_SPEED;
+        this.changeSpeed( Guard.PATROL_SPEED );
         this.aiState = Guard.AI_STATE.PATROL;
         var dir = this.getRandMovableDir( this.getRealGrid() );
         if( dir == null ) return;
@@ -82,7 +94,7 @@ var Guard = Mover.extend({
     },
 
     startChase: function() {
-        this.speed = Guard.CHASE_FAST;
+        this.changeSpeed( Guard.CHASE_FAST );
         this.aiState = Guard.AI_STATE.CHASE;
         this.startMove();
     },
@@ -96,13 +108,13 @@ var Guard = Mover.extend({
     onArriveGridChase: function() {
         // keep fast chasing
         if( this.layer.isGridVisible( this.getRealGrid(), this.thief.getRealGrid() ) ) {
-            this.speed = Guard.CHASE_FAST;
+            this.changeSpeed( Guard.CHASE_FAST );
         }
         // when arrive crossroad
         if( this.isCrossRoad( this.getRealGrid(), this.curDir ) ) {
             if( !this.layer.isGridVisible( this.getRealGrid(), this.thief.getRealGrid() ) ) {
                 // slow down when out of vision
-                this.speed = Guard.CHASE_SLOW;
+                this.changeSpeed( Guard.CHASE_SLOW );
                 if( Util.getManDist( this.getRealGrid(), this.thief.getRealGrid() ) >= Guard.CHASE_DIST ) {
                     // to return mode when out of dist
                     this.startReturn();
@@ -126,7 +138,7 @@ var Guard = Mover.extend({
     },
 
     startReturn: function() {
-        this.speed = Guard.PATROL_SPEED;
+        this.changeSpeed( Guard.PATROL_SPEED );
         this.aiState = Guard.AI_STATE.RETURN;
         this.changeDirInstant( this.layer.getRelativeDir( this.getRealGrid(), this.oriGrid ) );
         this.startMove();
@@ -177,13 +189,23 @@ var Guard = Mover.extend({
             return true;
         }
         return false;
+    },
+
+    changeSpeed: function( type ) {
+        this.speedType = type;
+        this.speed = type[this.lv];
+    },
+
+    changeLv: function( lv ) {
+        this.lv = lv;
+        this.changeSpeed( this.speedType );
     }
 
 });
 
-Guard.PATROL_SPEED = 140;
-Guard.CHASE_SLOW = 190;
-Guard.CHASE_FAST = 210;
+Guard.PATROL_SPEED = [ 80, 120, 150 ];
+Guard.CHASE_SLOW = [ 120, 150, 180 ];
+Guard.CHASE_FAST = [ 150, 180, 210 ];
 Guard.PATROL_DIST = 3;
 Guard.CHASE_DIST = 5;
 Guard.AI_STATE = {

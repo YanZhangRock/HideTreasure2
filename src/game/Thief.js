@@ -12,7 +12,7 @@ var Thief = Mover.extend({
 
     ctor: function( layer ) {
         this._super("#thief.png", layer);
-        this.speed = Thief.SPEED;
+        this.speed = Thief.SPEED[0];
         this.arriveCallBack = this.onArriveGrid;
         this.updateCallBack = this.onUpdate;
         this.addScore( -this.score );
@@ -41,7 +41,7 @@ var Thief = Mover.extend({
         for( var i in this.guards ) {
             var guard = this.guards[i];
             if( this.isCollide( guard ) ) {
-                this.layer.endGame( false );
+                this.layer.onCaught();
             }
         }
         if( this.nextGrid && this.nextGrid.gold ) {
@@ -75,7 +75,11 @@ var Thief = Mover.extend({
     addScore: function( score ) {
 //        this.score += score;
 //        this.layer.scoreLabel.setString( "得分：" + this.score );
+    },
+
+    changeLv: function( lv ) {
+        this.speed = Thief.SPEED[lv];
     }
 });
 
-Thief.SPEED = 250;
+Thief.SPEED = [ 180, 220, 250 ];

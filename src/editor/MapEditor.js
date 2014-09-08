@@ -6,6 +6,7 @@ var MapEditor = cc.Class.extend({
     layer: null,
     thief: null,
     moneyNum: 0,
+    trapNum: 0,
 
     ctor: function( layer ) {
         this.layer = layer;
@@ -107,8 +108,10 @@ var MapEditor = cc.Class.extend({
         if( grid.trap ) {
             this.layer.removeChild( grid.trap );
             grid.trap = null;
+            this.trapNum--;
             return;
         }
+        if( this.trapNum >= MapEditor.MAX_TRAP ) return;
         if( this.gridHasObj( grid ) ) return;
         if( grid.tile == "TREES" ) return;
         var p = Util.grid2World( grid );
@@ -120,6 +123,7 @@ var MapEditor = cc.Class.extend({
             y: p.y,
             scale: Def.GRID_SCALE
         });
+        this.trapNum++;
         this.layer.addChild( trap, EditorLayer.Z.OBJ );
         grid.trap = trap;
     },
@@ -133,3 +137,4 @@ var MapEditor = cc.Class.extend({
 });
 
 MapEditor.MAX_MONEY = 1;
+MapEditor.MAX_TRAP = 2;

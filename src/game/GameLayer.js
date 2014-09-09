@@ -468,13 +468,13 @@ var GameLayer = cc.Layer.extend({
                     batch.addChild(this.thief);
                 }
                 // guards
-//                if (grid.guard) {
-//                    var guard = new Guard(this);
-//                    guard.setCurGrid(grid);
-//                    this.guards.push(guard);
-//                    grid.guard = guard;
-//                    batch.addChild(guard);
-//                }
+                if (grid.guard) {
+                    var guard = new Guard(this);
+                    guard.setCurGrid(grid);
+                    this.guards.push(guard);
+                    grid.guard = guard;
+                    batch.addChild(guard);
+                }
                 // money
                 if (grid.money) {
                     var money = new Money(this);

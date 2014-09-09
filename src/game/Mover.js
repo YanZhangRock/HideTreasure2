@@ -7,6 +7,7 @@ var Mover = cc.Sprite.extend({
     layer: null,
     nextDir: Def.LEFT,
     curDir: Def.LEFT,
+    realGrid: null,
     curGrid: null,
     nextGrid: null,
     oriGrid: null,
@@ -37,6 +38,7 @@ var Mover = cc.Sprite.extend({
 
     startMove: function() {
         if( this.state == Mover.STATE.MOVE ) return;
+        this.realGrid = Util.world2Grid( this.getPosition() );
         if( !this.canChangeDir( this.curGrid, this.curDir ) ) return;
         this.state = Mover.STATE.MOVE;
         this.updateNextGrid();
@@ -84,6 +86,7 @@ var Mover = cc.Sprite.extend({
         if( dist < Mover.ARRIVE_DIST && !this._isArrived ) {
             this._isArrived = true;
             this.onArriveNextGrid();
+            this.setPosition( Util.grid2World( this.curGrid ) );
             if( !this.layer.canPass( this.nextGrid ) ) {
                 this.stopMove();
             }
@@ -123,6 +126,30 @@ var Mover = cc.Sprite.extend({
         this.setPosition( Util.grid2World( grid ) );
     },
 
+    isJustPass: function() {
+        var g = Util.grid2World( this.getRealGrid() );
+        var p = this.getPosition();
+        var ret = false;
+        var isHoriz = false;
+        if( Math.abs(p.y- g.y) > Math.abs(p.x- g.x) ) {
+            isHoriz = true;
+        }
+        if( isHoriz ) {
+            if( this.curDir == Def.UP && p.y - g.y > 0 ) {
+                ret = true;
+            } else if( this.curDir == Def.DOWN && p.y - g.y < 0 ) {
+                ret = true;
+            }
+        } else {
+            if( this.curDir == Def.RIGHT && p.x - g.x > 0 ) {
+                ret = true;
+            } else if( this.curDir == Def.LEFT && p.x - g.x < 0 ) {
+                ret = true;
+            }
+        }
+        return ret;
+    },
+
     getRealGrid: function() {
         var p = Util.world2Grid( this.getPosition() );
         p.x = p.x > this.map.width-1 ? p.x - this.map.width : p.x;
@@ -143,13 +170,12 @@ var Mover = cc.Sprite.extend({
             this.storeNextDir( dir );
             return;
         }
-        if( this.canChangeDirNow( dir ) ) {
-            this.curDir = dir;
-            this.storeNextDir( dir );
-            this.nextGrid = this.curGrid;
-            this.updateSpeed();
-            this.startMove();
+        if( this.isTurnBack( dir ) ) {
+            this.turnBack();
         } else {
+            if( this.isJustPass() && this.canChangeDir( this.getRealGrid(), dir ) ) {
+                this.turnBack();
+            }
             this.storeNextDir( dir );
             if( this.state == Mover.STATE.IDLE && this.canChangeDir( this.curGrid, dir ) ) {
                 this.curDir = this.nextDir;
@@ -160,8 +186,8 @@ var Mover = cc.Sprite.extend({
 
     changeDirInstant: function( dir ) {
         if( !this.canChangeDir( this.getRealGrid(), dir ) ) {
-            return false;
-        }
+               return false;
+            }
         this.curDir = dir;
         this.storeNextDir( dir );
         this.nextGrid = this.curGrid;
@@ -174,11 +200,20 @@ var Mover = cc.Sprite.extend({
         this.nextDir = dir;
     },
 
-    canChangeDirNow: function( dir ) {
+    isTurnBack: function( dir ) {
         if( this.curDir == this.getOppositeDir( dir ) ) {
             return true;
         }
         return false;
+    },
+
+    turnBack: function() {
+        var dir = this.getOppositeDir( this.curDir );
+        this.curDir = dir;
+        this.storeNextDir( dir );
+        this.nextGrid = this.curGrid;
+        this.updateSpeed();
+        this.startMove();
     },
 
     canChangeDir: function( grid, dir ) {
@@ -274,3 +309,4 @@ Mover.STATE = {
     MOVE: 1,
     PAUSE: 2
 };
+Mover.PASS_THRESH = 5;

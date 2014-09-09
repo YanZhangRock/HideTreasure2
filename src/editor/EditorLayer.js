@@ -3,6 +3,7 @@
  */
 
 var EditorLayer = cc.Layer.extend({
+    scene: null,
     mapFileIO: null,
     mapPainter: null,
     objTile: null,
@@ -21,8 +22,9 @@ var EditorLayer = cc.Layer.extend({
     uid: 2001,
     midNew: 2002,
 
-    ctor: function ( uid, challenger ) {
+    ctor: function ( scene, uid, challenger ) {
         this._super();
+        this.scene = scene;
         this.uid = uid;
         this.challenger = challenger;
         // score label
@@ -79,7 +81,7 @@ var EditorLayer = cc.Layer.extend({
         );
         var menu = new cc.Menu( save );
         menu.x = g_size.width * 0.8;
-        menu.y = g_size.height * 0.07;
+        menu.y = g_size.height * 0.25;
         this.saveObjsMenu = menu;
         this.addChild( menu, EditorLayer.Z.UI );
     },
@@ -127,7 +129,7 @@ var EditorLayer = cc.Layer.extend({
             anchorX: 0.5,
             anchorY: 0.5,
             x: g_size.width * 0.55,
-            y: g_size.height * 0.07,
+            y: g_size.height * 0.25,
             scale: Def.GRID_SCALE
         });
         this.curTile.sprite = sprite;
@@ -141,6 +143,7 @@ var EditorLayer = cc.Layer.extend({
     },
 
     _createListener: function() {
+        var self = this;
         cc.eventManager.addListener({
             prevTouchId: -1,
             event: cc.EventListener.TOUCH_ALL_AT_ONCE,

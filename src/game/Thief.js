@@ -82,4 +82,4 @@ var Thief = Mover.extend({
     }
 });
 
-Thief.SPEED = [ 180, 220, 250 ];
+Thief.SPEED = [ 220, 180, 220, 250 ];

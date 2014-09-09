@@ -203,9 +203,9 @@ var Guard = Mover.extend({
 
 });
 
-Guard.PATROL_SPEED = [ 80, 120, 150 ];
-Guard.CHASE_SLOW = [ 120, 150, 180 ];
-Guard.CHASE_FAST = [ 150, 180, 210 ];
+Guard.PATROL_SPEED = [ 120, 80, 120, 150 ];
+Guard.CHASE_SLOW = [ 150, 120, 150, 180 ];
+Guard.CHASE_FAST = [ 180, 150, 180, 210 ];
 Guard.PATROL_DIST = 3;
 Guard.CHASE_DIST = 5;
 Guard.AI_STATE = {

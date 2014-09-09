@@ -17,7 +17,7 @@ var Mover = cc.Sprite.extend({
     speed: 0,
     arriveCallBack: null,
     updateCallBack: null,
-    lastCallBackTime: 0,
+    _isArrived: false,
 
     ctor: function( img, layer ) {
         this._super( img );
@@ -31,6 +31,7 @@ var Mover = cc.Sprite.extend({
         this.map = layer.map;
         this.layer = layer;
         this.state = Mover.STATE.IDLE;
+        this._isArrived = false;
         this.scheduleUpdate();
     },
 
@@ -72,10 +73,16 @@ var Mover = cc.Sprite.extend({
     processMove: function( dt ) {
         if( this.state != Mover.STATE.MOVE ) return;
         var p = this.getPosition();
-        var dist = Util.getManDist( p, Util.grid2World(this.nextGrid) );
-        this.lastCallBackTime += dt;
-        if( dist < Mover.ARRIVE_DIST && this.lastCallBackTime > 0.2 ) {
-            this.lastCallBackTime = 0;
+        var grid = this.nextGrid;
+        if( this._isArrived ) {
+            grid = this.curGrid;
+        }
+        var dist = Util.getManDist( p, Util.grid2World(grid) );
+        if( dist >= Mover.ARRIVE_DIST && this._isArrived ) {
+            this._isArrived = false;
+        }
+        if( dist < Mover.ARRIVE_DIST && !this._isArrived ) {
+            this._isArrived = true;
             var maybeStop = false;
             if( this.nextDir == this.curDir ) {
                 maybeStop = true;

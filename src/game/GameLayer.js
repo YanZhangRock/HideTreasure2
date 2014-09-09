@@ -109,7 +109,6 @@ var GameLayer = cc.Layer.extend({
                         dir = Def.LEFT;
                     }
                 }
-                //event.getCurrentTarget().onSwipe( dir );
                 self.onSwipe( dir );
             }
         }, this);
@@ -345,8 +344,10 @@ var GameLayer = cc.Layer.extend({
 
     toEditorLevel: function() {
         var scene = this.scene;
+        cc.eventManager.removeAllListeners();
         scene.removeChild( scene.layer );
-        scene.layer = new EditorLayer( this.uid, this.challenger );
+        scene.layer = new EditorLayer( scene, this.uid, this.challenger );
+        //scene.layer = new GameLayer( scene, this.uid, this.challenger );
         scene.addChild( scene.layer );
     },
 
@@ -386,7 +387,6 @@ var GameLayer = cc.Layer.extend({
         if( this.lv >= GameLayer.MAX_LV-1 ) return;
         this.lvTime = 0;
         this.lv++;
-        cc.log("nextLv~~~"+this.lv);
         this.thief.changeLv( this.lv );
         for( var i in this.guards ) {
             this.guards[i].changeLv( this.lv );
@@ -649,5 +649,5 @@ GameLayer.TIMEUP = 600;
 GameLayer.TIMEUP_INTERVAL = 1;
 GameLayer.SWIPE_DIST = 5;
 GameLayer.LV_TIME = [ 8, 10 ];
-GameLayer.MAX_LV = 3;
+GameLayer.MAX_LV = 1;
 GameLayer.LIFE = 3;

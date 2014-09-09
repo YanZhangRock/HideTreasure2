@@ -25,7 +25,6 @@ cc.game.onStart = function(){
 //        // 隐藏按钮，对应的展示参数是：showOptionMenu
 //        WeixinJSBridge.call('hideOptionMenu');
 //    });
-
     cc.view.adjustViewPort(true);
     cc.view.setDesignResolutionSize(940, 1600, cc.ResolutionPolicy.SHOW_ALL);
     cc.view.resizeWithBrowserSize(true);

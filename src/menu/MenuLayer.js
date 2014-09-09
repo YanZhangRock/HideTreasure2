@@ -28,6 +28,8 @@ var MenuLayer = cc.Layer.extend({
         this._initStartMenu();
         this._initShareMenu();
         //this._askChallengerName();
+        // test
+        this.startGame();
     },
 
     _askChallengerName: function() {

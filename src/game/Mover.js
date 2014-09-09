@@ -83,12 +83,8 @@ var Mover = cc.Sprite.extend({
         }
         if( dist < Mover.ARRIVE_DIST && !this._isArrived ) {
             this._isArrived = true;
-            var maybeStop = false;
-            if( this.nextDir == this.curDir ) {
-                maybeStop = true;
-            }
             this.onArriveNextGrid();
-            if( !this.layer.canPass( this.nextGrid ) && maybeStop ) {
+            if( !this.layer.canPass( this.nextGrid ) ) {
                 this.stopMove();
             }
             if( this.arriveCallBack ) {

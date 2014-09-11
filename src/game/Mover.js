@@ -19,6 +19,7 @@ var Mover = cc.Sprite.extend({
     arriveCallBack: null,
     updateCallBack: null,
     _isArrived: false,
+    _isLockJustPass: false,
 
     ctor: function( img, layer ) {
         this._super( img );
@@ -34,6 +35,14 @@ var Mover = cc.Sprite.extend({
         this.state = Mover.STATE.IDLE;
         this._isArrived = false;
         this.scheduleUpdate();
+    },
+
+    highLight: function( t1, t2 ) {
+        var oriScale = this.getScale();
+        this.runAction(cc.sequence(
+            cc.scaleTo( t1, 3*oriScale ),
+            cc.scaleTo( t2, oriScale )
+        ));
     },
 
     startMove: function() {
@@ -126,7 +135,15 @@ var Mover = cc.Sprite.extend({
         this.setPosition( Util.grid2World( grid ) );
     },
 
+    lockJustPass: function( time ) {
+        this._isLockJustPass = true;
+        this.schedule( function(){
+            this._isLockJustPass = false;
+        }, time, 0 );
+    },
+
     isJustPass: function() {
+        if( this._isLockJustPass ) return false;
         var g = Util.grid2World( this.getRealGrid() );
         var p = this.getPosition();
         var ret = false;
@@ -173,7 +190,10 @@ var Mover = cc.Sprite.extend({
         if( this.isTurnBack( dir ) ) {
             this.turnBack();
         } else {
-            if( this.isJustPass() && this.canChangeDir( this.getRealGrid(), dir ) ) {
+            if( this.isJustPass() &&
+                this.canChangeDir( this.getRealGrid(), dir ) &&
+                this.curDir != dir ) {
+                this.lockJustPass( 0.1 );
                 this.turnBack();
             }
             this.storeNextDir( dir );

@@ -31,6 +31,7 @@ var GameLayer = cc.Layer.extend({
     arrowOutlines: null,
     lv: 0,
     lvTime: 0,
+    secretFrag: "",
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -51,6 +52,7 @@ var GameLayer = cc.Layer.extend({
         this._initLabels();
         //this._initCtrlPad();
         this._registerInputs();
+        this._splitSecret( this.map.secret );
         this.startGame();
     },
 
@@ -205,6 +207,62 @@ var GameLayer = cc.Layer.extend({
         }
     },
 
+    _splitSecret: function( str ) {
+        var len = Math.floor( str.length / 3 );
+        this.secretFrag = str.substring( 0, len );
+    },
+
+    showSecretFrag: function( isShow ) {
+        if( isShow ) {
+            var str = "你发现了"+this.map.owner+"秘密的部分残卷：\n\n\""+this.secretFrag+"\"";
+            this.resultLabel.setString( str );
+            this.resultLabel.x = g_size.width * 0.72;
+            this.resultLabel.y = g_size.height * 0.60;
+            this.pauseGame();
+            this.schedule( function() { this.showSecretFrag( false ) }, 4, 0 );
+        } else {
+            this.resultLabel.x = g_size.width * 100;
+            this.resultLabel.y = g_size.height * 100;
+            this.runGame();
+        }
+    },
+
+    onGetFakeMoney: function( money ) {
+        var pauseTime = 2;
+        var guard = money.guard;
+        this.pauseGame();
+        this.showFakeTreasureMsg( true );
+        this.schedule(
+            function() {
+                this.showFakeTreasureMsg( false );
+                guard.setVisible( true );
+                var t1 = 0.5, t2 = 1
+                var animTime = t1+t2;
+                var waitTime = 1.6;
+                guard.highLight( t1, t2 );
+                this.schedule( this.runGame, animTime, 0 );
+                this.schedule(
+                    function(){
+                        guard.isHide = false;
+                        guard.init();
+                    },
+                    animTime+waitTime, 0 );
+            },
+            pauseTime, 0 );
+    },
+
+    showFakeTreasureMsg: function( isShow ) {
+        if( isShow ) {
+            var str = "糟糕，中了"+this.map.owner+"设下的圈套...";
+            this.resultLabel.setString( str );
+            this.resultLabel.x = g_size.width * 0.72;
+            this.resultLabel.y = g_size.height * 0.60;
+        } else {
+            this.resultLabel.x = g_size.width * 100;
+            this.resultLabel.y = g_size.height * 100;
+        }
+    },
+
     showResult: function( isShow, isWin ) {
         if( isShow ) {
             this.restartMenu.x = g_size.width * 0.52;
@@ -250,9 +308,11 @@ var GameLayer = cc.Layer.extend({
     prepareRunGame: function() {
         var t1 = 0.5, t2 = 1.0, t3 = 1.2;
         for( var i in this.traps ) {
-            //this.traps[i].highLight( t1, t2, t3 );
+            this.traps[i].highLight( t1, t2, t3 );
         }
-        this.schedule( this.runGame, t1+t2+t3, 0 );
+        this.schedule( function(){
+            this.state = GameLayer.STATE.PREPARE;
+        }, t1+t2+t3, 0 );
     },
 
     runGame: function() {
@@ -261,11 +321,12 @@ var GameLayer = cc.Layer.extend({
         for( var i in this.guards ) {
             var guard = this.guards[i];
             if( guard.isHide ) {
-                guard.setVisible( false );
+                //guard.setVisible( false );
             } else {
                 guard.init();
             }
         }
+        this.thief.startMove();
         // test
         //this.endGame( true );
     },
@@ -274,7 +335,7 @@ var GameLayer = cc.Layer.extend({
         //this.loadMap();
         //this.initMap();
         this.drawMap();
-        this.createGolds();
+        //this.createGolds();
         this.createObjs();
         this.initParams();
         this.prepareRunGame();
@@ -284,7 +345,7 @@ var GameLayer = cc.Layer.extend({
         this.clearObjs();
         this.map.unserializeMap();
         this.map.unserializeObjs();
-        this.createGolds();
+        //this.createGolds();
         this.createObjs();
         this.initParams();
         this.prepareRunGame();
@@ -325,7 +386,6 @@ var GameLayer = cc.Layer.extend({
             this.guards[i].stopAI();
         }
         this.unschedule( this.checkTimeup );
-        this.showReborn( true );
     },
 
     endGame: function( isWin ) {
@@ -336,7 +396,7 @@ var GameLayer = cc.Layer.extend({
             this.guards[i].unscheduleUpdate();
         }
         if( isWin ) {
-            var str = this.map.owner+"想对你说：\n"+this.map.secret;
+            var str = "原来"+this.map.owner+"的秘密是：\n\n\""+this.map.secret+"\"";
             this.resultLabel.setString( str );
         } else {
             this.resultLabel.setString( "你被"+this.map.owner+"无情的踩死了T_T" );
@@ -461,6 +521,7 @@ var GameLayer = cc.Layer.extend({
                     var guard = new Guard(this);
                     if( grid.money ) {
                         guard.isHide = true;
+                        guard.setVisible( false );
                     }
                     guard.setCurGrid(grid);
                     this.guards.push(guard);
@@ -473,13 +534,14 @@ var GameLayer = cc.Layer.extend({
                     if( grid.guard ) {
                         money.isFake = true;
                         money.guard = grid.guard;
+                    } else {
+                        this.maxMoney++;
                     }
                     grid.money = money;
                     money.setGrid(grid);
                     this.moneys.push(money);
                     //money.setVisible( false );
                     batch.addChild(money);
-                    this.maxMoney++;
                 }
                 // trap
                 if (grid.trap) {
@@ -597,27 +659,40 @@ var GameLayer = cc.Layer.extend({
     },
 
     onKeyPressed: function( key, event ) {
-        if( this.state != GameLayer.STATE.GAME ) return;
+        var dir;
         if( key == cc.KEY.w || key == cc.KEY.up ) {
-            this.thief.changeDir( Def.UP );
+            dir = Def.UP;
         } else if( key == cc.KEY.a || key == cc.KEY.left ) {
-            this.thief.changeDir( Def.LEFT );
+            dir = Def.LEFT;
         } else if( key == cc.KEY.d || key == cc.KEY.right ) {
-            this.thief.changeDir( Def.RIGHT );
+            dir = Def.RIGHT;
         } else if( key == cc.KEY.s || key == cc.KEY.down ) {
-            this.thief.changeDir( Def.DOWN );
+            dir = Def.DOWN;
+        }
+        if( this.state == GameLayer.STATE.GAME ) {
+            this.thief.changeDir( dir );
+        } else if ( this.state == GameLayer.STATE.PREPARE ) {
+            this.thief.changeDir( dir );
+            this.runGame();
         }
     },
 
     onSwipe: function( dir ) {
-        if( this.state != GameLayer.STATE.GAME ) return;
-        this.thief.changeDir( dir );
+        if( this.state == GameLayer.STATE.GAME ) {
+            this.thief.changeDir( dir );
+        } else if ( this.state == GameLayer.STATE.PREPARE ) {
+            this.thief.changeDir( dir );
+            this.runGame();
+        }
     },
 
     onClickArrowBtn: function( dir ) {
-        //cc.log(dir);
-        if( this.state != GameLayer.STATE.GAME ) return;
-        this.thief.changeDir( dir );
+        if( this.state == GameLayer.STATE.GAME ) {
+            this.thief.changeDir( dir );
+        } else if ( this.state == GameLayer.STATE.PREPARE ) {
+            this.thief.changeDir( dir );
+            this.runGame();
+        }
     }
 });
 
@@ -638,7 +713,7 @@ GameLayer.TILE2TYPE = {
 };
 
 GameLayer.STATE = {
-    GAME: 0, END: 1
+    GAME: 0, END: 1, PREPARE: 2
 };
 
 GameLayer.TIMEUP = 600;

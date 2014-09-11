@@ -70,7 +70,8 @@ var Thief = Mover.extend({
         if( this.life <=0 ) {
             this.endGame( false );
         } else {
-            this.pauseGame();
+            this.layer.pauseGame();
+            this.layer.showReborn( true );
         }
     },
 
@@ -79,17 +80,20 @@ var Thief = Mover.extend({
         money.onSteal( this );
         Util.arrayRemove( this.moneys, money );
         if( money.isFake ) {
-            this.schedule( function(){
-                money.guard.setVisible( true );
-                money.guard.init();
-            }, 1 );
+//            this.schedule( function(){
+//                money.guard.isHide = false;
+//                money.guard.setVisible( true );
+//                money.guard.init();
+//            }, 1, 0 );
+            this.layer.onGetFakeMoney( money );
         } else {
-            this.layer.endGame( true );
+            this.moneyNum++;
+            if( this.moneyNum >= this.layer.maxMoney ) {
+                this.layer.endGame( true );
+            } else {
+                this.layer.showSecretFrag( true );
+            }
         }
-//        this.moneyNum++;
-//        if( this.moneyNum >= this.layer.maxMoney ) {
-//            this.layer.endGame( true );
-//        }
     },
 
     setLife: function( life ) {

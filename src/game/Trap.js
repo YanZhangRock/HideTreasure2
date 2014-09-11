@@ -24,8 +24,8 @@ var Trap = Item.extend({
         var self = this
         this.runAction(cc.sequence(
             cc.scaleTo( t1, 3*oriScale ),
-            cc.scaleTo( t2, oriScale ),
-            cc.fadeOut( t3 )
+            cc.scaleTo( t2, oriScale )
+            //cc.fadeOut( t3 )
             ));
     },
 

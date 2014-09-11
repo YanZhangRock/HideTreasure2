@@ -31,7 +31,6 @@ var GameLayer = cc.Layer.extend({
     arrowOutlines: null,
     lv: 0,
     lvTime: 0,
-    life: 0,
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -251,7 +250,7 @@ var GameLayer = cc.Layer.extend({
     prepareRunGame: function() {
         var t1 = 0.5, t2 = 1.0, t3 = 1.2;
         for( var i in this.traps ) {
-            this.traps[i].highLight( t1, t2, t3 );
+            //this.traps[i].highLight( t1, t2, t3 );
         }
         this.schedule( this.runGame, t1+t2+t3, 0 );
     },
@@ -260,7 +259,12 @@ var GameLayer = cc.Layer.extend({
         this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
         this.state = GameLayer.STATE.GAME;
         for( var i in this.guards ) {
-            this.guards[i].init();
+            var guard = this.guards[i];
+            if( guard.isHide ) {
+                guard.setVisible( false );
+            } else {
+                guard.init();
+            }
         }
         // test
         //this.endGame( true );
@@ -308,7 +312,7 @@ var GameLayer = cc.Layer.extend({
     initParams: function() {
         this.lv = 0;
         this.lvTime = 0;
-        this.setLife( GameLayer.LIFE );
+        this.thief.setLife( Thief.LIFE );
         this.showResult( false );
         this.showReborn( false );
         this.setRestTime( GameLayer.TIMEUP );
@@ -351,24 +355,9 @@ var GameLayer = cc.Layer.extend({
         scene.addChild( scene.layer );
     },
 
-    onCaught: function() {
-        if( this.state == GameLayer.STATE.END ) return;
-        this.setLife( --this.life )
-        if( this.life <=0 ) {
-            this.endGame( false );
-        } else {
-            this.pauseGame();
-        }
-    },
-
     setRestTime: function( time ) {
         this.restTime = time;
         this.timerLabel.setString( "剩余时间："+this.restTime );
-    },
-
-    setLife: function( life ) {
-        this.life = life;
-        this.lifeLabel.setString( "生命："+this.life );
     },
 
     checkTimeup: function() {
@@ -470,6 +459,9 @@ var GameLayer = cc.Layer.extend({
                 // guards
                 if (grid.guard) {
                     var guard = new Guard(this);
+                    if( grid.money ) {
+                        guard.isHide = true;
+                    }
                     guard.setCurGrid(grid);
                     this.guards.push(guard);
                     grid.guard = guard;
@@ -478,10 +470,14 @@ var GameLayer = cc.Layer.extend({
                 // money
                 if (grid.money) {
                     var money = new Money(this);
+                    if( grid.guard ) {
+                        money.isFake = true;
+                        money.guard = grid.guard;
+                    }
                     grid.money = money;
                     money.setGrid(grid);
                     this.moneys.push(money);
-                    money.setVisible( false );
+                    //money.setVisible( false );
                     batch.addChild(money);
                     this.maxMoney++;
                 }
@@ -650,4 +646,3 @@ GameLayer.TIMEUP_INTERVAL = 1;
 GameLayer.SWIPE_DIST = 5;
 GameLayer.LV_TIME = [ 8, 10 ];
 GameLayer.MAX_LV = 1;
-GameLayer.LIFE = 3;

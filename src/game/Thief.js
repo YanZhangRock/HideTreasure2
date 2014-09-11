@@ -9,6 +9,7 @@ var Thief = Mover.extend({
     traps: [],
     moneyNum: 0,
     score: 0,
+    life: 0,
 
     ctor: function( layer ) {
         this._super("#thief.png", layer);
@@ -41,7 +42,7 @@ var Thief = Mover.extend({
         for( var i in this.guards ) {
             var guard = this.guards[i];
             if( this.isCollide( guard ) ) {
-                this.layer.onCaught();
+                this.onCaught( guard );
             }
         }
         if( this.nextGrid && this.nextGrid.gold ) {
@@ -62,14 +63,38 @@ var Thief = Mover.extend({
         return cc.rectIntersectsRect(aRect, bRect);
     },
 
+    onCaught: function( guard ) {
+        if( this.layer.state == GameLayer.STATE.END ) return;
+        if( guard.isHide ) return;
+        this.setLife( --this.life )
+        if( this.life <=0 ) {
+            this.endGame( false );
+        } else {
+            this.pauseGame();
+        }
+    },
+
     onGetMoney: function( money ) {
         if( !money.isVisible() ) return;
         money.onSteal( this );
-        this.moneyNum++;
         Util.arrayRemove( this.moneys, money );
-        if( this.moneyNum >= this.layer.maxMoney ) {
+        if( money.isFake ) {
+            this.schedule( function(){
+                money.guard.setVisible( true );
+                money.guard.init();
+            }, 1 );
+        } else {
             this.layer.endGame( true );
         }
+//        this.moneyNum++;
+//        if( this.moneyNum >= this.layer.maxMoney ) {
+//            this.layer.endGame( true );
+//        }
+    },
+
+    setLife: function( life ) {
+        this.life = life;
+        this.layer.lifeLabel.setString( "生命："+this.life );
     },
 
     addScore: function( score ) {
@@ -83,3 +108,4 @@ var Thief = Mover.extend({
 });
 
 Thief.SPEED = [ 220, 180, 220, 250 ];
+Thief.LIFE = 3;

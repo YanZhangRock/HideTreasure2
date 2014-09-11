@@ -6,6 +6,7 @@ var Guard = Mover.extend({
     aiState: null,
     thief: null,
     speedType: null,
+    isHide: false,
     lv: 0,
 
     ctor: function( layer ) {

@@ -7,15 +7,18 @@ var Thief = Mover.extend({
     guards: [],
     moneys: [],
     traps: [],
+    keys: [],
     moneyNum: 0,
     score: 0,
     life: 0,
+    keyNum: 0,
 
     ctor: function( layer ) {
         this._super("#thief.png", layer);
         this.speed = Thief.SPEED[0];
         this.arriveCallBack = this.onArriveGrid;
         this.updateCallBack = this.onUpdate;
+        this.keyNum = 0;
         this.addScore( -this.score );
     },
 
@@ -30,13 +33,22 @@ var Thief = Mover.extend({
         if( this.curGrid.trap ) {
             this.curGrid.trap.onCatch( this );
         }
+        if( this.curGrid.money ) {
+            this.onGetMoney( this.curGrid.money );
+        }
     },
 
     processCollide: function() {
-        for( var i in this.moneys ) {
-            var money = this.moneys[i];
-            if( this.isCollide( money ) ) {
-                this.onGetMoney( money );
+//        for( var i in this.moneys ) {
+//            var money = this.moneys[i];
+//            if( this.isCollide( money ) ) {
+//                this.onGetMoney( money );
+//            }
+//        }
+        for( var i in this.keys ) {
+            var key = this.keys[i];
+            if( this.isCollide( key ) ) {
+                key.onCatch( this );
             }
         }
         for( var i in this.guards ) {
@@ -77,14 +89,14 @@ var Thief = Mover.extend({
 
     onGetMoney: function( money ) {
         if( !money.isVisible() ) return;
+        if( this.keyNum <= 0 ) {
+            this.layer.showNeedKey( true );
+            return;
+        }
         money.onSteal( this );
+        this.keyNum--;
         Util.arrayRemove( this.moneys, money );
         if( money.isFake ) {
-//            this.schedule( function(){
-//                money.guard.isHide = false;
-//                money.guard.setVisible( true );
-//                money.guard.init();
-//            }, 1, 0 );
             this.layer.onGetFakeMoney( money );
         } else {
             this.moneyNum++;

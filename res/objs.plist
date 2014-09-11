@@ -7,65 +7,78 @@
             <key>guard.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{28,68},{34,52}}</string>
+                <string>{{68,64},{34,52}}</string>
                 <key>offset</key>
-                <string>{-1,0}</string>
+                <string>{-3,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{14,6},{34,52}}</string>
+                <string>{{12,6},{34,52}}</string>
+                <key>sourceSize</key>
+                <string>{64,64}</string>
+            </dict>
+            <key>key.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{2,2},{62,62}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{1,1},{62,62}}</string>
                 <key>sourceSize</key>
                 <string>{64,64}</string>
             </dict>
             <key>money.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,2},{62,64}}</string>
+                <string>{{2,66},{64,50}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{62,64}}</string>
+                <string>{{0,7},{64,50}}</string>
                 <key>sourceSize</key>
                 <string>{64,64}</string>
             </dict>
             <key>thief.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,68},{24,56}}</string>
+                <string>{{132,2},{24,56}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{1,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{20,4},{24,56}}</string>
+                <string>{{21,4},{24,56}}</string>
                 <key>sourceSize</key>
                 <string>{64,64}</string>
             </dict>
             <key>trap.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{64,68},{48,44}}</string>
+                <string>{{104,64},{48,44}}</string>
                 <key>offset</key>
-                <string>{1,-2}</string>
+                <string>{1,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{9,12},{48,44}}</string>
+                <string>{{9,11},{48,44}}</string>
                 <key>sourceSize</key>
                 <string>{64,64}</string>
             </dict>
             <key>trap2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{66,2},{64,58}}</string>
+                <string>{{66,2},{64,60}}</string>
                 <key>offset</key>
-                <string>{0,-3}</string>
+                <string>{0,-2}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,6},{64,58}}</string>
+                <string>{{0,4},{64,60}}</string>
                 <key>sourceSize</key>
                 <string>{64,64}</string>
             </dict>
@@ -77,9 +90,9 @@
             <key>realTextureFileName</key>
             <string>objs.png</string>
             <key>size</key>
-            <string>{126,126}</string>
+            <string>{158,118}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:732874f18bdbf4a88fd3c5c0f211e3fa:02fa9bed0d2f7c34764fc4e6ba674133:bcfd32cb368a9372767ecbd152a46c40$</string>
+            <string>$TexturePacker:SmartUpdate:003ecbfd0d65bb1a23c56ccf9f67d4fe:8f88bd788776472c55490880f51f35ea:bcfd32cb368a9372767ecbd152a46c40$</string>
             <key>textureFileName</key>
             <string>objs.png</string>
         </dict>

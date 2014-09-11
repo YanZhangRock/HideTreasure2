@@ -5,6 +5,7 @@ var res = {
     Objs_plist: "res/objs.plist",
     Grey : "res/grey.png",
     Share : "res/share.png",
+    Key : "res/key.png",
     Arrow1: "res/arrow1.png",
     Arrow2: "res/arrow2.png",
     Arrow3: "res/arrow3.png"

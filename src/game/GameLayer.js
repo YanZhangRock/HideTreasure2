@@ -14,6 +14,7 @@ var GameLayer = cc.Layer.extend({
     moneys: [],
     traps: [],
     golds: [],
+    keys: [],
     state: null,
     restartMenu: null,
     rebornMenu: null,
@@ -120,13 +121,13 @@ var GameLayer = cc.Layer.extend({
         var label = new cc.LabelTTF("剩余时间：", "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.85;
-        label.y = g_size.height * 0.25;
+        label.y = g_size.height * 0.12;
         this.addChild( label, GameLayer.Z.UI );
         // life label
         var label = new cc.LabelTTF("生命：", "Arial", 40);
         this.lifeLabel = label;
         label.x = g_size.width * 0.50;
-        label.y = g_size.height * 0.25;
+        label.y = g_size.height * 0.12;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
         var label = new cc.LabelTTF("再玩一次", "Arial", 80);
@@ -214,12 +215,29 @@ var GameLayer = cc.Layer.extend({
 
     showSecretFrag: function( isShow ) {
         if( isShow ) {
+            var showTime = 3;
             var str = "你发现了"+this.map.owner+"秘密的部分残卷：\n\n\""+this.secretFrag+"\"";
             this.resultLabel.setString( str );
             this.resultLabel.x = g_size.width * 0.72;
             this.resultLabel.y = g_size.height * 0.60;
             this.pauseGame();
-            this.schedule( function() { this.showSecretFrag( false ) }, 4, 0 );
+            this.schedule( function() { this.showSecretFrag( false ) }, showTime, 0 );
+        } else {
+            this.resultLabel.x = g_size.width * 100;
+            this.resultLabel.y = g_size.height * 100;
+            this.runGame();
+        }
+    },
+
+    showNeedKey: function( isShow ) {
+        if( isShow ) {
+            var showTime = 2;
+            var str = "你需要有钥匙才能打开宝箱";
+            this.resultLabel.setString( str );
+            this.resultLabel.x = g_size.width * 0.72;
+            this.resultLabel.y = g_size.height * 0.60;
+            this.pauseGame();
+            this.schedule( function() { this.showNeedKey( false ) }, showTime, 0 );
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
@@ -228,7 +246,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     onGetFakeMoney: function( money ) {
-        var pauseTime = 2;
+        var pauseTime = 1.6;
         var guard = money.guard;
         this.pauseGame();
         this.showFakeTreasureMsg( true );
@@ -240,11 +258,14 @@ var GameLayer = cc.Layer.extend({
                 var animTime = t1+t2;
                 var waitTime = 1.6;
                 guard.highLight( t1, t2 );
-                this.schedule( this.runGame, animTime, 0 );
+                this.schedule(
+                    function(){
+                        this.runGame();
+                        guard.init();
+                    }, animTime, 0 );
                 this.schedule(
                     function(){
                         guard.isHide = false;
-                        guard.init();
                     },
                     animTime+waitTime, 0 );
             },
@@ -544,22 +565,30 @@ var GameLayer = cc.Layer.extend({
                     batch.addChild(money);
                 }
                 // trap
-                if (grid.trap) {
-                    var trap = new Trap( this );
-                    grid.trap = trap;
-                    trap.setGrid( grid );
-                    this.traps.push( trap );
-                    batch.addChild( trap );
+//                if (grid.trap) {
+//                    var trap = new Trap( this );
+//                    grid.trap = trap;
+//                    trap.setGrid( grid );
+//                    this.traps.push( trap );
+//                    batch.addChild( trap );
+//                }
+                // key
+                if (grid.key) {
+                    var key = new Key( this );
+                    grid.key = key;
+                    key.setGrid( grid );
+                    this.keys.push( key );
+                    batch.addChild( key );
                 }
             }
         }
         for( var i in this.guards ) {
             this.guards[i].thief = this.thief;
-            //this.guards[i].startPatrol();
         }
         this.thief.moneys = this.moneys;
         this.thief.guards = this.guards;
         this.thief.traps = this.traps;
+        this.thief.keys = this.keys;
     },
 
     getOffsetGrid: function( grid, offset ) {

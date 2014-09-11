@@ -30,6 +30,7 @@
         "src/game/Item.js",
         "src/game/Money.js",
         "src/game/Trap.js",
+        "src/game/Key.js",
         "src/game/Gold.js"
     ]
 }

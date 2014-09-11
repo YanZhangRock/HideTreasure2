@@ -100,7 +100,8 @@ var MapData = cc.Class.extend({
         if( rawData["trapPos"] ) {
             for( var i in rawData["trapPos"] ){
                 var d = rawData["trapPos"][i];
-                grids[d.x][d.y].trap = true;
+                //grids[d.x][d.y].trap = true;
+                grids[d.x][d.y].key = true;
             }
         }
         if( rawData["moneyPos"] ) {

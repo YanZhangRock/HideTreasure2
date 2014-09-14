@@ -24,6 +24,8 @@ Def.OBJ2IMG = {
     "MONEY": "money.png",
     "TRAP": "trap.png"
 };
+Def.CHN = 1;
+Def.ENG = 2;
 Def.SHOW_ANIM = true;
-Def.USE_MENU = false;
+Def.USE_MENU = true;
 Def.ASK_NAME = false;

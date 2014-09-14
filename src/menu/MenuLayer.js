@@ -2,6 +2,9 @@
  * Created by Rock on 9/5/14.
  */
 
+g_language = Def.ENG;
+//g_language = Def.CHN;
+
 var MenuLayer = cc.Layer.extend({
     scene: null,
     titleLabel: null,
@@ -12,6 +15,7 @@ var MenuLayer = cc.Layer.extend({
     challenger: "SB",
     textField: null,
     hasName: false,
+    txtCfg: null,
 
     ctor: function ( scene ) {
         this._super();
@@ -19,6 +23,7 @@ var MenuLayer = cc.Layer.extend({
         document.title = MenuLayer.TITLE;
         //this._initTitleLabel();
         this._loadUserID();
+        this._chooseLanguage();
         this._loadOwner();
     },
 
@@ -37,10 +42,14 @@ var MenuLayer = cc.Layer.extend({
         }
     },
 
+    _chooseLanguage: function() {
+        this.txtCfg = g_language == Def.CHN ? MenuLayer.CHN : MenuLayer.ENG;
+    },
+
     _askChallengerName: function() {
         var self = this;
         var msg = Util.createTextField(
-            "请问施主如何称呼：",
+            this.txtCfg.name,
             function(){ self._onGetChallengerName(this); }
         );
         this.addChild( msg, MenuLayer.Z.FIELD );
@@ -59,7 +68,7 @@ var MenuLayer = cc.Layer.extend({
     },
 
     _initTitleLabel: function() {
-        var label = new cc.LabelTTF(this.owner+"的秘密", "Arial", 80);
+        var label = new cc.LabelTTF(this.owner+this.txtCfg.title1, "Arial", 80);
         label.x = g_size.width * 0.5;
         label.y = g_size.height * 0.8;
         this.titleLabel = label;
@@ -70,7 +79,7 @@ var MenuLayer = cc.Layer.extend({
         if( this.startMenu ) {
             this.removeChild( this.startMenu );
         }
-        var label = new cc.LabelTTF("一探究竟", "Arial", 70);
+        var label = new cc.LabelTTF(this.txtCfg.title2, "Arial", 70);
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
@@ -94,7 +103,7 @@ var MenuLayer = cc.Layer.extend({
     },
 
     _initShareMenu: function() {
-        var label = new cc.LabelTTF("分享到微信", "Arial", 60);
+        var label = new cc.LabelTTF(this.txtCfg.title3, "Arial", 60);
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
@@ -121,7 +130,7 @@ var MenuLayer = cc.Layer.extend({
     },
 
     getShareResultStr: function() {
-        var str = "我" + this.owner + "在神秘森林埋下了一个秘密，你们有本事抢过来看看吗？！";
+        var str = this.txtCfg.share1 + this.owner + this.txtCfg.share2;
         return str;
     },
 
@@ -165,6 +174,9 @@ var MenuLayer = cc.Layer.extend({
                 theRequest[strs[i].split("=")[0]]=decodeURI(strs[i].split("=")[1]);
             }
             this.uid = theRequest["uid"];
+            if( theRequest["lan"] ) {
+                g_language = theRequest["lan"] == "e" ? Def.ENG : Def.CHN;
+            }
         }
     },
 
@@ -199,3 +211,19 @@ MenuLayer.Z = {
 };
 
 MenuLayer.TITLE = "Fortune Whisper";
+MenuLayer.ENG = {
+    title1: "'s secret",
+    title2: "find out",
+    title3: "share to WeChat",
+    name: "May I have your name:",
+    share1: "I ",
+    share2: " hide my secret in the mysterious forest. Can you find it?"
+};
+MenuLayer.CHN = {
+    title1: "的秘密",
+    title2: "一探究竟",
+    title3: "分享到微信",
+    name: "来者报上大名：",
+    share1: "我",
+    share2: "在神秘森林埋下了一个秘密，你们有本事抢过来看看吗？！"
+};

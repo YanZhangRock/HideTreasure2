@@ -2,9 +2,6 @@
  * Created by Rock on 9/5/14.
  */
 
-g_language = Def.ENG;
-//g_language = Def.CHN;
-
 var MenuLayer = cc.Layer.extend({
     scene: null,
     titleLabel: null,

@@ -111,7 +111,7 @@ var Thief = Mover.extend({
 
     setLife: function( life ) {
         this.life = life;
-        this.layer.lifeLabel.setString( "生命："+this.life );
+        this.layer.lifeLabel.setString( this.layer.txtCfg.life+this.life );
     },
 
     addScore: function( score ) {

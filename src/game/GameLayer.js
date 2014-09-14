@@ -35,6 +35,7 @@ var GameLayer = cc.Layer.extend({
     secretFrag: "",
     isFirstNeedKey: true,
     openAnim: null,
+    txtCfg: null,
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -42,6 +43,7 @@ var GameLayer = cc.Layer.extend({
         this.uid = uid;
         this.challenger = challenger;
         this.state = GameLayer.STATE.END;
+        this._chooseLanguage();
         this._initMapData();
         this._initObjIO();
     },
@@ -57,6 +59,10 @@ var GameLayer = cc.Layer.extend({
         this._registerInputs();
         this._splitSecret( this.map.secret );
         this.startGame();
+    },
+
+    _chooseLanguage: function() {
+        this.txtCfg = g_language == Def.CHN ? GameLayer.CHN : GameLayer.ENG;
     },
 
     _initMapData: function() {
@@ -120,40 +126,41 @@ var GameLayer = cc.Layer.extend({
 
     _initLabels: function() {
         // timer label
-        var label = new cc.LabelTTF("剩余时间：", "Arial", 40);
+        var label = new cc.LabelTTF(this.txtCfg.timer, "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.85;
         label.y = g_size.height * 0.12;
         this.addChild( label, GameLayer.Z.UI );
         // life label
-        var label = new cc.LabelTTF("生命：", "Arial", 40);
+        var label = new cc.LabelTTF(this.txtCfg.life, "Arial", 40);
         this.lifeLabel = label;
         label.x = g_size.width * 0.50;
         label.y = g_size.height * 0.12;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
-        var label = new cc.LabelTTF("再玩一次", "Arial", 80);
+        var label = new cc.LabelTTF(this.txtCfg.replay, "Arial", 80);
         var self = this;
         var restart = new cc.MenuItemLabel( label, function(){ self.restartGame(); } );
         var menu = new cc.Menu(restart);
         this.restartMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
         // reborn label
-        var label = new cc.LabelTTF("继续挑战", "Arial", 80);
+        var label = new cc.LabelTTF(this.txtCfg.reborn, "Arial", 80);
         var self = this;
         var reborn = new cc.MenuItemLabel( label, function(){ self.reborn(); } );
         var menu = new cc.Menu(reborn);
         this.rebornMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
         // editor label
-        var label = new cc.LabelTTF("我也要留一个秘密！", "Arial", 80);
+        var label = new cc.LabelTTF(this.txtCfg.share, "Arial", 80);
         var self = this;
         var editor = new cc.MenuItemLabel( label, function(){ self.toEditorLevel(); } );
         var menu = new cc.Menu(editor);
         this.editorMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
         // result label
-        var label = new cc.LabelTTF("你赢了！", "Arial", 58, cc.size(1200,200), cc.TEXT_ALIGNMENT_LEFT);
+        var label = new cc.LabelTTF(this.txtCfg.win1, "Arial", 58,
+            cc.size(1200,800), cc.TEXT_ALIGNMENT_LEFT, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         this.resultLabel = label;
         this.addChild( label, GameLayer.Z.UI );
     },
@@ -218,7 +225,7 @@ var GameLayer = cc.Layer.extend({
     showSecretFrag: function( isShow ) {
         if( isShow ) {
             var showTime = 3;
-            var str = "你发现了"+this.map.owner+"秘密的部分残卷：\n\n\""+this.secretFrag+"\"";
+            var str = this.txtCfg.frag1+this.map.owner+this.txtCfg.frag2+"\n\n\""+this.secretFrag+"\"";
             this.resultLabel.setString( str );
             this.resultLabel.x = g_size.width * 0.72;
             this.resultLabel.y = g_size.height * 0.60;
@@ -238,7 +245,7 @@ var GameLayer = cc.Layer.extend({
                 showTime = 2;
                 this.isFirstNeedKey = false;
             }
-            var str = "你需要有钥匙才能打开宝箱";
+            var str = this.txtCfg.key;
             this.resultLabel.setString( str );
             this.resultLabel.x = g_size.width * 0.72;
             this.resultLabel.y = g_size.height * 0.60;
@@ -280,7 +287,7 @@ var GameLayer = cc.Layer.extend({
 
     showFakeTreasureMsg: function( isShow ) {
         if( isShow ) {
-            var str = "糟糕，中了"+this.map.owner+"设下的圈套...";
+            var str = this.txtCfg.trap1+this.map.owner+this.txtCfg.trap2;
             this.resultLabel.setString( str );
             this.resultLabel.x = g_size.width * 0.72;
             this.resultLabel.y = g_size.height * 0.60;
@@ -440,10 +447,10 @@ var GameLayer = cc.Layer.extend({
             this.guards[i].unscheduleUpdate();
         }
         if( isWin ) {
-            var str = "原来"+this.map.owner+"的秘密是：\n\n\""+this.map.secret+"\"";
+            var str = this.txtCfg.win1+this.map.owner+this.txtCfg.win2+"\n\n\""+this.map.secret+"\"";
             this.resultLabel.setString( str );
         } else {
-            this.resultLabel.setString( "你被"+this.map.owner+"无情的踩死了T_T" );
+            this.resultLabel.setString( this.txtCfg.lose1+this.map.owner+this.txtCfg.lose2 );
         }
         var self = this;
         //Util.getPercent( this.thief.score, function(percent){self.onGetPercent(percent)} );
@@ -461,7 +468,7 @@ var GameLayer = cc.Layer.extend({
 
     setRestTime: function( time ) {
         this.restTime = time;
-        this.timerLabel.setString( "剩余时间："+this.restTime );
+        this.timerLabel.setString( this.txtCfg.timer+this.restTime );
     },
 
     checkTimeup: function() {
@@ -780,3 +787,35 @@ GameLayer.TIMEUP_INTERVAL = 1;
 GameLayer.SWIPE_DIST = 5;
 GameLayer.LV_TIME = [ 8, 10 ];
 GameLayer.MAX_LV = 1;
+GameLayer.CHN = {
+    timer: "剩余时间：",
+    life: "生命：",
+    replay: "再玩一次",
+    reborn: "继续挑战",
+    key: "你需要钥匙才能打开宝箱",
+    frag1: "发现了",
+    frag2: "秘密的残卷：",
+    trap1: "糟糕！中了",
+    trap2: "设下的圈套！",
+    win1: "原来",
+    win2: "的秘密是：",
+    lose1: "你被",
+    lose2: "无情的踩死了T_T",
+    share: "我也要留一个秘密！"
+};
+GameLayer.ENG = {
+    timer: "rest time: ",
+    life: "life: ",
+    replay: "Play Again",
+    reborn: "Continue",
+    key: "You need a key to open it",
+    frag1: "You found a fragment \nof ",
+    frag2: "'s secret: ",
+    trap1: "OMG! It's ",
+    trap2: "'s Trap!",
+    win1: "Finally, ",
+    win2: "'s secret is: ",
+    lose1: "You've got killed by ",
+    lose2: " T_T",
+    share: "I wanna leave a secret too!"
+};

@@ -5,6 +5,7 @@
 var Mover = cc.Sprite.extend({
     map: null,
     layer: null,
+    type: null,
     nextDir: Def.LEFT,
     curDir: Def.LEFT,
     realGrid: null,
@@ -32,9 +33,13 @@ var Mover = cc.Sprite.extend({
         });
         this.map = layer.map;
         this.layer = layer;
-        this.state = Mover.STATE.IDLE;
+        this.setState( Mover.STATE.IDLE );
         this._isArrived = false;
         this.scheduleUpdate();
+    },
+
+    setType: function( type ) {
+        this.type = type;
     },
 
     highLight: function( t1, t2 ) {
@@ -49,25 +54,32 @@ var Mover = cc.Sprite.extend({
         if( this.state == Mover.STATE.MOVE ) return;
         this.realGrid = Util.world2Grid( this.getPosition() );
         if( !this.canChangeDir( this.curGrid, this.curDir ) ) return;
-        this.state = Mover.STATE.MOVE;
+        this.setState( Mover.STATE.MOVE );
         this.updateNextGrid();
         this.updateSpeed();
     },
 
     stopMove: function() {
-        this.state = Mover.STATE.IDLE;
+        this.setState( Mover.STATE.IDLE );
         this.lastState = Mover.STATE.IDLE;
     },
 
     pauseMove: function() {
         this.lastState = this.state;
-        this.state = Mover.STATE.PAUSE;
+        this.setState( Mover.STATE.PAUSE );
     },
 
     continueMove: function() {
-        if( this.lastState == Mover.STATE.IDLE ) return;
-        this.state = Mover.STATE.IDLE;
+        this.setState( Mover.STATE.IDLE );
+        //if( this.lastState == Mover.STATE.IDLE ) return;
         this.changeDir( this.nextDir );
+    },
+
+    setState: function( state ) {
+        this.state = state;
+//        if( this.type == Mover.TYPE.THIEF ) {
+//            cc.log("setState~~~~"+state);
+//        }
     },
 
     update: function( dt ) {
@@ -184,6 +196,7 @@ var Mover = cc.Sprite.extend({
 
     changeDir: function( dir ) {
         if( this.state == Mover.STATE.PAUSE ) {
+            //this.curDir = dir;
             this.storeNextDir( dir );
             return;
         }
@@ -194,7 +207,15 @@ var Mover = cc.Sprite.extend({
                 this.canChangeDir( this.getRealGrid(), dir ) &&
                 this.curDir != dir ) {
                 this.lockJustPass( 0.1 );
-                this.turnBack();
+//                this.turnBack();
+//                this.storeNextDir( dir );
+                this.setPosition( Util.grid2World( this.getRealGrid() ) );
+                this.curDir = dir;
+                this.storeNextDir( dir );
+                this.nextGrid = this.curGrid;
+                this.updateSpeed();
+                this.startMove();
+                return;
             }
             this.storeNextDir( dir );
             if( this.state == Mover.STATE.IDLE && this.canChangeDir( this.curGrid, dir ) ) {
@@ -323,10 +344,13 @@ var Mover = cc.Sprite.extend({
     }
 });
 
-Mover.ARRIVE_DIST = 0.5;
+Mover.ARRIVE_DIST = 1;
 Mover.STATE = {
     IDLE: 0,
     MOVE: 1,
     PAUSE: 2
 };
 Mover.PASS_THRESH = 5;
+Mover.TYPE = {
+    THIEF: 1, GUARD: 2
+};

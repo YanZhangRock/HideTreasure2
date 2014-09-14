@@ -15,6 +15,7 @@ var Guard = Mover.extend({
         this.aiState = Guard.AI_STATE.IDLE;
         this.arriveCallBack = this.onArriveGrid;
         this.updateCallBack = this.onUpdate;
+        this.setType( Mover.TYPE.GUARD );
     },
 
     init: function() {
@@ -211,9 +212,9 @@ var Guard = Mover.extend({
 
 });
 
-Guard.PATROL_SPEED = [ 120, 80, 120, 150 ];
-Guard.CHASE_SLOW = [ 150, 120, 150, 180 ];
-Guard.CHASE_FAST = [ 180, 150, 180, 210 ];
+Guard.PATROL_SPEED = [ 70, 80, 120, 150 ];
+Guard.CHASE_SLOW = [ 100, 120, 150, 180 ];
+Guard.CHASE_FAST = [ 130, 150, 180, 210 ];
 Guard.PATROL_DIST = 3;
 Guard.CHASE_DIST = 5;
 Guard.AI_STATE = {

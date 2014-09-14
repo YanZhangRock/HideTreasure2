@@ -174,6 +174,20 @@ var OpenAnim = cc.Layer.extend({
     },
 
     _onShowQuestionMarkEnd: function() {
+        this._highLightKey();
+    },
+
+    _highLightKey: function() {
+        var t1 = 0.5, t2 = 1.0;
+        for( var i in this.layer.keys ) {
+            this.layer.keys[i].highLight( t1, t2 );
+        }
+        this.schedule( function(){
+            this._onHighLightKeyEnd();
+        }, t1+t2, 0 );
+    },
+
+    _onHighLightKeyEnd: function() {
         this.endCallBack();
         this.layer.removeChild( this );
     }

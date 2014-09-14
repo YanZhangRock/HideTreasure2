@@ -210,7 +210,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     _splitSecret: function( str ) {
-        var len = Math.floor( str.length / 3 );
+        var len = Math.floor( str.length * 0.5 );
         this.secretFrag = str.substring( 0, len );
     },
 
@@ -259,7 +259,7 @@ var GameLayer = cc.Layer.extend({
             function() {
                 this.showFakeTreasureMsg( false );
                 guard.setVisible( true );
-                var t1 = 0.5, t2 = 1
+                var t1 = 0.6, t2 = 1.2
                 var animTime = t1+t2;
                 var waitTime = 1.6;
                 guard.highLight( t1, t2 );
@@ -339,7 +339,7 @@ var GameLayer = cc.Layer.extend({
 //        this.schedule( function(){
 //            this.state = GameLayer.STATE.PREPARE;
 //        }, t1+t2+t3, 0 );
-        if( GameLayer.SHOW_ANIM ) {
+        if( Def.SHOW_ANIM ) {
             var anim = new OpenAnim( this );
             var self = this;
             anim.playAnim( function(){
@@ -416,8 +416,8 @@ var GameLayer = cc.Layer.extend({
     },
 
     pauseGame: function() {
-        this.state = GameLayer.STATE.END;
-        this.thief.stopMove();
+        this.state = GameLayer.STATE.PAUSE;
+        this.thief.pauseMove();
         for( var i in this.guards ) {
             this.guards[i].pauseAI();
         }
@@ -433,7 +433,7 @@ var GameLayer = cc.Layer.extend({
                 guard.resumeAI();
             }
         }
-        this.thief.startMove();
+        this.thief.continueMove();
     },
 
     endGame: function( isWin ) {
@@ -725,7 +725,7 @@ var GameLayer = cc.Layer.extend({
         } else if( key == cc.KEY.s || key == cc.KEY.down ) {
             dir = Def.DOWN;
         }
-        if( this.state == GameLayer.STATE.GAME ) {
+        if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
@@ -734,7 +734,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     onSwipe: function( dir ) {
-        if( this.state == GameLayer.STATE.GAME ) {
+        if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
@@ -743,7 +743,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     onClickArrowBtn: function( dir ) {
-        if( this.state == GameLayer.STATE.GAME ) {
+        if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
@@ -770,7 +770,7 @@ GameLayer.TILE2TYPE = {
 };
 
 GameLayer.STATE = {
-    GAME: 0, END: 1, PREPARE: 2
+    GAME: 0, END: 1, PREPARE: 2, PAUSE: 3
 };
 
 GameLayer.TIMEUP = 600;
@@ -778,4 +778,3 @@ GameLayer.TIMEUP_INTERVAL = 1;
 GameLayer.SWIPE_DIST = 5;
 GameLayer.LV_TIME = [ 8, 10 ];
 GameLayer.MAX_LV = 1;
-GameLayer.SHOW_ANIM = false;

@@ -35,7 +35,7 @@ var Trap = Item.extend({
         this.subImg.setVisible( true );
         this.setVisible( false );
         thief.pauseMove();
-        this.schedule( this.onPauseEnd, Trap.PAUSE_TIME );
+        this.schedule( this.onPauseEnd, Trap.PAUSE_TIME, 0 );
     },
 
     onPauseEnd: function() {

@@ -27,15 +27,20 @@ var MenuLayer = cc.Layer.extend({
         this._initTitleLabel();
         this._initStartMenu();
         this._initShareMenu();
+        if( Def.ASK_NAME ) {
+            this._askChallengerName();
+        }
         //this._askChallengerName();
         // test
-        this.startGame();
+        if( !Def.USE_MENU ) {
+            this.startGame();
+        }
     },
 
     _askChallengerName: function() {
         var self = this;
         var msg = Util.createTextField(
-            "敢报上你的大名么：",
+            "请问施主如何称呼：",
             function(){ self._onGetChallengerName(this); }
         );
         this.addChild( msg, MenuLayer.Z.FIELD );
@@ -69,15 +74,16 @@ var MenuLayer = cc.Layer.extend({
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
-                if( MenuLayer.MOBILE ) {
-                    if( self.hasName ) {
-                        self.startGame();
-                    } else {
-                        self._askChallengerName();
-                    }
-                } else {
-                    self.startGame();
-                }
+//                if( MenuLayer.MOBILE ) {
+//                    if( self.hasName ) {
+//                        self.startGame();
+//                    } else {
+//                        self._askChallengerName();
+//                    }
+//                } else {
+//                    self.startGame();
+//                }
+                self.startGame();
             }
         );
         var menu = new cc.Menu( save );
@@ -193,4 +199,3 @@ MenuLayer.Z = {
 };
 
 MenuLayer.TITLE = "Fortune Whisper";
-MenuLayer.MOBILE = false;

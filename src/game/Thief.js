@@ -20,6 +20,7 @@ var Thief = Mover.extend({
         this.updateCallBack = this.onUpdate;
         this.keyNum = 0;
         this.addScore( -this.score );
+        this.setType( Mover.TYPE.THIEF );
     },
 
     onUpdate: function( dt ) {
@@ -76,11 +77,11 @@ var Thief = Mover.extend({
     },
 
     onCaught: function( guard ) {
-        if( this.layer.state == GameLayer.STATE.END ) return;
+        if( this.layer.state == GameLayer.STATE.END || this.layer.state == GameLayer.STATE.PAUSE ) return;
         if( guard.isHide ) return;
         this.setLife( --this.life )
         if( this.life <=0 ) {
-            this.endGame( false );
+            this.layer.endGame( false );
         } else {
             this.layer.pauseGame();
             this.layer.showReborn( true );
@@ -123,5 +124,5 @@ var Thief = Mover.extend({
     }
 });
 
-Thief.SPEED = [ 220, 180, 220, 250 ];
+Thief.SPEED = [ 150, 180, 220, 250 ];
 Thief.LIFE = 3;

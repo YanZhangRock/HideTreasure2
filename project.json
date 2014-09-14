@@ -24,6 +24,7 @@
         "src/editor/MapPainter.js",
         "src/editor/ObjTile.js",
         "src/game/GameLayer.js",
+        "src/game/OpenAnim.js",
         "src/game/Mover.js",
         "src/game/Thief.js",
         "src/game/Guard.js",

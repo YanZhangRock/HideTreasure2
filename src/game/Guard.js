@@ -4,6 +4,7 @@
 
 var Guard = Mover.extend({
     aiState: null,
+    lastAiState: null,
     thief: null,
     speedType: null,
     isHide: false,
@@ -22,9 +23,15 @@ var Guard = Mover.extend({
         this.startPatrol();
     },
 
-    stopAI: function() {
+    pauseAI: function() {
+        this.lastAiState = this.aiState;
         this.aiState = Guard.AI_STATE.IDLE;
-        this.stopMove();
+        this.pauseMove();
+    },
+
+    resumeAI: function() {
+        this.aiState = this.lastAiState;
+        this.continueMove();
     },
 
     onUpdate: function( dt ) {

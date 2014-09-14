@@ -33,6 +33,7 @@ var GameLayer = cc.Layer.extend({
     lv: 0,
     lvTime: 0,
     secretFrag: "",
+    isFirstNeedKey: true,
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -225,13 +226,17 @@ var GameLayer = cc.Layer.extend({
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
-            this.runGame();
+            this.resumeGame();
         }
     },
 
     showNeedKey: function( isShow ) {
         if( isShow ) {
-            var showTime = 2;
+            var showTime = 0.6;
+            if( this.isFirstNeedKey ) {
+                showTime = 2;
+                this.isFirstNeedKey = false;
+            }
             var str = "你需要有钥匙才能打开宝箱";
             this.resultLabel.setString( str );
             this.resultLabel.x = g_size.width * 0.72;
@@ -241,7 +246,7 @@ var GameLayer = cc.Layer.extend({
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
-            this.runGame();
+            this.resumeGame();
         }
     },
 
@@ -260,7 +265,7 @@ var GameLayer = cc.Layer.extend({
                 guard.highLight( t1, t2 );
                 this.schedule(
                     function(){
-                        this.runGame();
+                        this.resumeGame();
                         guard.init();
                     }, animTime, 0 );
                 this.schedule(
@@ -327,13 +332,23 @@ var GameLayer = cc.Layer.extend({
     },
 
     prepareRunGame: function() {
-        var t1 = 0.5, t2 = 1.0, t3 = 1.2;
-        for( var i in this.traps ) {
-            this.traps[i].highLight( t1, t2, t3 );
-        }
-        this.schedule( function(){
+//        var t1 = 0.5, t2 = 1.0, t3 = 1.2;
+//        for( var i in this.traps ) {
+//            this.traps[i].highLight( t1, t2, t3 );
+//        }
+//        this.schedule( function(){
+//            this.state = GameLayer.STATE.PREPARE;
+//        }, t1+t2+t3, 0 );
+        if( GameLayer.SHOW_ANIM ) {
+            var anim = new OpenAnim( this );
+            var self = this;
+            anim.playAnim( function(){
+                self.state = GameLayer.STATE.PREPARE;
+            } );
+        } else {
             this.state = GameLayer.STATE.PREPARE;
-        }, t1+t2+t3, 0 );
+        }
+
     },
 
     runGame: function() {
@@ -404,9 +419,21 @@ var GameLayer = cc.Layer.extend({
         this.state = GameLayer.STATE.END;
         this.thief.stopMove();
         for( var i in this.guards ) {
-            this.guards[i].stopAI();
+            this.guards[i].pauseAI();
         }
         this.unschedule( this.checkTimeup );
+    },
+
+    resumeGame: function() {
+        this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
+        this.state = GameLayer.STATE.GAME;
+        for( var i in this.guards ) {
+            var guard = this.guards[i];
+            if( !guard.isHide ) {
+                guard.resumeAI();
+            }
+        }
+        this.thief.startMove();
     },
 
     endGame: function( isWin ) {
@@ -729,7 +756,8 @@ GameLayer.Z = {
     TILE: 0,
     ITEM: 1,
     OBJ: 2,
-    UI: 3
+    ANIM: 3,
+    UI: 4
 };
 
 GameLayer.TILE_TYPE = {
@@ -750,3 +778,4 @@ GameLayer.TIMEUP_INTERVAL = 1;
 GameLayer.SWIPE_DIST = 5;
 GameLayer.LV_TIME = [ 8, 10 ];
 GameLayer.MAX_LV = 1;
+GameLayer.SHOW_ANIM = false;

@@ -94,7 +94,7 @@ var Thief = Mover.extend({
             return;
         }
         money.onSteal( this );
-        this.keyNum--;
+        //this.keyNum--;
         Util.arrayRemove( this.moneys, money );
         if( money.isFake ) {
             this.layer.onGetFakeMoney( money );

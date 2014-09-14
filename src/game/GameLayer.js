@@ -34,6 +34,7 @@ var GameLayer = cc.Layer.extend({
     lvTime: 0,
     secretFrag: "",
     isFirstNeedKey: true,
+    openAnim: null,
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -332,17 +333,12 @@ var GameLayer = cc.Layer.extend({
     },
 
     prepareRunGame: function() {
-//        var t1 = 0.5, t2 = 1.0, t3 = 1.2;
-//        for( var i in this.traps ) {
-//            this.traps[i].highLight( t1, t2, t3 );
-//        }
-//        this.schedule( function(){
-//            this.state = GameLayer.STATE.PREPARE;
-//        }, t1+t2+t3, 0 );
         if( Def.SHOW_ANIM ) {
             var anim = new OpenAnim( this );
+            this.openAnim = anim;
             var self = this;
             anim.playAnim( function(){
+                self.openAnim = null;
                 self.state = GameLayer.STATE.PREPARE;
             } );
         } else {
@@ -715,6 +711,9 @@ var GameLayer = cc.Layer.extend({
     },
 
     onKeyPressed: function( key, event ) {
+        if( this.openAnim ) {
+            this.openAnim.onSwipe();
+        }
         var dir;
         if( key == cc.KEY.w || key == cc.KEY.up ) {
             dir = Def.UP;
@@ -734,6 +733,9 @@ var GameLayer = cc.Layer.extend({
     },
 
     onSwipe: function( dir ) {
+        if( this.openAnim ) {
+            this.openAnim.onSwipe();
+        }
         if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {

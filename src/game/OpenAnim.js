@@ -9,11 +9,13 @@ var OpenAnim = cc.Layer.extend({
     money: null,
     marks: [],
     hand: null,
+    state: null,
 
     ctor: function( layer ) {
         this._super();
         this.layer = layer;
         layer.addChild( this, GameLayer.Z.ANIM );
+        this.state = OpenAnim.STATE.IDLE;
         this._initObjs();
     },
 
@@ -22,8 +24,19 @@ var OpenAnim = cc.Layer.extend({
             this.layer.moneys[i].setVisible( false );
         }
         this.layer.thief.setVisible( false );
-        var h = 0.6, scale = 2.0;
+        // hand
+        this.hand = new cc.Sprite( "#hand.png" );
+        this.hand.attr({
+            anchorX: 0.5,
+            anchorY: 0.5,
+            x: g_size.width * OpenAnim.HAND_POS.x,
+            y: g_size.height * OpenAnim.HAND_POS.y,
+            scale: Def.GRID_SCALE
+        });
+        this.hand.setVisible( false );
+        this.addChild( this.hand, 0 );
         // money
+        var h = 0.6, scale = 2.0;
         this.money = new cc.Sprite( "#money.png" );
         this.money.attr({
             anchorX: 0.5,
@@ -67,6 +80,14 @@ var OpenAnim = cc.Layer.extend({
     playAnim: function( endCallBack ) {
         this.endCallBack = endCallBack;
         this._moneyRun();
+        this.state = OpenAnim.STATE.PLAY;
+    },
+
+    onSwipe: function() {
+        if( this.state != OpenAnim.STATE.END ) return;
+        this.unscheduleAllCallbacks();
+        this.endCallBack();
+        this.layer.removeChild( this );
     },
 
     _moneyRun: function() {
@@ -188,7 +209,37 @@ var OpenAnim = cc.Layer.extend({
     },
 
     _onHighLightKeyEnd: function() {
-        this.endCallBack();
-        this.layer.removeChild( this );
+//        this.endCallBack();
+//        this.layer.removeChild( this );
+        this._showHand();
+    },
+
+    _showHand: function() {
+        this.state = OpenAnim.STATE.END;
+        this.hand.setVisible( true );
+        var time = 1.0, dist = g_size.width * 0.35
+        var self = this;
+        this.hand.runAction(cc.sequence(
+            cc.moveBy( time, cc.p(dist,0) ),
+            cc.callFunc(function () {
+                self._onShowHandEnd();
+            } )
+        ));
+    },
+
+    _onShowHandEnd: function() {
+        var time = 1.5
+        this.schedule( function(){
+            this._showHand();
+        }, time, 0 );
+        this.hand.setVisible( false );
+        var x = g_size.width * OpenAnim.HAND_POS.x;
+        var y = g_size.height * OpenAnim.HAND_POS.y
+        this.hand.setPosition( x, y );
     }
 });
+
+OpenAnim.HAND_POS = { x: 0.4, y: 0.3 };
+OpenAnim.STATE = {
+    IDLE: 0, PLAY: 1, END: 2
+};

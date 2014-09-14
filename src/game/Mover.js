@@ -154,7 +154,7 @@ var Mover = cc.Sprite.extend({
         }, time, 0 );
     },
 
-    isJustPass: function() {
+    isJustPass: function( param ) {
         if( this._isLockJustPass ) return false;
         var g = Util.grid2World( this.getRealGrid() );
         var p = this.getPosition();
@@ -165,14 +165,26 @@ var Mover = cc.Sprite.extend({
         }
         if( isHoriz ) {
             if( this.curDir == Def.UP && p.y - g.y > 0 ) {
+                if( param ) {
+                    param.dist = p.y - g.y;
+                }
                 ret = true;
             } else if( this.curDir == Def.DOWN && p.y - g.y < 0 ) {
+                if( param ) {
+                    param.dist = g.y - p.y;
+                }
                 ret = true;
             }
         } else {
             if( this.curDir == Def.RIGHT && p.x - g.x > 0 ) {
+                if( param ) {
+                    param.dist = p.x - g.x;
+                }
                 ret = true;
             } else if( this.curDir == Def.LEFT && p.x - g.x < 0 ) {
+                if( param ) {
+                    param.dist = g.x - p.x;
+                }
                 ret = true;
             }
         }
@@ -203,18 +215,22 @@ var Mover = cc.Sprite.extend({
         if( this.isTurnBack( dir ) ) {
             this.turnBack();
         } else {
-            if( this.isJustPass() &&
+            var param = {};
+            if( this.isJustPass( param ) &&
                 this.canChangeDir( this.getRealGrid(), dir ) &&
                 this.curDir != dir ) {
                 this.lockJustPass( 0.1 );
-//                this.turnBack();
-//                this.storeNextDir( dir );
-                this.setPosition( Util.grid2World( this.getRealGrid() ) );
-                this.curDir = dir;
-                this.storeNextDir( dir );
-                this.nextGrid = this.curGrid;
-                this.updateSpeed();
-                this.startMove();
+                if( param.dist > 20 ) {
+                    this.turnBack();
+                    this.storeNextDir( dir );
+                } else {
+                    this.setPosition( Util.grid2World( this.getRealGrid() ) );
+                    this.curDir = dir;
+                    this.storeNextDir( dir );
+                    this.nextGrid = this.curGrid;
+                    this.updateSpeed();
+                    this.startMove();
+                }
                 return;
             }
             this.storeNextDir( dir );
@@ -227,8 +243,8 @@ var Mover = cc.Sprite.extend({
 
     changeDirInstant: function( dir ) {
         if( !this.canChangeDir( this.getRealGrid(), dir ) ) {
-               return false;
-            }
+            return false;
+        }
         this.curDir = dir;
         this.storeNextDir( dir );
         this.nextGrid = this.curGrid;
@@ -242,14 +258,14 @@ var Mover = cc.Sprite.extend({
     },
 
     isTurnBack: function( dir ) {
-        if( this.curDir == this.getOppositeDir( dir ) ) {
+        if( this.curDir == Util.getOppositeDir( dir ) ) {
             return true;
         }
         return false;
     },
 
     turnBack: function() {
-        var dir = this.getOppositeDir( this.curDir );
+        var dir = Util.getOppositeDir( this.curDir );
         this.curDir = dir;
         this.storeNextDir( dir );
         this.nextGrid = this.curGrid;
@@ -264,25 +280,6 @@ var Mover = cc.Sprite.extend({
             return false;
         }
         return true;
-    },
-
-    getOppositeDir: function( dir ) {
-        var newDir;
-        switch ( dir ) {
-            case Def.UP:
-                newDir = Def.DOWN;
-                break;
-            case Def.DOWN:
-                newDir = Def.UP;
-                break;
-            case Def.LEFT:
-                newDir = Def.RIGHT;
-                break;
-            case Def.RIGHT:
-                newDir = Def.LEFT;
-                break;
-        }
-        return newDir;
     },
 
     getCrossDirs: function( dir ) {

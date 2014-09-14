@@ -93,7 +93,7 @@ var Guard = Mover.extend({
     onArriveGridPatrol: function() {
         if( Util.getManDist( this.getRealGrid(), this.oriGrid ) >= Guard.PATROL_DIST
             || this.state == Mover.STATE.IDLE ) {
-            this.curDir = this.getOppositeDir( this.curDir );
+            this.curDir = Util.getOppositeDir( this.curDir );
             this.nextDir = this.curDir;
             this.updateSpeed();
             this.startMove();
@@ -129,17 +129,17 @@ var Guard = Mover.extend({
                     this.startReturn();
                 } else {
                     var dirs = this.layer.getRelativeDirs( this.getRealGrid(), this.thief.getRealGrid() );
-                    if( !this.changeDirInstant( dirs[0] ) ){
-                        if( !this.changeDirInstant( dirs[1] ) ) {
-                            this.startReturn();
+                    for( var i in dirs ) {
+                        if( this.changeDirInstant( dirs[i] ) ) {
+                            break;
                         }
                     }
                 }
             } else {
                 var dirs = this.layer.getRelativeDirs( this.getRealGrid(), this.thief.getRealGrid() );
-                if( !this.changeDirInstant( dirs[0] ) ){
-                    if( !this.changeDirInstant( dirs[1] ) ) {
-                        this.startReturn();
+                for( var i in dirs ) {
+                    if( this.changeDirInstant( dirs[i] ) ) {
+                        break;
                     }
                 }
             }
@@ -149,7 +149,13 @@ var Guard = Mover.extend({
     startReturn: function() {
         this.changeSpeed( Guard.PATROL_SPEED );
         this.aiState = Guard.AI_STATE.RETURN;
-        this.changeDirInstant( this.layer.getRelativeDir( this.getRealGrid(), this.oriGrid ) );
+        var grid = this.getRealGrid();
+        var dirs = this.layer.getRelativeDirs( grid, this.oriGrid );
+        for( var i in dirs ) {
+            if( this.changeDirInstant( dirs[i] ) ) {
+                break;
+            }
+        }
         this.startMove();
     },
 

@@ -714,6 +714,8 @@ var GameLayer = cc.Layer.extend({
                 dirs.push( Def.RIGHT );
             }
         }
+        dirs.push( Util.getOppositeDir(dirs[1]) );
+        dirs.push( Util.getOppositeDir(dirs[0]) );
         return dirs;
     },
 

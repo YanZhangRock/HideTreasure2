@@ -88,3 +88,22 @@ Util.createTextField = function( subtitle, callBack ) {
     msg.attachWithIME();
     return msg;
 };
+
+Util.getOppositeDir = function( dir ) {
+    var newDir;
+    switch ( dir ) {
+        case Def.UP:
+            newDir = Def.DOWN;
+            break;
+        case Def.DOWN:
+            newDir = Def.UP;
+            break;
+        case Def.LEFT:
+            newDir = Def.RIGHT;
+            break;
+        case Def.RIGHT:
+            newDir = Def.LEFT;
+            break;
+    }
+    return newDir;
+};

@@ -26,8 +26,8 @@ Def.OBJ2IMG = {
 };
 Def.CHN = 1;
 Def.ENG = 2;
-Def.SHOW_ANIM = false;
-Def.USE_MENU = false;
+Def.SHOW_ANIM = true;
+Def.USE_MENU = true;
 Def.ASK_NAME = false;
 //g_language = Def.ENG;
 g_language = Def.CHN;

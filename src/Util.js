@@ -107,3 +107,11 @@ Util.getOppositeDir = function( dir ) {
     }
     return newDir;
 };
+
+Util.isNearPos = function( from, to ) {
+    if( Math.abs( from.x - to.x ) > Def.GRID_SIZE ||
+        Math.abs( from.y - to.y ) > Def.GRID_SIZE ) {
+        return false;
+    }
+    return true;
+};

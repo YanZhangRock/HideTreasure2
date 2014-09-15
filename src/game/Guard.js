@@ -73,8 +73,7 @@ var Guard = Mover.extend({
         if( dir == null ) return;
         this.curDir = dir;
         this.nextDir = dir;
-        this.updateNextGrid();
-        this.updateSpeed();
+        this._updateNextGrid();
         this.startMove();
     },
 
@@ -93,10 +92,8 @@ var Guard = Mover.extend({
     onArriveGridPatrol: function() {
         if( Util.getManDist( this.getRealGrid(), this.oriGrid ) >= Guard.PATROL_DIST
             || this.state == Mover.STATE.IDLE ) {
-            this.curDir = Util.getOppositeDir( this.curDir );
-            this.nextDir = this.curDir;
-            this.updateSpeed();
-            this.startMove();
+            var dir = Util.getOppositeDir( this.curDir );
+            this.changeDirInstant( dir );
         } else if( this.getRealGrid() == this.oriGrid ) {
             this.startPatrol();
         }
@@ -178,8 +175,10 @@ var Guard = Mover.extend({
         }
         if( this.isCrossRoad( this.getRealGrid(), this.curDir ) ) {
             var dirs = this.layer.getRelativeDirs( this.getRealGrid(), this.oriGrid );
-            if( !this.changeDirInstant( dirs[0] ) ) {
-                this.changeDirInstant( dirs[1] );
+            for( var i in dirs ) {
+                if( this.changeDirInstant( dirs[i] ) ) {
+                    break;
+                }
             }
         }
     },

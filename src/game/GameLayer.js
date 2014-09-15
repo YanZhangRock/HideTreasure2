@@ -441,9 +441,11 @@ var GameLayer = cc.Layer.extend({
 
     endGame: function( isWin ) {
         this.state = GameLayer.STATE.END;
+        this.thief.stopMove();
         this.thief.unscheduleUpdate();
         this.unschedule( this.checkTimeup );
         for( var i in this.guards ) {
+            this.guards[i].stopMove();
             this.guards[i].unscheduleUpdate();
         }
         if( isWin ) {

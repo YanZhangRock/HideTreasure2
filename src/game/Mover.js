@@ -19,6 +19,7 @@ var Mover = cc.Sprite.extend({
     speed: 0,
     arriveCallBack: null,
     updateCallBack: null,
+    moveAction: null,
     _isArrived: false,
     _isLockJustPass: false,
 
@@ -52,21 +53,23 @@ var Mover = cc.Sprite.extend({
 
     startMove: function() {
         if( this.state == Mover.STATE.MOVE ) return;
-        this.realGrid = Util.world2Grid( this.getPosition() );
-        if( !this.canChangeDir( this.curGrid, this.curDir ) ) return;
-        this.setState( Mover.STATE.MOVE );
-        this.updateNextGrid();
-        this.updateSpeed();
+        this.realGrid = Util.world2Grid(this.getPosition());
+        if (!this.canChangeDir(this.curGrid, this.curDir)) return;
+        this.setState(Mover.STATE.MOVE);
+        this._updateNextGrid();
+        this._toNextGrid();
     },
 
     stopMove: function() {
         this.setState( Mover.STATE.IDLE );
         this.lastState = Mover.STATE.IDLE;
+        this._stopMoveAction();
     },
 
     pauseMove: function() {
         this.lastState = this.state;
         this.setState( Mover.STATE.PAUSE );
+        this._stopMoveAction();
     },
 
     continueMove: function() {
@@ -77,66 +80,33 @@ var Mover = cc.Sprite.extend({
 
     setState: function( state ) {
         this.state = state;
-//        if( this.type == Mover.TYPE.THIEF ) {
-//            cc.log("setState~~~~"+state);
-//        }
     },
 
     update: function( dt ) {
         if( this.updateCallBack != null ) {
             this.updateCallBack( dt );
         }
-        this.processMove( dt );
     },
 
     collideRect: function( x, y ) {
         return cc.rect(x - 10, y - 10, 20, 20);
     },
 
-    processMove: function( dt ) {
-        if( this.state != Mover.STATE.MOVE ) return;
-        var p = this.getPosition();
-        var grid = this.nextGrid;
-        if( this._isArrived ) {
-            grid = this.curGrid;
-        }
-        var dist = Util.getManDist( p, Util.grid2World(grid) );
-        if( dist >= Mover.ARRIVE_DIST && this._isArrived ) {
-            this._isArrived = false;
-        }
-        if( dist < Mover.ARRIVE_DIST && !this._isArrived ) {
-            this._isArrived = true;
-            this.onArriveNextGrid();
-            this.setPosition( Util.grid2World( this.curGrid ) );
-            if( !this.layer.canPass( this.nextGrid ) ) {
-                this.stopMove();
-            }
-            if( this.arriveCallBack ) {
-                this.arriveCallBack();
-            }
-            return;
-        }
-        p.x += this.xSpeed * dt;
-        p.y += this.ySpeed * dt;
-        // jump map
-        var curP = Util.grid2World(this.curGrid);
-        if( Math.abs( p.x - curP.x ) > Def.GRID_SIZE ||
-            Math.abs( p.y - curP.y ) > Def.GRID_SIZE ) {
-            this.updateNextGrid();
-            var nextP = Util.grid2World( this.nextGrid );
-            p.x = nextP.x;
-            p.y = nextP.y;
-        }
-        this.setPosition( p );
-    },
-
     onArriveNextGrid: function() {
         this.setCurGrid( this.nextGrid );
         if( this.canChangeDir( this.curGrid, this.nextDir ) ) {
-            this.curDir = this.nextDir;
+            this._setCurDir( this.nextDir );
         }
-        this.updateNextGrid();
-        this.updateSpeed();
+        this._updateNextGrid();
+        if( !this.layer.canPass( this.nextGrid ) ) {
+            this.stopMove();
+        } else {
+            //this._storeNextDir( this.curDir );
+            this._toNextGrid( this.curDir );
+        }
+        if( this.arriveCallBack ) {
+            this.arriveCallBack();
+        }
     },
 
     setCurGrid: function( grid ) {
@@ -200,60 +170,132 @@ var Mover = cc.Sprite.extend({
         return this.map.grids[p.x][p.y];
     },
 
-    updateNextGrid: function() {
+    _updateNextGrid: function() {
         var offset = this.getNextGridOffset( this.curDir );
         var nextGrid = this.layer.getOffsetGrid( this.curGrid, offset );
         this.nextGrid = nextGrid;
     },
 
+    _setCurDir: function( dir ) {
+        this.curDir = dir;
+    },
+
+    _stopMoveAction: function() {
+        if( this.moveAction ) {
+            this.stopAction( this.moveAction );
+            this.moveAction = null;
+        }
+    },
+
+    _toNextGrid: function() {
+        this._stopMoveAction();
+        var self = this;
+        var nextPos = Util.grid2World( this.nextGrid )
+        var pos = this.getPosition();
+        // jump map
+        if( !Util.isNearPos( pos, nextPos ) ) {
+            var dir = this.layer.getRelativeDir( Util.world2Grid(pos), this.nextGrid );
+            dir = Util.getOppositeDir( dir );
+            var tmpPos = {x: 0, y: 0};
+            switch (dir) {
+                case Def.UP:
+                    tmpPos.x = pos.x;
+                    tmpPos.y = pos.y + Def.GRID_SIZE / 2;
+                    nextPos.x = pos.x;
+                    nextPos.y = nextPos.y - Def.GRID_SIZE / 2;
+                    break;
+                case Def.DOWN:
+                    tmpPos.x = pos.x;
+                    tmpPos.y = pos.y - Def.GRID_SIZE / 2;
+                    nextPos.x = pos.x;
+                    nextPos.y = nextPos.y + Def.GRID_SIZE / 2;
+                    break;
+                case Def.LEFT:
+                    tmpPos.x = pos.x - Def.GRID_SIZE / 2;
+                    tmpPos.y = pos.y;
+                    nextPos.x = pos.x + Def.GRID_SIZE / 2;
+                    nextPos.y = nextPos.y;
+                    break;
+                case Def.RIGHT:
+                    tmpPos.x = pos.x + Def.GRID_SIZE / 2;
+                    tmpPos.y = pos.y;
+                    nextPos.x = pos.x - Def.GRID_SIZE / 2;
+                    nextPos.y = nextPos.y;
+                    break;
+            }
+            var time = Util.getManDist( tmpPos, pos ) / this.speed;
+            var moveAction = this.runAction(cc.sequence(
+                cc.moveTo( time, tmpPos ),
+                cc.callFunc( function(){
+                    self.onJumpMap( nextPos );
+                } )
+            ));
+            this.moveAction = moveAction;
+            return;
+        }
+        // normal
+        var time = Util.getManDist( nextPos, pos ) / this.speed;
+        var moveAction = this.runAction(cc.sequence(
+            cc.moveTo( time, nextPos ),
+            cc.callFunc( function(){
+                self.onArriveNextGrid();
+            } )
+        ));
+        this.moveAction = moveAction;
+    },
+
+    onJumpMap: function( nextPos ) {
+        this.setPosition( nextPos );
+        this._toNextGrid();
+    },
+
     changeDir: function( dir ) {
-        if( this.state == Mover.STATE.PAUSE ) {
-            //this.curDir = dir;
-            this.storeNextDir( dir );
+        // if idle
+        if( this.state == Mover.STATE.IDLE && this.canChangeDir( this.curGrid, dir ) ) {
+            this._storeNextDir( dir );
+            this.curDir = this.nextDir;
+            this.startMove();
             return;
         }
         if( this.isTurnBack( dir ) ) {
             this.turnBack();
-        } else {
+        }else {
             var param = {};
-            if( this.isJustPass( param ) &&
-                this.canChangeDir( this.getRealGrid(), dir ) &&
-                this.curDir != dir ) {
-                this.lockJustPass( 0.1 );
-                if( param.dist > 20 ) {
+            if (this.isJustPass(param) &&
+                this.canChangeDir(this.getRealGrid(), dir) &&
+                this.curDir != dir) {
+                //this.lockJustPass( 0.1 );
+                if (param.dist > 10 || true) {
                     this.turnBack();
-                    this.storeNextDir( dir );
+                    this._storeNextDir(dir);
+                    this._isArrived = false;
                 } else {
-                    this.setPosition( Util.grid2World( this.getRealGrid() ) );
+                    this.setPosition(Util.grid2World(this.getRealGrid()));
                     this.curDir = dir;
-                    this.storeNextDir( dir );
+                    this._storeNextDir(dir);
                     this.nextGrid = this.curGrid;
-                    this.updateSpeed();
                     this.startMove();
                 }
                 return;
             }
-            this.storeNextDir( dir );
-            if( this.state == Mover.STATE.IDLE && this.canChangeDir( this.curGrid, dir ) ) {
-                this.curDir = this.nextDir;
-                this.startMove();
-            }
+            this._storeNextDir( dir );
         }
     },
 
     changeDirInstant: function( dir ) {
-        if( !this.canChangeDir( this.getRealGrid(), dir ) ) {
+        var curGrid = this.getRealGrid();
+        if( !this.canChangeDir( curGrid, dir ) ) {
             return false;
         }
         this.curDir = dir;
-        this.storeNextDir( dir );
-        this.nextGrid = this.curGrid;
-        this.updateSpeed();
-        this.startMove();
+        this._storeNextDir( dir );
+        this.setCurGrid( curGrid );
+        this._updateNextGrid();
+        this._toNextGrid();
         return true;
     },
 
-    storeNextDir: function( dir ) {
+    _storeNextDir: function( dir ) {
         this.nextDir = dir;
     },
 
@@ -267,10 +309,9 @@ var Mover = cc.Sprite.extend({
     turnBack: function() {
         var dir = Util.getOppositeDir( this.curDir );
         this.curDir = dir;
-        this.storeNextDir( dir );
+        this._storeNextDir( dir );
         this.nextGrid = this.curGrid;
-        this.updateSpeed();
-        this.startMove();
+        this._toNextGrid();
     },
 
     canChangeDir: function( grid, dir ) {
@@ -303,27 +344,6 @@ var Mover = cc.Sprite.extend({
                 break;
         }
         return newDirs;
-    },
-
-    updateSpeed: function() {
-        switch ( this.curDir ) {
-            case Def.UP:
-                this.xSpeed = 0;
-                this.ySpeed = this.speed;
-                break;
-            case Def.LEFT:
-                this.xSpeed = -this.speed;
-                this.ySpeed = 0;
-                break;
-            case Def.RIGHT:
-                this.xSpeed = this.speed;
-                this.ySpeed = 0;
-                break;
-            case Def.DOWN:
-                this.xSpeed = 0;
-                this.ySpeed = -this.speed;
-                break;
-        }
     },
 
     getNextGridOffset: function( dir ) {

@@ -67,6 +67,7 @@ var Guard = Mover.extend({
     },
 
     startPatrol: function() {
+        this.stopMove();
         this.changeSpeed( Guard.PATROL_SPEED );
         this.aiState = Guard.AI_STATE.PATROL;
         var dir = this.getRandMovableDir( this.getRealGrid() );
@@ -81,8 +82,9 @@ var Guard = Mover.extend({
         var guardGrid = this.getRealGrid();
         var thiefGrid = this.thief.getRealGrid();
         if( this.layer.isGridVisible( guardGrid, thiefGrid ) ) {
-            this.changeDir( this.layer.getRelativeDir( guardGrid, thiefGrid ) );
+            var dir = this.layer.getRelativeDir( guardGrid, thiefGrid );
             this.startChase();
+            this.changeDir( dir );
         }
         if( this.state == Mover.STATE.IDLE ) {
             this.startReturn();
@@ -96,10 +98,13 @@ var Guard = Mover.extend({
             this.changeDirInstant( dir );
         } else if( this.getRealGrid() == this.oriGrid ) {
             this.startPatrol();
+//            var dir = this.getRandMovableDir( this.getRealGrid() );
+//            this.changeDirInstant( dir );
         }
     },
 
     startChase: function() {
+        this.stopMove();
         this.changeSpeed( Guard.CHASE_FAST );
         this.aiState = Guard.AI_STATE.CHASE;
         this.startMove();
@@ -144,6 +149,7 @@ var Guard = Mover.extend({
     },
 
     startReturn: function() {
+        this.stopMove();
         this.changeSpeed( Guard.PATROL_SPEED );
         this.aiState = Guard.AI_STATE.RETURN;
         var grid = this.getRealGrid();
@@ -160,8 +166,9 @@ var Guard = Mover.extend({
         var guardGrid = this.getRealGrid();
         var thiefGrid = this.thief.getRealGrid();
         if( this.layer.isGridVisible( guardGrid, thiefGrid ) ) {
-            this.changeDir( this.layer.getRelativeDir( guardGrid, thiefGrid ) );
+            var dir = this.layer.getRelativeDir( guardGrid, thiefGrid );
             this.startChase();
+            this.changeDir( dir );
         }
         if( this.state == Mover.STATE.IDLE ) {
             this.startReturn();

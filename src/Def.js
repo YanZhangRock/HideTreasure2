@@ -29,5 +29,5 @@ Def.ENG = 2;
 Def.SHOW_ANIM = false;
 Def.USE_MENU = false;
 Def.ASK_NAME = false;
-g_language = Def.ENG;
-//g_language = Def.CHN;
+//g_language = Def.ENG;
+g_language = Def.CHN;

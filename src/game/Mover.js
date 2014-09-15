@@ -290,6 +290,7 @@ var Mover = cc.Sprite.extend({
         this.curDir = dir;
         this._storeNextDir( dir );
         this.setCurGrid( curGrid );
+        //this.curGrid = curGrid;
         this._updateNextGrid();
         this._toNextGrid();
         return true;

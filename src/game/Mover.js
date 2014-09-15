@@ -257,6 +257,10 @@ var Mover = cc.Sprite.extend({
             this.startMove();
             return;
         }
+        if( this.state == Mover.STATE.PAUSE ) {
+            this._storeNextDir( dir );
+            return;
+        }
         if( this.isTurnBack( dir ) ) {
             this.turnBack();
         }else {

@@ -96,6 +96,9 @@ var Mover = cc.Sprite.extend({
         this.setCurGrid( this.nextGrid );
         if( this.canChangeDir( this.curGrid, this.nextDir ) ) {
             this._setCurDir( this.nextDir );
+            if( this.type == Mover.TYPE.THIEF ) {
+                this.layer.onThiefTurn();
+            }
         }
         this._updateNextGrid();
         if( !this.layer.canPass( this.nextGrid ) ) {
@@ -122,6 +125,15 @@ var Mover = cc.Sprite.extend({
         this.schedule( function(){
             this._isLockJustPass = false;
         }, time, 0 );
+    },
+
+    isAlmostArrive: function() {
+        var g = Util.grid2World( this.nextGrid );
+        var p = this.getPosition();
+        if( Util.getManDist( g, p ) < Def.GRID_SIZE * 0.6  ) {
+            return true;
+        }
+        return false;
     },
 
     isJustPass: function( param ) {
@@ -259,6 +271,9 @@ var Mover = cc.Sprite.extend({
         }
         if( this.state == Mover.STATE.PAUSE ) {
             this._storeNextDir( dir );
+            if( this.type == Mover.TYPE.THIEF ) {
+                this.layer.onThiefStoreDir( dir );
+            }
             return;
         }
         if( this.isTurnBack( dir ) ) {
@@ -283,6 +298,12 @@ var Mover = cc.Sprite.extend({
                 return;
             }
             this._storeNextDir( dir );
+            if( this.type == Mover.TYPE.THIEF ) {
+                if( !this.canChangeDir( this.nextGrid, dir )
+                    || !this.isAlmostArrive() ) {
+                    this.layer.onThiefStoreDir( dir );
+                }
+            }
         }
     },
 

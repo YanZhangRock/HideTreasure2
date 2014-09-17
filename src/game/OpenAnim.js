@@ -20,9 +20,10 @@ var OpenAnim = cc.Layer.extend({
     },
 
     _initObjs: function() {
-        for( var i in this.layer.moneys ) {
-            this.layer.moneys[i].setVisible( false );
-        }
+        // moneys
+//        for( var i in this.layer.moneys ) {
+//            this.layer.moneys[i].setVisible( false );
+//        }
         this.layer.thief.setVisible( false );
         // hand
         this.hand = new cc.Sprite( "#hand.png" );
@@ -35,7 +36,7 @@ var OpenAnim = cc.Layer.extend({
         });
         this.hand.setVisible( false );
         this.addChild( this.hand, 0 );
-        // money
+        // tutorial money
         var h = 0.6, scale = 2.0;
         this.money = new cc.Sprite( "#money.png" );
         this.money.attr({
@@ -62,7 +63,7 @@ var OpenAnim = cc.Layer.extend({
         this.marks = [];
         for( var i in this.layer.moneys ) {
             var p = this.layer.moneys[i].getPosition();
-            var mark = new cc.Sprite( "#question.png" );
+            var mark = new Item( "#question.png", this );
             mark.attr({
                 anchorX: 0.5,
                 anchorY: 0.5,
@@ -157,35 +158,19 @@ var OpenAnim = cc.Layer.extend({
 
     _onThiefLeaveEnd: function() {
         this.thief.setVisible( false );
-        this.schedule( this._highLightObjs, 0.3, 0 );
-    },
-
-    _highLightObjs: function() {
-        var t1 = 0.5, t2 = 1.0;
-        for( var i in this.layer.moneys ) {
-            this.layer.moneys[i].setVisible( true );
-            this.layer.moneys[i].highLight( t1, t2 );
-        }
-        this.layer.thief.setVisible( true );
-        this.layer.thief.highLight( t1, t2 );
-        this.schedule( function(){
-            this._onHightObjsEnd();
-        }, t1+t2, 0 );
-    },
-
-    _onHightObjsEnd: function() {
-        this._showQuestionMark();
+        this.schedule( this._showQuestionMark, 0.3, 0 );
     },
 
     _showQuestionMark: function() {
         var self = this
-        var time = 0.8, idx = 0
+        var time = 0.6, idx = 0
         var totalTime = 0;
         for( var i in this.marks ) {
             this.schedule(function () {
                 var mark = self.marks[idx++];
                 mark.setVisible( true );
-                mark.runAction( cc. fadeIn( 0.4 ) );
+                mark.runAction( cc. fadeIn( 0.1 ) );
+                mark.highLight( 0.3, 0.4 );
             }, totalTime, 0 );
             totalTime += time;
         }
@@ -209,8 +194,23 @@ var OpenAnim = cc.Layer.extend({
     },
 
     _onHighLightKeyEnd: function() {
-//        this.endCallBack();
-//        this.layer.removeChild( this );
+        this._highLightObjs();
+    },
+
+    _highLightObjs: function() {
+        var t1 = 0.5, t2 = 1.0;
+//        for( var i in this.layer.moneys ) {
+//            this.layer.moneys[i].setVisible( true );
+//            this.layer.moneys[i].highLight( t1, t2 );
+//        }
+        this.layer.thief.setVisible( true );
+        this.layer.thief.highLight( t1, t2 );
+        this.schedule( function(){
+            this._onHightObjsEnd();
+        }, t1+t2, 0 );
+    },
+
+    _onHightObjsEnd: function() {
         this._showHand();
     },
 

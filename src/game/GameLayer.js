@@ -36,6 +36,7 @@ var GameLayer = cc.Layer.extend({
     isFirstNeedKey: true,
     openAnim: null,
     txtCfg: null,
+    dirArrow: null,
 
     ctor: function( scene, uid, challenger ) {
         this._super();
@@ -55,6 +56,7 @@ var GameLayer = cc.Layer.extend({
     onLoadMapdata: function() {
         this.map.unserializeObjs();
         this._initLabels();
+        this._initDirArrow();
         //this._initCtrlPad();
         this._registerInputs();
         this._splitSecret( this.map.secret );
@@ -126,16 +128,17 @@ var GameLayer = cc.Layer.extend({
 
     _initLabels: function() {
         // timer label
+        var height = 0.09;
         var label = new cc.LabelTTF(this.txtCfg.timer, "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.85;
-        label.y = g_size.height * 0.12;
+        label.y = g_size.height * height;
         this.addChild( label, GameLayer.Z.UI );
         // life label
         var label = new cc.LabelTTF(this.txtCfg.life, "Arial", 40);
         this.lifeLabel = label;
         label.x = g_size.width * 0.50;
-        label.y = g_size.height * 0.12;
+        label.y = g_size.height * height;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
         var label = new cc.LabelTTF(this.txtCfg.replay, "Arial", 80);
@@ -163,6 +166,14 @@ var GameLayer = cc.Layer.extend({
             cc.size(1200,800), cc.TEXT_ALIGNMENT_LEFT, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         this.resultLabel = label;
         this.addChild( label, GameLayer.Z.UI );
+    },
+
+    _initDirArrow: function() {
+        var arrow = new DirArrow();
+        //arrow.showArrows( Def.UP );
+        this.dirArrow = arrow;
+        arrow.hideArrows();
+        this.addChild( arrow, GameLayer.Z.UI );
     },
 
     _initCtrlPad: function() {
@@ -355,6 +366,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     runGame: function() {
+        this.dirArrow.hideArrows();
         this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
         this.state = GameLayer.STATE.GAME;
         for( var i in this.guards ) {
@@ -719,6 +731,14 @@ var GameLayer = cc.Layer.extend({
         dirs.push( Util.getOppositeDir(dirs[1]) );
         dirs.push( Util.getOppositeDir(dirs[0]) );
         return dirs;
+    },
+
+    onThiefStoreDir: function( dir ) {
+        this.dirArrow.showArrows( dir );
+    },
+
+    onThiefTurn: function() {
+        this.dirArrow.hideArrows();
     },
 
     onKeyPressed: function( key, event ) {

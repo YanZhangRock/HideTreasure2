@@ -11,6 +11,7 @@ var EditorLayer = cc.Layer.extend({
     mapIO: null,
     objIO: null,
     map: null,
+    titleLabel: null,
     remindLabel: null,
     remindString: "",
     touchBaganLoc: null,
@@ -18,7 +19,10 @@ var EditorLayer = cc.Layer.extend({
     gridMoved: null,
     saveObjsMenu: null,
     shareMenu: null,
+    submitMenu: null,
+    arrangeMenu: null,
     challenger: "",
+    txtCfg: null,
     uid: 2001,
     midNew: 2002,
 
@@ -27,12 +31,8 @@ var EditorLayer = cc.Layer.extend({
         this.scene = scene;
         this.uid = uid;
         this.challenger = challenger;
-        // score label
-        var label = new cc.LabelTTF("随便写写", "Arial", 40);
-        label.x = g_size.width * 0.2;
-        label.y = g_size.height * 0.94;
-        this.remindLabel = label;
-        this.addChild( label, EditorLayer.Z.UI );
+        this._chooseLanguage();
+        this._initTitles();
         this._createNewMapID();
         this._initMapData();
         this._initObjIO();
@@ -42,6 +42,7 @@ var EditorLayer = cc.Layer.extend({
     onLoadMapdata: function() {
         this.map.unserializeObjs();
         this._initSaveUI();
+        this._initOption();
         this._initMapPainter();
         this._initObjTile();
         this._initMapEditor();
@@ -52,14 +53,19 @@ var EditorLayer = cc.Layer.extend({
 
     startLevel: function() {
         this.mapPainter.drawMap();
-        this.remindLabel.setString(this.map.owner);
+        this.titleLabel.setString(this.map.owner + this.txtCfg.title);
+        if( Def.ASK_SECRET ) {
+            this._askSecret();
+        } else {
+            this._showOption( true );
+        }
     },
 
     onObjsSaved: function() {
-        this.remindLabel.setString("地图提交成功");
-        this.schedule( function(){
-            this.remindLabel.setString("");
-        }, 1.5, 0 );
+        //this.remindLabel.setString("地图提交成功");
+//        this.schedule( function(){
+//            this.remindLabel.setString("");
+//        }, 1.5, 0 );
         document.location.replace( this._getNewUrl() );
     },
 
@@ -69,9 +75,24 @@ var EditorLayer = cc.Layer.extend({
         return url + "?" + param;
     },
 
+    _initTitles: function() {
+        // title label
+        var label = new cc.LabelTTF("title", "Arial", 40);
+        label.x = g_size.width * 0.2;
+        label.y = g_size.height * 0.94;
+        this.titleLabel = label;
+        this.addChild( label, EditorLayer.Z.UI );
+        // remind label
+        var label = new cc.LabelTTF("", "Arial", 40);
+        label.x = g_size.width * 0.45;
+        label.y = g_size.height * 0.94;
+        this.remindLabel = label;
+        this.addChild( label, EditorLayer.Z.UI );
+    },
+
     _initSaveUI: function() {
         // save objs label
-        var label = new cc.LabelTTF("提交地图", "Arial", 40);
+        var label = new cc.LabelTTF(this.txtCfg.submit, "Arial", 40);
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
@@ -81,7 +102,7 @@ var EditorLayer = cc.Layer.extend({
         );
         var menu = new cc.Menu( save );
         menu.x = g_size.width * 0.8;
-        menu.y = g_size.height * 0.25;
+        menu.y = g_size.height * 0.08;
         this.saveObjsMenu = menu;
         this.addChild( menu, EditorLayer.Z.UI );
     },
@@ -123,13 +144,52 @@ var EditorLayer = cc.Layer.extend({
         this.mapEditor = new MapEditor( this );
     },
 
+    _initOption: function() {
+        var width = 0.50
+        var size = 80
+        // submit
+        var label = new cc.LabelTTF(this.txtCfg.submit, "Arial", size);
+        var self = this;
+        var submit = new cc.MenuItemLabel( label,
+            function(){
+                self.submitMenu.setPosition( g_size.width * width, g_size.height * 100 );
+                self.arrangeMenu.setPosition( g_size.width * width, g_size.height * 100 );
+                self.objIO.saveObjs( function(){self.onObjsSaved();} );
+            }
+        );
+        var menu = new cc.Menu( submit );
+        menu.x = g_size.width * width;
+        menu.y = g_size.height * 0.60;
+        this.submitMenu = menu;
+        this.addChild( menu, EditorLayer.Z.UI );
+        // arrange
+        var label = new cc.LabelTTF(this.txtCfg.arrange, "Arial", size);
+        var self = this;
+        var arrange = new cc.MenuItemLabel( label,
+            function(){
+                self.submitMenu.setPosition( g_size.width * width, g_size.height * 100 );
+                self.arrangeMenu.setPosition( g_size.width * width, g_size.height * 100 );
+            }
+        );
+        var menu = new cc.Menu( arrange );
+        menu.x = g_size.width * width;
+        menu.y = g_size.height * 0.50;
+        this.arrangeMenu = menu;
+        this.addChild( menu, EditorLayer.Z.UI );
+        this._showOption( false );
+    },
+
+    _chooseLanguage: function() {
+        this.txtCfg = g_language == Def.CHN ? EditorLayer.CHN : EditorLayer.ENG;
+    },
+
     _createCurTile: function() {
         var sprite = new cc.Sprite( "#" + Def.OBJ2IMG["MONEY"] );
         sprite.attr({
             anchorX: 0.5,
             anchorY: 0.5,
             x: g_size.width * 0.55,
-            y: g_size.height * 0.25,
+            y: g_size.height * 0.08,
             scale: Def.GRID_SCALE
         });
         this.curTile.sprite = sprite;
@@ -171,13 +231,13 @@ var EditorLayer = cc.Layer.extend({
     },
 
     onAddMoney: function() {
-        this._askSecret();
+        //this._askSecret();
     },
 
     _askSecret: function() {
         var self = this;
         var msg = Util.createTextField(
-            "俺老孙要在此留尿一坨：",
+            this.txtCfg.msg,
             function(){ self._onGetSecret(this); }
         );
         this.addChild( msg, EditorLayer.Z.FIELD );
@@ -185,7 +245,19 @@ var EditorLayer = cc.Layer.extend({
 
     _onGetSecret: function( msg ) {
         this.map.secret = msg.getString();
+        this._showOption( true );
         //this.map.secret = "lala";
+    },
+
+    _showOption: function( isShow ) {
+        var width = 0.5;
+        if( isShow ) {
+            this.submitMenu.setPosition( g_size.width * width, g_size.height * 0.6 );
+            this.arrangeMenu.setPosition( g_size.width * width, g_size.height * 0.5 );
+        } else {
+            this.submitMenu.setPosition( g_size.width * width, g_size.height * 100 );
+            this.arrangeMenu.setPosition( g_size.width * width, g_size.height * 100 );
+        }
     },
 
     onTouchBegan: function( touch ) {
@@ -219,4 +291,22 @@ EditorLayer.Z = {
     UI: 200,
     SHARE: 201,
     FIELD: 202
+};
+
+EditorLayer.CHN = {
+    title: "的秘密",
+    msg: "俺老孙要在此留尿一坨：",
+    submit: "提交地图",
+    arrange: "排兵布阵",
+    fake: "请选择两个假宝藏",
+    key: "请放置一把钥匙"
+};
+
+EditorLayer.ENG = {
+    title: "'s secret",
+    msg: "Leave your message: ",
+    submit: "I'm done",
+    arrange: "I wanna set layout",
+    fake: "pick two fake fortunes",
+    key: "please place a key"
 };

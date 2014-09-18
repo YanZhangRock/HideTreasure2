@@ -26,8 +26,13 @@ Def.OBJ2IMG = {
 };
 Def.CHN = 1;
 Def.ENG = 2;
-Def.SHOW_ANIM = false;
-Def.USE_MENU = false;
+// menu cfg
 Def.ASK_NAME = false;
+// game cfg
+Def.USE_MENU = false;
+Def.SHOW_ANIM = false;
+// editor cfg
+Def.USE_GAME = false;
+Def.ASK_SECRET = false;
 //g_language = Def.ENG;
 g_language = Def.CHN;

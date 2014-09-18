@@ -351,6 +351,10 @@ var GameLayer = cc.Layer.extend({
     },
 
     prepareRunGame: function() {
+        if( !Def.USE_GAME ) {
+            this.toEditorLevel();
+            return;
+        }
         if( Def.SHOW_ANIM ) {
             var anim = new OpenAnim( this );
             this.openAnim = anim;

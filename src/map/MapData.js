@@ -56,6 +56,12 @@ var MapData = cc.Class.extend({
                 grids[d.x][d.y].guard = true;
             }
         }
+        if( rawData["moneyPos"] ) {
+            for (var i in rawData["moneyPos"]) {
+                var d = rawData["moneyPos"][i];
+                grids[d.x][d.y].money = true;
+            }
+        }
         for( var i in rawData["gridsData"] ){
             var d = rawData["gridsData"][i];
             grids[d.x][d.y].tile = d["tile"];
@@ -69,7 +75,7 @@ var MapData = cc.Class.extend({
         var data = new Object();
         data.secret = this.secret;
         data.trapPos = [];
-        data.moneyPos = [];
+        data.guardPos = [];
         for( var i=0; i<this.width; i++ ) {
             for (var j = 0; j < this.height; j++) {
                 var grid = this.grids[i][j];
@@ -78,8 +84,8 @@ var MapData = cc.Class.extend({
                         { x: i, y: j }
                     );
                 }
-                if( grid.money ) {
-                    data.moneyPos.push(
+                if( grid.money && grid.guard ) {
+                    data.guardPos.push(
                         { x: i, y: j }
                     );
                 }
@@ -104,10 +110,10 @@ var MapData = cc.Class.extend({
                 grids[d.x][d.y].key = true;
             }
         }
-        if( rawData["moneyPos"] ) {
-            for (var i in rawData["moneyPos"]) {
-                var d = rawData["moneyPos"][i];
-                grids[d.x][d.y].money = true;
+        if( rawData["guardPos"] ) {
+            for( var i in rawData["guardPos"] ){
+                var d = rawData["guardPos"][i];
+                grids[d.x][d.y].guard = true;
             }
         }
     }

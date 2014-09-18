@@ -29,10 +29,9 @@ var MenuLayer = cc.Layer.extend({
         this._initTitleLabel();
         this._initStartMenu();
         this._initShareMenu();
-        if( Def.ASK_NAME ) {
-            this._askChallengerName();
-        }
-        //this._askChallengerName();
+//        if( Def.ASK_NAME ) {
+//            this._askChallengerName();
+//        }
         // test
         if( !Def.USE_MENU ) {
             this.startGame();
@@ -55,7 +54,7 @@ var MenuLayer = cc.Layer.extend({
     _onGetChallengerName: function( msg ) {
         var name = msg.getString();
         this.removeChild( msg );
-        this._initStartMenu();
+        //this._initStartMenu();
         if(name.length <= 0) {
             return;
         }
@@ -80,16 +79,16 @@ var MenuLayer = cc.Layer.extend({
         var self = this;
         var save = new cc.MenuItemLabel( label,
             function(){
-//                if( MenuLayer.MOBILE ) {
-//                    if( self.hasName ) {
-//                        self.startGame();
-//                    } else {
-//                        self._askChallengerName();
-//                    }
-//                } else {
-//                    self.startGame();
-//                }
-                self.startGame();
+                if( Def.ASK_NAME ) {
+                    if( self.hasName ) {
+                        self.startGame();
+                    } else {
+                        self._askChallengerName();
+                    }
+                } else {
+                    self.startGame();
+                }
+                //self.startGame();
             }
         );
         var menu = new cc.Menu( save );

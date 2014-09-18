@@ -162,7 +162,7 @@ var GameLayer = cc.Layer.extend({
         this.editorMenu = menu;
         this.addChild( menu, GameLayer.Z.UI );
         // result label
-        var label = new cc.LabelTTF(this.txtCfg.win1, "Arial", 58,
+        var label = new cc.LabelTTF(this.txtCfg.win1, "Arial", 54,
             cc.size(1200,800), cc.TEXT_ALIGNMENT_LEFT, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         this.resultLabel = label;
         this.addChild( label, GameLayer.Z.UI );
@@ -238,7 +238,7 @@ var GameLayer = cc.Layer.extend({
             var showTime = 3;
             var str = this.txtCfg.frag1+this.map.owner+this.txtCfg.frag2+"\n\n\""+this.secretFrag+"\"";
             this.resultLabel.setString( str );
-            this.resultLabel.x = g_size.width * 0.72;
+            this.resultLabel.x = g_size.width * 0.70;
             this.resultLabel.y = g_size.height * 0.60;
             this.pauseGame();
             this.schedule( function() { this.showSecretFrag( false ) }, showTime, 0 );
@@ -258,7 +258,7 @@ var GameLayer = cc.Layer.extend({
             }
             var str = this.txtCfg.key;
             this.resultLabel.setString( str );
-            this.resultLabel.x = g_size.width * 0.72;
+            this.resultLabel.x = g_size.width * 0.70;
             this.resultLabel.y = g_size.height * 0.60;
             this.pauseGame();
             this.schedule( function() { this.showNeedKey( false ) }, showTime, 0 );

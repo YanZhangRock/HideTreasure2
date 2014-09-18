@@ -18,9 +18,11 @@ var MapEditor = cc.Class.extend({
         } else if( tile == "MONEY" ) {
             this._addMoney( grid, img );
         } else if ( tile == "GUARD" ) {
-            this._addGuard( grid, img )
+            this.addGuard( grid )
         } else if ( tile == "TRAP" ) {
-            this._addTrap( grid, img );
+            this.addTrap( grid );
+        } else if ( tile == "KEY" ) {
+            this.addTrap( grid );
         } else {
             this._changeTile( grid, tile, img );
         }
@@ -83,16 +85,18 @@ var MapEditor = cc.Class.extend({
         this.layer.onAddMoney();
     },
 
-    _addGuard: function( grid, img ) {
+    addGuard: function( grid ) {
         if( grid.guard ) {
-            this.layer.removeChild( grid.guard );
-            grid.guard = null;
+            if( grid.money ) {
+                this.layer.removeChild( grid.guard );
+                grid.guard = null;
+            }
             return;
         }
-        if( this.gridHasObj( grid ) ) return;
+        if( !this.gridHasObj( grid ) || grid.thief ) return;
         if( grid.tile == "TREES" ) return;
         var p = Util.grid2World( grid );
-        var guard = new cc.Sprite( "#"+img );
+        var guard = new cc.Sprite( "#guard.png" );
         guard.attr({
             anchorX: 0.5,
             anchorY: 0.5,
@@ -104,7 +108,7 @@ var MapEditor = cc.Class.extend({
         grid.guard = guard;
     },
 
-    _addTrap: function( grid, img ) {
+    addTrap: function( grid ) {
         if( grid.trap ) {
             this.layer.removeChild( grid.trap );
             grid.trap = null;
@@ -115,7 +119,7 @@ var MapEditor = cc.Class.extend({
         if( this.gridHasObj( grid ) ) return;
         if( grid.tile == "TREES" ) return;
         var p = Util.grid2World( grid );
-        var trap = new cc.Sprite( "#"+img );
+        var trap = new cc.Sprite( "#key.png" );
         trap.attr({
             anchorX: 0.5,
             anchorY: 0.5,

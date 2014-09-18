@@ -127,7 +127,7 @@ var EditorLayer = cc.Layer.extend({
             case EditorLayer.PHASE.KEY:
                 this.setCurTile( "KEY", "key.png" );
                 this.remindLabel.setString( this.txtCfg.key );
-                this.saveObjsLabel.setString( this.txtCfg.submit );
+                this.saveObjsLabel.setString( this.txtCfg.submit2 );
                 break;
         }
         this.phase = phase;
@@ -150,19 +150,22 @@ var EditorLayer = cc.Layer.extend({
     _getNewUrl: function() {
         var url = location.href.split("?")[0];
         var param = "uid="+this.map.uidNew;
+        if( g_language == Def.ENG ) {
+            param = param + "&lan=e";
+        }
         return url + "?" + param;
     },
 
     _initTitles: function() {
         // title label
         var label = new cc.LabelTTF("", "Arial", 40, cc.size(400,80), cc.TEXT_ALIGNMENT_LEFT);
-        label.x = g_size.width * 0.25;
+        label.x = g_size.width * 0.30;
         label.y = g_size.height * 0.94;
         this.titleLabel = label;
         this.addChild( label, EditorLayer.Z.UI );
         // remind label
         var label = new cc.LabelTTF("", "Arial", 40, cc.size(800,80), cc.TEXT_ALIGNMENT_LEFT);
-        label.x = g_size.width * 0.75;
+        label.x = g_size.width * 0.80;
         label.y = g_size.height * 0.94;
         this.remindLabel = label;
         this.addChild( label, EditorLayer.Z.UI );
@@ -178,8 +181,8 @@ var EditorLayer = cc.Layer.extend({
             }
         );
         var menu = new cc.Menu( save );
-        menu.x = g_size.width * 0.8;
-        menu.y = g_size.height * 0.08;
+        menu.x = g_size.width * 0.85;
+        menu.y = g_size.height * 0.15;
         this.saveObjsMenu = menu;
         this.saveObjsLabel = label;
         label.setString("");
@@ -269,7 +272,7 @@ var EditorLayer = cc.Layer.extend({
             anchorX: 0.5,
             anchorY: 0.5,
             x: g_size.width * 0.55,
-            y: g_size.height * 0.08,
+            y: g_size.height * 0.12,
             scale: Def.GRID_SCALE
         });
         this.curTile.sprite = sprite;
@@ -380,6 +383,7 @@ EditorLayer.CHN = {
     title: "的秘密",
     msg: "俺老孙要在此留尿一坨：",
     submit: "马上发布秘密",
+    submit2: "发布秘密",
     arrange: "先排兵布阵",
     fake: "请选择两个假宝藏",
     key: "请放置一把钥匙",
@@ -390,6 +394,7 @@ EditorLayer.ENG = {
     title: "'s secret",
     msg: "Leave your message: ",
     submit: "Publish immediately",
+    submit2: "Publish",
     arrange: "Set layout first",
     fake: "pick two fake fortunes",
     key: "please place a key",

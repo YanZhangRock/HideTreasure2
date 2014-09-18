@@ -45,11 +45,11 @@ var DirArrow = cc.Node.extend({
                 break;
             case Def.UP:
                 rot = 270;
-                pos = DirArrow.POS2;
+                //pos = DirArrow.POS2;
                 break;
             case Def.DOWN:
                 rot = 90;
-                pos = DirArrow.POS2;
+                //pos = DirArrow.POS2;
                 break;
         }
         this.setPosition( g_size.width * pos.x, g_size.height * pos.y );
@@ -94,6 +94,6 @@ var DirArrow = cc.Node.extend({
 });
 
 DirArrow.NUM = 5;
-DirArrow.POS1 = { x: 0.52, y: 0.95 };
+DirArrow.POS1 = { x: 0.52, y: 0.06 };
 DirArrow.POS2 = { x: 0.98, y: 0.50 };
 DirArrow.DIST = 30;

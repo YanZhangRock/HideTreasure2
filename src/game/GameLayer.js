@@ -128,7 +128,7 @@ var GameLayer = cc.Layer.extend({
 
     _initLabels: function() {
         // timer label
-        var height = 0.09;
+        var height = 0.15;
         var label = new cc.LabelTTF(this.txtCfg.timer, "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.85;
@@ -137,7 +137,7 @@ var GameLayer = cc.Layer.extend({
         // life label
         var label = new cc.LabelTTF(this.txtCfg.life, "Arial", 40);
         this.lifeLabel = label;
-        label.x = g_size.width * 0.50;
+        label.x = g_size.width * 0.60;
         label.y = g_size.height * height;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
@@ -370,7 +370,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     runGame: function() {
-        this.dirArrow.hideArrows();
+        //this.dirArrow.hideArrows();
         this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
         this.state = GameLayer.STATE.GAME;
         for( var i in this.guards ) {
@@ -738,11 +738,11 @@ var GameLayer = cc.Layer.extend({
     },
 
     onThiefStoreDir: function( dir ) {
-        this.dirArrow.showArrows( dir );
+        //this.dirArrow.showArrows( dir );
     },
 
     onThiefTurn: function() {
-        this.dirArrow.hideArrows();
+        //this.dirArrow.hideArrows();
     },
 
     onKeyPressed: function( key, event ) {
@@ -761,8 +761,10 @@ var GameLayer = cc.Layer.extend({
         }
         if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
+            this.dirArrow.showArrows( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
+            this.dirArrow.showArrows( dir );
             this.runGame();
         }
     },
@@ -773,8 +775,10 @@ var GameLayer = cc.Layer.extend({
         }
         if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
+            this.dirArrow.showArrows( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
+            this.dirArrow.showArrows( dir );
             this.runGame();
         }
     },
@@ -782,8 +786,10 @@ var GameLayer = cc.Layer.extend({
     onClickArrowBtn: function( dir ) {
         if( this.state == GameLayer.STATE.GAME || this.state == GameLayer.STATE.PAUSE ) {
             this.thief.changeDir( dir );
+            this.dirArrow.showArrows( dir );
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
+            this.dirArrow.showArrows( dir );
             this.runGame();
         }
     }

@@ -104,7 +104,7 @@ var Thief = Mover.extend({
             if( this.moneyNum >= this.layer.maxMoney ) {
                 this.layer.endGame( true );
             } else {
-                this.layer.showSecretFrag( true );
+                this.layer.onGetFragMoney( money );
             }
         }
     },
@@ -124,5 +124,5 @@ var Thief = Mover.extend({
     }
 });
 
-Thief.SPEED = [ 150, 180, 220, 250 ];
+Thief.SPEED = [ 100, 150 ];
 Thief.LIFE = 3;

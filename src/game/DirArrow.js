@@ -96,4 +96,4 @@ var DirArrow = cc.Node.extend({
 DirArrow.NUM = 5;
 DirArrow.POS1 = { x: 0.52, y: 0.06 };
 DirArrow.POS2 = { x: 0.98, y: 0.50 };
-DirArrow.DIST = 30;
+DirArrow.DIST = 25;

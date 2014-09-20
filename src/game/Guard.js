@@ -9,6 +9,7 @@ var Guard = Mover.extend({
     speedType: null,
     isHide: false,
     lv: 0,
+    mode: null,
 
     ctor: function( layer ) {
         this._super( "#guard.png", layer );
@@ -16,12 +17,18 @@ var Guard = Mover.extend({
         this.arriveCallBack = this.onArriveGrid;
         this.updateCallBack = this.onUpdate;
         this.setType( Mover.TYPE.GUARD );
+        this.changeSpeed( Guard.PATROL_SPEED );
+        this.setMode( Guard.MODE.STUPID );
     },
 
     init: function() {
         this.aiState = Guard.AI_STATE.IDLE;
         this.changeSpeed( Guard.PATROL_SPEED );
         this.startPatrol();
+    },
+
+    setMode: function( mode ) {
+        this.mode = mode;
     },
 
     pauseAI: function() {
@@ -81,6 +88,17 @@ var Guard = Mover.extend({
     processPatrol: function() {
         var guardGrid = this.getRealGrid();
         var thiefGrid = this.thief.getRealGrid();
+        if( this.mode == Guard.MODE.STUPID ) {
+            if( this.layer.isGridVisible( guardGrid, thiefGrid ) ) {
+                var dir = this.layer.getRelativeDir( guardGrid, thiefGrid );
+                dir = Util.getOppositeDir( dir );
+                if( this.isTurnBack( dir ) && this.canChangeDir( this.curGrid, dir ) ) {
+                    this.changeDir( dir );
+                }
+
+            }
+            return;
+        }
         if( this.layer.isGridVisible( guardGrid, thiefGrid ) ) {
             var dir = this.layer.getRelativeDir( guardGrid, thiefGrid );
             this.startChase();
@@ -224,11 +242,15 @@ var Guard = Mover.extend({
 
 });
 
-Guard.PATROL_SPEED = [ 70, 80, 120, 150 ];
-Guard.CHASE_SLOW = [ 100, 120, 150, 180 ];
-Guard.CHASE_FAST = [ 130, 150, 180, 210 ];
+Guard.PATROL_SPEED = [ 40, 80 ];
+Guard.CHASE_SLOW = [ 60, 100 ];
+Guard.CHASE_FAST = [ 80, 130 ];
 Guard.PATROL_DIST = 3;
 Guard.CHASE_DIST = 5;
 Guard.AI_STATE = {
     IDLE: 0, PATROL: 1, CHASE: 2, RETURN: 3
 };
+Guard.MODE = {
+    NORMAL: 0, STUPID: 1
+};
+Guard.STUPID_TIME = 6;

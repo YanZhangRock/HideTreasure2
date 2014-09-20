@@ -43,7 +43,7 @@ var GameLayer = cc.Layer.extend({
         this.scene = scene;
         this.uid = uid;
         this.challenger = challenger;
-        this.state = GameLayer.STATE.END;
+        this.setState( GameLayer.STATE.END );
         this._chooseLanguage();
         this._initMapData();
         this._initObjIO();
@@ -235,17 +235,13 @@ var GameLayer = cc.Layer.extend({
 
     showSecretFrag: function( isShow ) {
         if( isShow ) {
-            var showTime = 3;
             var str = this.txtCfg.frag1+this.map.owner+this.txtCfg.frag2+"\n\n\""+this.secretFrag+"\"";
             this.resultLabel.setString( str );
             this.resultLabel.x = g_size.width * 0.70;
             this.resultLabel.y = g_size.height * 0.60;
-            this.pauseGame();
-            this.schedule( function() { this.showSecretFrag( false ) }, showTime, 0 );
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
-            this.resumeGame();
         }
     },
 
@@ -267,6 +263,17 @@ var GameLayer = cc.Layer.extend({
             this.resultLabel.y = g_size.height * 100;
             this.resumeGame();
         }
+    },
+
+    onGetFragMoney: function( money ) {
+        var showTime = 3;
+        this.pauseGame();
+        this.showSecretFrag( true );
+        this.schedule( function() {
+            this.showSecretFrag( false );
+            this.resumeGame();
+            this.nextLv();
+        }, showTime, 0 );
     },
 
     onGetFakeMoney: function( money ) {
@@ -350,6 +357,22 @@ var GameLayer = cc.Layer.extend({
         this.thief = null;
     },
 
+    setState: function( state ) {
+        this.state = state;
+    },
+
+    _stupidGuards: function() {
+        // stupid guards for a while
+        for( var i in this.guards ) {
+            this.guards[i].setMode( Guard.MODE.STUPID );
+        }
+        this.schedule( function() {
+            for( var i in this.guards ) {
+                this.guards[i].setMode( Guard.MODE.NORMAL );
+            }
+        }, Guard.STUPID_TIME, 0 );
+    },
+
     prepareRunGame: function() {
         if( !Def.USE_GAME ) {
             this.toEditorLevel();
@@ -361,18 +384,17 @@ var GameLayer = cc.Layer.extend({
             var self = this;
             anim.playAnim( function(){
                 self.openAnim = null;
-                self.state = GameLayer.STATE.PREPARE;
+                self.setState( GameLayer.STATE.PREPARE );
             } );
         } else {
-            this.state = GameLayer.STATE.PREPARE;
+            this.setState( GameLayer.STATE.PREPARE );
         }
-
     },
 
     runGame: function() {
         //this.dirArrow.hideArrows();
         this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
-        this.state = GameLayer.STATE.GAME;
+        this.setState( GameLayer.STATE.GAME );
         for( var i in this.guards ) {
             var guard = this.guards[i];
             if( guard.isHide ) {
@@ -435,7 +457,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     pauseGame: function() {
-        this.state = GameLayer.STATE.PAUSE;
+        this.setState( GameLayer.STATE.PAUSE );
         this.thief.pauseMove();
         for( var i in this.guards ) {
             this.guards[i].pauseAI();
@@ -445,7 +467,7 @@ var GameLayer = cc.Layer.extend({
 
     resumeGame: function() {
         this.schedule( this.checkTimeup, GameLayer.TIMEUP_INTERVAL );
-        this.state = GameLayer.STATE.GAME;
+        this.setState( GameLayer.STATE.GAME );
         for( var i in this.guards ) {
             var guard = this.guards[i];
             if( !guard.isHide ) {
@@ -456,7 +478,7 @@ var GameLayer = cc.Layer.extend({
     },
 
     endGame: function( isWin ) {
-        this.state = GameLayer.STATE.END;
+        this.setState( GameLayer.STATE.END );
         this.thief.stopMove();
         this.thief.unscheduleUpdate();
         this.unschedule( this.checkTimeup );
@@ -496,13 +518,13 @@ var GameLayer = cc.Layer.extend({
             this.endGame( false );
         }
         this.lvTime += GameLayer.TIMEUP_INTERVAL;
-        if( this.lvTime >= GameLayer.LV_TIME[this.lv] ) {
-            this.nextLv();
-        }
+//        if( this.lvTime >= GameLayer.LV_TIME[this.lv] ) {
+//            this.nextLv();
+//        }
     },
 
     nextLv: function() {
-        if( this.lv >= GameLayer.MAX_LV-1 ) return;
+        //if( this.lv >= GameLayer.MAX_LV-1 ) return;
         this.lvTime = 0;
         this.lv++;
         this.thief.changeLv( this.lv );
@@ -765,6 +787,7 @@ var GameLayer = cc.Layer.extend({
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
             this.dirArrow.showArrows( dir );
+            this._stupidGuards();
             this.runGame();
         }
     },
@@ -779,6 +802,7 @@ var GameLayer = cc.Layer.extend({
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
             this.dirArrow.showArrows( dir );
+            this._stupidGuards();
             this.runGame();
         }
     },
@@ -790,6 +814,7 @@ var GameLayer = cc.Layer.extend({
         } else if ( this.state == GameLayer.STATE.PREPARE ) {
             this.thief.changeDir( dir );
             this.dirArrow.showArrows( dir );
+            this._stupidGuards();
             this.runGame();
         }
     }
@@ -819,7 +844,7 @@ GameLayer.STATE = {
 GameLayer.TIMEUP = 600;
 GameLayer.TIMEUP_INTERVAL = 1;
 GameLayer.SWIPE_DIST = 5;
-GameLayer.LV_TIME = [ 8, 10 ];
+//GameLayer.LV_TIME = [ 8, 10 ];
 GameLayer.MAX_LV = 1;
 GameLayer.CHN = {
     timer: "剩余时间：",

@@ -3,11 +3,14 @@ cc.game.onStart = function(){
     if( cc.sys.isMobile ) {
         var policy = new cc.ResolutionPolicy(
             cc.ContainerStrategy.EQUAL_TO_FRAME,
-            cc.ContentStrategy.EXACT_FIT
+            //cc.ContainerStrategy.PROPORTION_TO_FRAME,
+            //cc.ContentStrategy.EXACT_FIT
+            //cc.ContentStrategy.SHOW_ALL
+            cc.ContentStrategy.FIXED_WIDTH
         )
-        cc.view.setDesignResolutionSize( 880, 1200, policy );
+        cc.view.setDesignResolutionSize( 880, 1460, policy );
     } else {
-        cc.view.setDesignResolutionSize( 880, 1200, cc.ResolutionPolicy.SHOW_ALL );
+        cc.view.setDesignResolutionSize( 880, 1460, cc.ResolutionPolicy.SHOW_ALL );
     }
     cc.view.resizeWithBrowserSize(true);
     //cc.screen.requestFullScreen();

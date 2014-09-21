@@ -44,6 +44,7 @@ var GameLayer = cc.Layer.extend({
         this.uid = uid;
         this.challenger = challenger;
         this.setState( GameLayer.STATE.END );
+        this._initBackground();
         this._chooseLanguage();
         this._initMapData();
         this._initObjIO();
@@ -126,19 +127,33 @@ var GameLayer = cc.Layer.extend({
         }, this);
     },
 
+    _initBackground: function() {
+        var sprite = new cc.Sprite( "#menuback.png" );
+        sprite.attr({
+            anchorX: 0.5,
+            anchorY: 0.5,
+            x: g_size.width * 0.5,
+            y: g_size.height * 0.5,
+            scale: Def.IMG_SCALE
+        });
+        this.addChild( sprite, GameLayer.Z.BACK );
+    },
+
     _initLabels: function() {
         // timer label
-        var height = 0.11;
+        var height = 0.14;
         var label = new cc.LabelTTF(this.txtCfg.timer, "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.82;
         label.y = g_size.height * height;
+        label.color = cc.color.BLACK;
         this.addChild( label, GameLayer.Z.UI );
         // life label
         var label = new cc.LabelTTF(this.txtCfg.life, "Arial", 40);
         this.lifeLabel = label;
         label.x = g_size.width * 0.28;
         label.y = g_size.height * height;
+        label.color = cc.color.BLACK;
         this.addChild( label, GameLayer.Z.UI );
         // restart label
         var label = new cc.LabelTTF(this.txtCfg.replay, "Arial", 80);
@@ -818,11 +833,12 @@ var GameLayer = cc.Layer.extend({
 });
 
 GameLayer.Z = {
-    TILE: 0,
-    ITEM: 1,
-    OBJ: 2,
-    ANIM: 3,
-    UI: 4
+    BACK: 0,
+    TILE: 1,
+    ITEM: 2,
+    OBJ: 3,
+    ANIM: 4,
+    UI: 5
 };
 
 GameLayer.TILE_TYPE = {

@@ -19,6 +19,7 @@ var MenuLayer = cc.Layer.extend({
     ctor: function ( scene ) {
         this._super();
         this.scene = scene;
+        this._initBackground();
         //this._initTitleLabel();
         this._loadUserID();
         this._chooseLanguage();
@@ -84,12 +85,35 @@ var MenuLayer = cc.Layer.extend({
         //this.startGame();
     },
 
+    _initBackground: function() {
+        var sprite = new cc.Sprite( "#menuback.png" );
+        sprite.attr({
+            anchorX: 0.5,
+            anchorY: 0.5,
+            x: g_size.width * 0.5,
+            y: g_size.height * 0.5,
+            scale: Def.IMG_SCALE
+        });
+        this.addChild( sprite, MenuLayer.Z.BACK );
+    },
+
     _initTitleLabel: function() {
+        var w = 0.5, h = 0.8
         var label = new cc.LabelTTF(this.owner+this.txtCfg.title1, "Arial", 80);
-        label.x = g_size.width * 0.5;
-        label.y = g_size.height * 0.8;
+        label.x = g_size.width * w;
+        label.y = g_size.height * h;
         this.titleLabel = label;
         this.addChild( label, MenuLayer.Z.UI );
+        label.color = Def.COLOR.GREEN;
+        var sprite = new cc.Sprite( "#msgbox1.png" );
+        sprite.attr({
+            anchorX: 0.5,
+            anchorY: 0.5,
+            x: g_size.width * w,
+            y: g_size.height * h,
+            scale: Def.IMG_SCALE
+        });
+        this.addChild( sprite, MenuLayer.Z.UI_IMG );
     },
 
     _initStartMenu: function() {
@@ -221,7 +245,9 @@ var MenuLayer = cc.Layer.extend({
 });
 
 MenuLayer.Z = {
-    UI: 200,
+    BACK: 100,
+    UI_IMG: 200,
+    UI: 201,
     FIELD: 300
 };
 

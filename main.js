@@ -5,9 +5,9 @@ cc.game.onStart = function(){
             cc.ContainerStrategy.EQUAL_TO_FRAME,
             cc.ContentStrategy.EXACT_FIT
         )
-        cc.view.setDesignResolutionSize( 880, 1300, policy );
+        cc.view.setDesignResolutionSize( 880, 1200, policy );
     } else {
-        cc.view.setDesignResolutionSize( 880, 1300, cc.ResolutionPolicy.SHOW_ALL );
+        cc.view.setDesignResolutionSize( 880, 1200, cc.ResolutionPolicy.SHOW_ALL );
     }
     cc.view.resizeWithBrowserSize(true);
     //cc.screen.requestFullScreen();

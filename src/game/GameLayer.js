@@ -128,16 +128,16 @@ var GameLayer = cc.Layer.extend({
 
     _initLabels: function() {
         // timer label
-        var height = 0.15;
+        var height = 0.11;
         var label = new cc.LabelTTF(this.txtCfg.timer, "Arial", 40);
         this.timerLabel = label;
-        label.x = g_size.width * 0.85;
+        label.x = g_size.width * 0.82;
         label.y = g_size.height * height;
         this.addChild( label, GameLayer.Z.UI );
         // life label
         var label = new cc.LabelTTF(this.txtCfg.life, "Arial", 40);
         this.lifeLabel = label;
-        label.x = g_size.width * 0.60;
+        label.x = g_size.width * 0.28;
         label.y = g_size.height * height;
         this.addChild( label, GameLayer.Z.UI );
         // restart label

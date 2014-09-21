@@ -5,19 +5,20 @@
 var DirArrow = cc.Node.extend({
     arrows: [],
     animIdx: 0,
+    animation: null,
 
     ctor: function () {
         this._super();
         this.attr({
             anchorX: 0.5,
             anchorY: 0.5,
-            x: g_size.width * DirArrow.POS1.x,
-            y: g_size.height * DirArrow.POS1.y,
+            x: g_size.width * DirArrow.POS.x,
+            y: g_size.height * DirArrow.POS.y,
             scale: 1.0
         });
         var mid = Math.floor( DirArrow.NUM / 2 );
         for( var i=0; i< DirArrow.NUM; i++ ) {
-            var arrow = new cc.Sprite( "#direction.png" );
+            var arrow = new cc.Sprite( "#direction2.png" );
             arrow.attr({
                 anchorX: 0.5,
                 anchorY: 0.5,
@@ -28,28 +29,37 @@ var DirArrow = cc.Node.extend({
             this.addChild( arrow, 0 );
             this.arrows.push( arrow );
         }
+        this._initAnimation();
+    },
+
+    _initAnimation: function() {
+        var animFrames = [];
+        var frameNames = ["direction.png", "direction2.png"];
+        for ( var j = 0; j < 2; j++ ) {
+            var spriteFrame = cc.spriteFrameCache.getSpriteFrame(frameNames[j]);
+            var animFrame = new cc.AnimationFrame();
+            animFrame.initWithSpriteFrame(spriteFrame, 1, null);
+            animFrames.push(animFrame);
+        }
+        this.animation = new cc.Animation( animFrames, 0.4, 999 );
     },
 
     showArrows: function( dir ) {
         this._stopAnim();
         var rot = 0;
-        var pos = DirArrow.POS1;
+        var pos = DirArrow.POS;
         switch ( dir ) {
             case Def.LEFT:
                 rot = 180;
-                pos = DirArrow.POS1;
                 break;
             case Def.RIGHT:
                 rot = 0;
-                pos = DirArrow.POS1;
                 break;
             case Def.UP:
                 rot = 270;
-                //pos = DirArrow.POS2;
                 break;
             case Def.DOWN:
                 rot = 90;
-                //pos = DirArrow.POS2;
                 break;
         }
         this.setPosition( g_size.width * pos.x, g_size.height * pos.y );
@@ -69,9 +79,12 @@ var DirArrow = cc.Node.extend({
 
     _playAnim: function() {
         this._stopAnim();
+        for( var i in this.arrows ) {
+            this.arrows[i].stopAllActions();
+        }
         this.animIdx = 0;
         this._hideAllArrow();
-        this.schedule( this._updateAnim, 0.02 );
+        this.schedule( this._updateAnim, 0.06 );
     },
 
     _updateAnim: function() {
@@ -84,6 +97,8 @@ var DirArrow = cc.Node.extend({
         }
         var arrow = this.arrows[this.animIdx++];
         arrow.setVisible( true );
+        var animate = new cc.Animate( this.animation );
+        arrow.runAction( animate );
     },
 
     _hideAllArrow: function() {
@@ -94,6 +109,5 @@ var DirArrow = cc.Node.extend({
 });
 
 DirArrow.NUM = 5;
-DirArrow.POS1 = { x: 0.52, y: 0.06 };
-DirArrow.POS2 = { x: 0.98, y: 0.50 };
-DirArrow.DIST = 25;
+DirArrow.POS = { x: 0.52, y: 0.08 };
+DirArrow.DIST = 20;

@@ -608,7 +608,8 @@ var GameLayer = cc.Layer.extend({
                     batch.addChild(this.thief);
                 }
                 // guards
-                if (grid.guard) {
+                if (grid.guard ) {
+                    test = false;
                     var guard = new Guard(this);
                     if( grid.money ) {
                         guard.isHide = true;
@@ -757,10 +758,6 @@ var GameLayer = cc.Layer.extend({
         dirs.push( Util.getOppositeDir(dirs[1]) );
         dirs.push( Util.getOppositeDir(dirs[0]) );
         return dirs;
-    },
-
-    onThiefStoreDir: function( dir ) {
-        //this.dirArrow.showArrows( dir );
     },
 
     onThiefTurn: function() {

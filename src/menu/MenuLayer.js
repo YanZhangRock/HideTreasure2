@@ -2,6 +2,8 @@
  * Created by Rock on 9/5/14.
  */
 
+var g_shareMsg = "";
+
 var MenuLayer = cc.Layer.extend({
     scene: null,
     titleLabel: null,
@@ -17,11 +19,13 @@ var MenuLayer = cc.Layer.extend({
     ctor: function ( scene ) {
         this._super();
         this.scene = scene;
-        document.title = MenuLayer.TITLE;
         //this._initTitleLabel();
         this._loadUserID();
         this._chooseLanguage();
         this._loadOwner();
+        document.title = this.txtCfg.title;
+        g_shareMsg = this.getShareResultStr();
+        this._addWeChatFunc();
     },
 
     onLoadOwner: function( txt ) {
@@ -32,10 +36,27 @@ var MenuLayer = cc.Layer.extend({
 //        if( Def.ASK_NAME ) {
 //            this._askChallengerName();
 //        }
-        // test
         if( !Def.USE_MENU ) {
             this.startGame();
         }
+    },
+
+    _addWeChatFunc: function() {
+        document.addEventListener('WeixinJSBridgeReady', function() {
+            // 隐藏按钮，对应的展示参数是：showOptionMenu
+            //WeixinJSBridge.call('hideOptionMenu');
+
+            WeixinJSBridge.on('menu:share:appmessage', function (argv) {
+                WeixinJSBridge.invoke('sendAppMessage', {
+                    "img_url": location.origin+"/HideTreasure2/res/money.png",
+                    "img_width": "120",
+                    "img_height": "120",
+                    "link": location.href,
+                    "desc": g_shareMsg,
+                    "title": document.title
+                }, function () {});
+            });
+        });
     },
 
     _chooseLanguage: function() {
@@ -122,7 +143,6 @@ var MenuLayer = cc.Layer.extend({
             scale: 1.0
         });
         this.addChild( this.shareSprite, MenuLayer.Z.SHARE );
-        document.title = this.getShareResultStr();
     },
 
     getShareResultStr: function() {
@@ -157,7 +177,6 @@ var MenuLayer = cc.Layer.extend({
         if( this.shareSprite == null ) return;
         this.removeChild( this.shareSprite );
         this.shareSprite = null;
-        document.title = MenuLayer.TITLE;
     },
 
     _loadUserID: function() {
@@ -206,8 +225,8 @@ MenuLayer.Z = {
     FIELD: 300
 };
 
-MenuLayer.TITLE = "Fortune Whisper";
 MenuLayer.ENG = {
+    title: "Talkable Fortune",
     title1: "'s secret",
     title2: "find out",
     title3: "share to WeChat",
@@ -216,6 +235,7 @@ MenuLayer.ENG = {
     share2: " hide my secret in the mysterious forest. Can you find it?"
 };
 MenuLayer.CHN = {
+    title: "会说话的宝藏",
     title1: "的秘密",
     title2: "一探究竟",
     title3: "分享到微信",

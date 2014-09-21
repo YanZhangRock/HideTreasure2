@@ -271,9 +271,6 @@ var Mover = cc.Sprite.extend({
         }
         if( this.state == Mover.STATE.PAUSE ) {
             this._storeNextDir( dir );
-            if( this.type == Mover.TYPE.THIEF ) {
-                this.layer.onThiefStoreDir( dir );
-            }
             return;
         }
         if( this.isTurnBack( dir ) ) {
@@ -298,12 +295,6 @@ var Mover = cc.Sprite.extend({
                 return;
             }
             this._storeNextDir( dir );
-            if( this.type == Mover.TYPE.THIEF ) {
-                if( !this.canChangeDir( this.nextGrid, dir )
-                    || !this.isAlmostArrive() ) {
-                    this.layer.onThiefStoreDir( dir );
-                }
-            }
         }
     },
 

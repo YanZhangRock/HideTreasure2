@@ -7,14 +7,16 @@ var g_shareMsg = "";
 var MenuLayer = cc.Layer.extend({
     scene: null,
     titleLabel: null,
-    startMenu: null,
     shareMenu: null,
+    startBtn: null,
+    shareBtn: null,
     uid: 2001,
     owner: "Alien",
     challenger: "SB",
     textField: null,
     hasName: false,
     txtCfg: null,
+    btnMgr: null,
 
     ctor: function ( scene ) {
         this._super();
@@ -32,7 +34,7 @@ var MenuLayer = cc.Layer.extend({
     onLoadOwner: function( txt ) {
         this._parseOwner( txt )
         this._initTitleLabel();
-        this._initStartMenu();
+        this._initButtons();
         this._initShareMenu();
 //        if( Def.ASK_NAME ) {
 //            this._askChallengerName();
@@ -76,13 +78,12 @@ var MenuLayer = cc.Layer.extend({
     _onGetChallengerName: function( msg ) {
         var name = msg.getString();
         this.removeChild( msg );
-        //this._initStartMenu();
         if(name.length <= 0) {
             return;
         }
         this.challenger = name;
         this.hasName = true;
-        //this.startGame();
+        this.startGame();
     },
 
     _initBackground: function() {
@@ -116,31 +117,49 @@ var MenuLayer = cc.Layer.extend({
         this.addChild( sprite, MenuLayer.Z.UI_IMG );
     },
 
-    _initStartMenu: function() {
-        if( this.startMenu ) {
-            this.removeChild( this.startMenu );
-        }
-        var label = new cc.LabelTTF(this.txtCfg.title2, "Arial", 70);
+    _initButtons: function() {
         var self = this;
-        var save = new cc.MenuItemLabel( label,
-            function(){
-                if( Def.ASK_NAME ) {
-                    if( self.hasName ) {
-                        self.startGame();
-                    } else {
-                        self._askChallengerName();
-                    }
-                } else {
-                    self.startGame();
-                }
-                //self.startGame();
+        // button manager
+        this.btnMgr = new ButtonMgr();
+        this.addChild( this.btnMgr, MenuLayer.Z.UI );
+        // start button
+        var btn = new MyButton( this.txtCfg.title2 );
+        btn.x = g_size.width * 0.5;
+        btn.y = g_size.height * 0.6;
+        btn.setCallBack( function() { self.onClickStart(); } );
+        this.startBtn = btn;
+        this.btnMgr.addButton( btn );
+        // share button
+        var btn = new MyButton( this.txtCfg.title3 );
+        btn.x = g_size.width * 0.5;
+        btn.y = g_size.height * 0.4;
+        btn.setCallBack( function() { self.onClickShare(); } );
+        this.shareBtn = btn;
+        this.btnMgr.addButton( btn );
+    },
+
+    onClickStart: function() {
+        if( Def.ASK_NAME ) {
+            if( this.hasName ) {
+                this.startGame();
+            } else {
+                var self = this;
+                this.schedule( function() { self._askChallengerName(); }, 0.1, 0 );
             }
-        );
-        var menu = new cc.Menu( save );
-        menu.x = g_size.width * 0.5;
-        menu.y = g_size.height * 0.6;
-        this.startMenu = menu;
-        this.addChild( menu, MenuLayer.Z.UI );
+        } else {
+            this.startGame();
+        }
+    },
+
+    onClickShare: function() {
+        this.addCoverBtn();
+        this.shareSprite = new cc.Sprite( res.Share );
+        this.shareSprite.attr({
+            x: g_size.width * 0.7,
+            y: g_size.height * 0.9,
+            scale: 1.0
+        });
+        this.addChild( this.shareSprite, MenuLayer.Z.SHARE );
     },
 
     _initShareMenu: function() {
@@ -155,18 +174,7 @@ var MenuLayer = cc.Layer.extend({
         menu.x = g_size.width * 0.5;
         menu.y = g_size.height * 0.4;
         this.shareMenu = menu;
-        this.addChild( menu, MenuLayer.Z.UI );
-    },
-
-    shareResult: function() {
-        this.addCoverBtn();
-        this.shareSprite = new cc.Sprite( res.Share );
-        this.shareSprite.attr({
-            x: g_size.width * 0.7,
-            y: g_size.height * 0.9,
-            scale: 1.0
-        });
-        this.addChild( this.shareSprite, MenuLayer.Z.SHARE );
+        //this.addChild( menu, MenuLayer.Z.UI );
     },
 
     getShareResultStr: function() {
@@ -248,7 +256,9 @@ MenuLayer.Z = {
     BACK: 100,
     UI_IMG: 200,
     UI: 201,
+    SHARE: 202,
     FIELD: 300
+
 };
 
 MenuLayer.ENG = {

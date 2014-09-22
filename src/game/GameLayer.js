@@ -141,7 +141,7 @@ var GameLayer = cc.Layer.extend({
 
     _initLabels: function() {
         // timer label
-        var height = 0.14;
+        var height = 0.12;
         var label = new cc.LabelTTF(this.txtCfg.timer, "Arial", 40);
         this.timerLabel = label;
         label.x = g_size.width * 0.82;

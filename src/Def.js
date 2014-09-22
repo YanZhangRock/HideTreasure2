@@ -12,7 +12,7 @@ Def.COLOR = {
 Def.UID = 2000;
 Def.MID = 2000;
 Def.GRID_SIZE = 80;
-Def.ORI_GRID = { x: 0, y: 240 };
+Def.ORI_GRID = { x: 0, y: 200 };
 Def.GRID_SCALE = 1.25;
 Def.UP = 0;
 Def.DOWN = 1;
@@ -34,7 +34,7 @@ Def.ENG = 2;
 // menu cfg
 Def.ASK_NAME = false;
 // game cfg
-Def.USE_MENU = false;
+Def.USE_MENU = true;
 Def.SHOW_ANIM = false;
 // editor cfg
 Def.USE_GAME = true;

@@ -25,7 +25,6 @@ var GameLayer = cc.Layer.extend({
     lifeLabel: null,
     touchBaganLoc: null,
     mapBatch: null,
-    objBatch: null,
     maxMoney: 0,
     restTime: 0,
     goldNum: 0,
@@ -364,11 +363,23 @@ var GameLayer = cc.Layer.extend({
     },
 
     clearObjs: function() {
-        var batch = this.objBatch;
-        batch.removeAllChildren();
+        this.removeChild( this.thief );
+        for( var i in this.guards ) {
+            this.removeChild( this.guards[i] );
+        }
+        for( var i in this.moneys ) {
+            this.removeChild( this.moneys[i] );
+        }
+        for( var i in this.traps ) {
+            this.removeChild( this.traps[i] );
+        }
+        for( var i in this.keys ) {
+            this.removeChild( this.keys[i] );
+        }
         this.guards = [];
         this.moneys = [];
         this.traps = [];
+        this.keys = [];
         this.thief = null;
     },
 
@@ -606,35 +617,11 @@ var GameLayer = cc.Layer.extend({
     },
 
     createObjs: function() {
-        var objImg = cc.textureCache.addImage( res.Objs_png );
-        var batch = new cc.SpriteBatchNode( objImg );
-        this.objBatch = batch;
-        this.addChild( batch, GameLayer.Z.OBJ );
         this.maxMoney = 0;
         var map = this.map;
         for( var i=0; i<map.width; i++ ) {
             for (var j = 0; j < map.height; j++) {
                 var grid = map.grids[i][j];
-                // thief
-                if (grid.thief) {
-                    this.thief = new Thief(this);
-                    this.thief.setCurGrid(grid);
-                    grid.thief = this.thief;
-                    batch.addChild(this.thief);
-                }
-                // guards
-                if (grid.guard ) {
-                    test = false;
-                    var guard = new Guard(this);
-                    if( grid.money ) {
-                        guard.isHide = true;
-                        guard.setVisible( false );
-                    }
-                    guard.setCurGrid(grid);
-                    this.guards.push(guard);
-                    grid.guard = guard;
-                    batch.addChild(guard);
-                }
                 // money
                 if (grid.money) {
                     var money = new Money(this);
@@ -648,7 +635,26 @@ var GameLayer = cc.Layer.extend({
                     money.setGrid(grid);
                     this.moneys.push(money);
                     //money.setVisible( false );
-                    batch.addChild(money);
+                    this.addChild( money, GameLayer.Z.MONEY );
+                }
+                // guards
+                if (grid.guard ) {
+                    var guard = new Guard(this);
+                    if( grid.money ) {
+                        guard.isHide = true;
+                        guard.setVisible( false );
+                    }
+                    guard.setCurGrid(grid);
+                    this.guards.push(guard);
+                    grid.guard = guard;
+                    this.addChild( guard, GameLayer.Z.GUARD );
+                }
+                // thief
+                if (grid.thief) {
+                    this.thief = new Thief(this);
+                    this.thief.setCurGrid(grid);
+                    grid.thief = this.thief;
+                    this.addChild( this.thief, GameLayer.Z.THIEF );
                 }
                 // trap
 //                if (grid.trap) {
@@ -664,7 +670,7 @@ var GameLayer = cc.Layer.extend({
                     grid.key = key;
                     key.setGrid( grid );
                     this.keys.push( key );
-                    batch.addChild( key );
+                    this.addChild( key, GameLayer.Z.OBJ );
                 }
             }
         }
@@ -837,8 +843,11 @@ GameLayer.Z = {
     TILE: 1,
     ITEM: 2,
     OBJ: 3,
-    ANIM: 4,
-    UI: 5
+    MONEY: 4,
+    GUARD: 5,
+    THIEF: 6,
+    ANIM: 90,
+    UI: 99
 };
 
 GameLayer.TILE_TYPE = {

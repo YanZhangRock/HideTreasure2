@@ -34,7 +34,7 @@ Def.ENG = 2;
 // menu cfg
 Def.ASK_NAME = false;
 // game cfg
-Def.USE_MENU = true;
+Def.USE_MENU = false;
 Def.SHOW_ANIM = false;
 // editor cfg
 Def.USE_GAME = true;

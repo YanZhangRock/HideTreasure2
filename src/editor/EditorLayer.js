@@ -17,11 +17,10 @@ var EditorLayer = cc.Layer.extend({
     touchBaganLoc: null,
     curTile: {sprite: null, name: "", img: ""},
     gridMoved: null,
-    saveObjsLabel: null,
-    saveObjsMenu: null,
-    shareMenu: null,
-    submitMenu: null,
-    arrangeMenu: null,
+    btnMgr: null,
+    saveBtn: null,
+    submitBtn: null,
+    arrangeBtn: null,
     challenger: "",
     txtCfg: null,
     phase: null,
@@ -35,6 +34,7 @@ var EditorLayer = cc.Layer.extend({
         this.challenger = challenger;
         this.phase = EditorLayer.PHASE.MSG;
         this._chooseLanguage();
+        this._initBackground();
         this._initTitles();
         this._createNewMapID();
         this._initMapData();
@@ -44,8 +44,7 @@ var EditorLayer = cc.Layer.extend({
 
     onLoadMapdata: function() {
         this.map.unserializeObjs();
-        this._initSaveUI();
-        this._initOption();
+        this._initButtons();
         this._initMapPainter();
         //this._initObjTile();
         this._initMapEditor();
@@ -56,7 +55,7 @@ var EditorLayer = cc.Layer.extend({
 
     startLevel: function() {
         this.mapPainter.drawMap();
-        this.titleLabel.setString(this.map.owner + this.txtCfg.title);
+        this.titleLabel.label.setString(this.map.owner + this.txtCfg.title);
         this._randomizeFakeTreasures();
         this._randomizeKey();
         if( Def.ASK_SECRET ) {
@@ -114,20 +113,26 @@ var EditorLayer = cc.Layer.extend({
     setPhase: function( phase ) {
         switch ( phase ) {
             case EditorLayer.PHASE.MSG:
-                this.remindLabel.setString("");
-                this.saveObjsLabel.setString("");
+                this.remindLabel.setVisible( false );
+                this.remindLabel.label.setString("");
+                this.saveBtn.setVisible( false );
+                this.saveBtn.label.setString("");
                 this._askSecret();
                 break;
             case EditorLayer.PHASE.FAKE:
-                this.remindLabel.setString( this.txtCfg.fake );
-                this.saveObjsLabel.setString( this.txtCfg.next );
+                this.remindLabel.setVisible( true );
+                this.remindLabel.label.setString( this.txtCfg.fake );
+                this.saveBtn.setVisible( true );
+                this.saveBtn.label.setString(this.txtCfg.next);
                 this.setCurTile( "GUARD", "guard.png" );
                 this._clearObjs();
                 break;
             case EditorLayer.PHASE.KEY:
                 this.setCurTile( "KEY", "key.png" );
-                this.remindLabel.setString( this.txtCfg.key );
-                this.saveObjsLabel.setString( this.txtCfg.submit2 );
+                this.remindLabel.setVisible( true );
+                this.remindLabel.label.setString( this.txtCfg.key );
+                this.saveBtn.setVisible( true );
+                this.saveBtn.label.setString(this.txtCfg.submit2);
                 break;
         }
         this.phase = phase;
@@ -158,35 +163,67 @@ var EditorLayer = cc.Layer.extend({
 
     _initTitles: function() {
         // title label
-        var label = new cc.LabelTTF("", "Arial", 40, cc.size(400,80), cc.TEXT_ALIGNMENT_LEFT);
-        label.x = g_size.width * 0.30;
+        var label = new MyLabel( "", 40 );
+        label.x = g_size.width * 0.50;
         label.y = g_size.height * 0.94;
         this.titleLabel = label;
         this.addChild( label, EditorLayer.Z.UI );
         // remind label
-        var label = new cc.LabelTTF("", "Arial", 40, cc.size(800,80), cc.TEXT_ALIGNMENT_LEFT);
-        label.x = g_size.width * 0.80;
-        label.y = g_size.height * 0.94;
+        var label = new MyLabel( "", 40, {x:1.6, y:1.0} );
+        label.x = g_size.width * 0.26;
+        label.y = g_size.height * 0.11;
         this.remindLabel = label;
+        label.setVisible( false );
         this.addChild( label, EditorLayer.Z.UI );
     },
 
-    _initSaveUI: function() {
-        // save objs label
-        var label = new cc.LabelTTF("lalalala", "Arial", 40);
+    _initButtons: function() {
         var self = this;
-        var save = new cc.MenuItemLabel( label,
-            function(){
-                self.objIO.saveObjs( function(){self.onObjsSaved();} );
-            }
-        );
-        var menu = new cc.Menu( save );
-        menu.x = g_size.width * 0.85;
-        menu.y = g_size.height * 0.15;
-        this.saveObjsMenu = menu;
-        this.saveObjsLabel = label;
-        label.setString("");
-        this.addChild( menu, EditorLayer.Z.UI );
+        // button manager
+        this.btnMgr = new ButtonMgr();
+        this.addChild( this.btnMgr, EditorLayer.Z.UI );
+        // save button
+        var btn = new MyButton( "la", {x:1.0, y:0.5} );
+        btn.x = g_size.width * 0.88;
+        btn.y = g_size.height * 0.11;
+        btn.label.setFontSize( 32 );
+        btn.setCallBack( function() { self.onObjsSaved(); } );
+        btn.label.setString( "" );
+        this.saveBtn = btn;
+        btn.setVisible( false );
+        this.btnMgr.addButton( btn );
+        // submit
+        var width = 0.50
+        var size = 50
+        var btn = new MyButton( this.txtCfg.submit, {x:0.8, y:0.8} );
+        btn.x = g_size.width * width;
+        btn.y = g_size.height * 0.48;
+        btn.label.setFontSize( size );
+        btn.setCallBack( function() { self.onClickSubmit(); } );
+        this.submitBtn = btn;
+        this.btnMgr.addButton( btn );
+        // arrange
+        var btn = new MyButton( this.txtCfg.arrange, {x:0.8, y:0.8} );
+        btn.x = g_size.width * width;
+        btn.y = g_size.height * 0.62;
+        btn.label.setFontSize( size );
+        btn.setCallBack( function() { self.onClickArrange(); } );
+        this.arrangeBtn = btn;
+        this.btnMgr.addButton( btn );
+        this._showOption( false );
+    },
+
+    onClickSubmit: function() {
+        var self = this;
+        this.submitBtn.setVisible( false );
+        this.arrangeBtn.setVisible( false );
+        this.objIO.saveObjs( function(){self.onObjsSaved();} );
+    },
+
+    onClickArrange: function() {
+        this.submitBtn.setVisible( false );
+        this.arrangeBtn.setVisible( false );
+        this.setPhase( EditorLayer.PHASE.FAKE );
     },
 
     _initMapData: function() {
@@ -226,42 +263,6 @@ var EditorLayer = cc.Layer.extend({
         this.mapEditor = new MapEditor( this );
     },
 
-    _initOption: function() {
-        var width = 0.50
-        var size = 80
-        // submit
-        var label = new cc.LabelTTF(this.txtCfg.submit, "Arial", size);
-        var self = this;
-        var submit = new cc.MenuItemLabel( label,
-            function(){
-                self.submitMenu.setPosition( g_size.width * width, g_size.height * 100 );
-                self.arrangeMenu.setPosition( g_size.width * width, g_size.height * 100 );
-                self.objIO.saveObjs( function(){self.onObjsSaved();} );
-            }
-        );
-        var menu = new cc.Menu( submit );
-        menu.x = g_size.width * width;
-        menu.y = g_size.height * 0.60;
-        this.submitMenu = menu;
-        this.addChild( menu, EditorLayer.Z.UI );
-        // arrange
-        var label = new cc.LabelTTF(this.txtCfg.arrange, "Arial", size);
-        var self = this;
-        var arrange = new cc.MenuItemLabel( label,
-            function(){
-                self.submitMenu.setPosition( g_size.width * width, g_size.height * 100 );
-                self.arrangeMenu.setPosition( g_size.width * width, g_size.height * 100 );
-                self.setPhase( EditorLayer.PHASE.FAKE );
-            }
-        );
-        var menu = new cc.Menu( arrange );
-        menu.x = g_size.width * width;
-        menu.y = g_size.height * 0.50;
-        this.arrangeMenu = menu;
-        this.addChild( menu, EditorLayer.Z.UI );
-        this._showOption( false );
-    },
-
     _chooseLanguage: function() {
         this.txtCfg = g_language == Def.CHN ? EditorLayer.CHN : EditorLayer.ENG;
     },
@@ -271,14 +272,27 @@ var EditorLayer = cc.Layer.extend({
         sprite.attr({
             anchorX: 0.5,
             anchorY: 0.5,
-            x: g_size.width * 0.55,
-            y: g_size.height * 0.12,
+            x: g_size.width * 0.64,
+            y: g_size.height * 0.11,
             scale: Def.GRID_SCALE
         });
+        sprite.setVisible( false );
         this.curTile.sprite = sprite;
         this.curTile.name = "MONEY";
         this.curTile.img = Def.OBJ2IMG["MONEY"];
         this.addChild( sprite, EditorLayer.Z.UI );
+    },
+
+    _initBackground: function() {
+        var sprite = new cc.Sprite( "#menuback.png" );
+        sprite.attr({
+            anchorX: 0.5,
+            anchorY: 0.5,
+            x: g_size.width * 0.5,
+            y: g_size.height * 0.5,
+            scale: Def.IMG_SCALE
+        });
+        this.addChild( sprite, EditorLayer.Z.BACK );
     },
 
     _createNewMapID: function() {
@@ -307,6 +321,7 @@ var EditorLayer = cc.Layer.extend({
     },
 
     setCurTile: function( tile, img ) {
+        this.curTile.sprite.setVisible( true );
         this.curTile.name = tile;
         this.curTile.img = img;
         var frame = cc.spriteFrameCache.getSpriteFrame(img);
@@ -332,14 +347,8 @@ var EditorLayer = cc.Layer.extend({
     },
 
     _showOption: function( isShow ) {
-        var width = 0.5;
-        if( isShow ) {
-            this.submitMenu.setPosition( g_size.width * width, g_size.height * 0.6 );
-            this.arrangeMenu.setPosition( g_size.width * width, g_size.height * 0.5 );
-        } else {
-            this.submitMenu.setPosition( g_size.width * width, g_size.height * 100 );
-            this.arrangeMenu.setPosition( g_size.width * width, g_size.height * 100 );
-        }
+        this.submitBtn.setVisible( isShow );
+        this.arrangeBtn.setVisible( isShow );
     },
 
     onTouchBegan: function( touch ) {
@@ -368,7 +377,8 @@ var EditorLayer = cc.Layer.extend({
 });
 
 EditorLayer.Z = {
-    MAP: 0,
+    BACK: 0,
+    MAP: 1,
     OBJ: 100,
     UI: 200,
     SHARE: 201,
@@ -396,7 +406,7 @@ EditorLayer.ENG = {
     submit: "Publish immediately",
     submit2: "Publish",
     arrange: "Set layout first",
-    fake: "pick two fake fortunes",
+    fake: "pick two fake chests",
     key: "please place a key",
     next: "next"
 };

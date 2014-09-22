@@ -11,10 +11,11 @@ var MyButton = cc.Node.extend({
     oriStrScale: 1.0,
     callBackFunc: null,
 
-    ctor: function( str ) {
+    ctor: function( str, scale ) {
         this._super();
-        var scaleX = this._getScale( str );
-        var scaleY = 1.5;
+        var scale = scale ? scale : { x:1, y:1 }
+        var scaleX = this._getScale( str ) * scale.x;
+        var scaleY = MyButton.SCALE_Y * scale.y;
         var img = new cc.Sprite( "#button.png" );
         img.attr({
             anchorX: 0.5,
@@ -78,3 +79,4 @@ MyButton.Z = {
 
 MyButton.WIDTH = 185;
 MyButton.HEIGHT = 72;
+MyButton.SCALE_Y = 1.5;

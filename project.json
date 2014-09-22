@@ -19,6 +19,7 @@
         "src/map/MapIO.js",
         "src/map/ObjIO.js",
         "src/menu/MenuLayer.js",
+        "src/menu/MyLabel.js",
         "src/menu/MyButton.js",
         "src/menu/ButtonMgr.js",
         "src/editor/EditorLayer.js",

@@ -8,7 +8,18 @@ var ButtonMgr = cc.Layer.extend({
 
     ctor: function(  ) {
         this._super();
+        this._init();
         this._registerInput();
+    },
+
+    _init: function() {
+        this.btns = [];
+        this.touchedBtn = null;
+    },
+
+    onDelete: function() {
+        cc.eventManager.removeAllListeners();
+        this._init();
     },
 
     addButton: function( btn ) {
@@ -37,9 +48,11 @@ var ButtonMgr = cc.Layer.extend({
             var btn = this.btns[i];
             var btnLoc = btn.getPosition();
             if( loc.x <= btnLoc.x+btn.myWidth/2 && loc.x >= btnLoc.x-btn.myWidth/2
-                && loc.y <= btnLoc.y+btn.myHeight/2 && loc.y >= btnLoc.y-btn.myHeight/2 ) {
+                && loc.y <= btnLoc.y+btn.myHeight/2 && loc.y >= btnLoc.y-btn.myHeight/2
+                && btn.isVisible() ) {
                 this.touchedBtn = btn;
                 btn.onTouchBegan( touch );
+                break;
             }
         }
     },
@@ -54,7 +67,9 @@ var ButtonMgr = cc.Layer.extend({
             && loc.y <= btnLoc.y+btn.myHeight/2 && loc.y >= btnLoc.y-btn.myHeight/2 ) {
             isOut = false;
         }
-        btn.onTouchEnded( touch, isOut );
+        if( btn.isVisible() ) {
+            btn.onTouchEnded( touch, isOut );
+        }
         this.touchedBtn = null;
     }
 });

@@ -99,22 +99,11 @@ var MenuLayer = cc.Layer.extend({
     },
 
     _initTitleLabel: function() {
-        var w = 0.5, h = 0.8
-        var label = new cc.LabelTTF(this.owner+this.txtCfg.title1, "Arial", 80);
-        label.x = g_size.width * w;
-        label.y = g_size.height * h;
+        var label = new MyLabel( this.owner+this.txtCfg.title1, 80, {x:1.2, y:1.8} );
+        label.x = g_size.width * 0.5;
+        label.y = g_size.height * 0.8;
         this.titleLabel = label;
         this.addChild( label, MenuLayer.Z.UI );
-        label.color = Def.COLOR.GREEN;
-        var sprite = new cc.Sprite( "#msgbox1.png" );
-        sprite.attr({
-            anchorX: 0.5,
-            anchorY: 0.5,
-            x: g_size.width * w,
-            y: g_size.height * h,
-            scale: Def.IMG_SCALE
-        });
-        this.addChild( sprite, MenuLayer.Z.UI_IMG );
     },
 
     _initButtons: function() {
@@ -244,6 +233,7 @@ var MenuLayer = cc.Layer.extend({
 
     startGame: function() {
         var scene = this.scene;
+        this.btnMgr.onDelete();
         cc.eventManager.removeAllListeners();
         scene.removeChild( scene.layer );
         scene.layer = new GameLayer( scene, this.uid, this.challenger );

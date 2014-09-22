@@ -12,6 +12,6 @@ var Money = Item.extend({
 
     onSteal: function( thief ) {
         this.map.grids[this.grid.x][this.grid.y].money = null;
-        this.layer.objBatch.removeChild( this );
+        this.layer.removeChild( this );
     }
 })

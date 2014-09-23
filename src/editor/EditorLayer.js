@@ -163,14 +163,14 @@ var EditorLayer = cc.Layer.extend({
 
     _initTitles: function() {
         // title label
-        var label = new MyLabel( "", 40 );
+        var label = new MyLabel( "12345", 60, {x:1.2, y:1.4} );
         label.x = g_size.width * 0.50;
         label.y = g_size.height * 0.94;
         this.titleLabel = label;
         this.addChild( label, EditorLayer.Z.UI );
         // remind label
-        var label = new MyLabel( "", 40, {x:1.6, y:1.0} );
-        label.x = g_size.width * 0.26;
+        var label = new MyLabel( "123", 40, {x:1.4, y:1.0} );
+        label.x = g_size.width * 0.28;
         label.y = g_size.height * 0.11;
         this.remindLabel = label;
         label.setVisible( false );
@@ -183,7 +183,7 @@ var EditorLayer = cc.Layer.extend({
         this.btnMgr = new ButtonMgr();
         this.addChild( this.btnMgr, EditorLayer.Z.UI );
         // save button
-        var btn = new MyButton( "la", {x:1.0, y:0.5} );
+        var btn = new MyButton( "12", {x:1.0, y:0.5} );
         btn.x = g_size.width * 0.88;
         btn.y = g_size.height * 0.11;
         btn.label.setFontSize( 32 );
@@ -192,24 +192,27 @@ var EditorLayer = cc.Layer.extend({
         this.saveBtn = btn;
         btn.setVisible( false );
         this.btnMgr.addButton( btn );
-        // submit
-        var width = 0.50
-        var size = 50
-        var btn = new MyButton( this.txtCfg.submit, {x:0.8, y:0.8} );
-        btn.x = g_size.width * width;
-        btn.y = g_size.height * 0.48;
-        btn.label.setFontSize( size );
-        btn.setCallBack( function() { self.onClickSubmit(); } );
-        this.submitBtn = btn;
-        this.btnMgr.addButton( btn );
         // arrange
-        var btn = new MyButton( this.txtCfg.arrange, {x:0.8, y:0.8} );
+        var width = 0.50;
+        var size = 50;
+        var btn = new MyButton( "123456", {x:0.8, y:0.8} );
+        btn.label.setString( this.txtCfg.arrange );
         btn.x = g_size.width * width;
         btn.y = g_size.height * 0.62;
         btn.label.setFontSize( size );
         btn.setCallBack( function() { self.onClickArrange(); } );
         this.arrangeBtn = btn;
         this.btnMgr.addButton( btn );
+        // submit
+        var btn = new MyButton( "1234567", {x:0.8, y:0.8} );
+        btn.label.setString( this.txtCfg.submit );
+        btn.x = g_size.width * width;
+        btn.y = g_size.height * 0.48;
+        btn.label.setFontSize( size );
+        btn.setCallBack( function() { self.onClickSubmit(); } );
+        this.submitBtn = btn;
+        this.btnMgr.addButton( btn );
+        // hide buttons
         this._showOption( false );
     },
 

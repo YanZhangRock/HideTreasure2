@@ -32,12 +32,12 @@ Def.OBJ2IMG = {
 Def.CHN = 1;
 Def.ENG = 2;
 // menu cfg
-Def.ASK_NAME = true;
+Def.ASK_NAME = false;
 // game cfg
 Def.USE_MENU = true;
-Def.SHOW_ANIM = false;
+Def.SHOW_ANIM = true;
 // editor cfg
 Def.USE_GAME = true;
-Def.ASK_SECRET = true;
+Def.ASK_SECRET = false;
 //g_language = Def.ENG;
 g_language = Def.CHN;

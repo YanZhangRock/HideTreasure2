@@ -16,10 +16,13 @@ var GameLayer = cc.Layer.extend({
     golds: [],
     keys: [],
     state: null,
-    restartMenu: null,
-    rebornMenu: null,
-    editorMenu: null,
+    btnMgr: null,
+    restartBtn: null,
+    rebornBtn: null,
+    editorBtn: null,
     resultLabel: null,
+    resultImg: null,
+    titleLabel: null,
     scoreLabel: null,
     timerLabel: null,
     lifeLabel: null,
@@ -43,8 +46,8 @@ var GameLayer = cc.Layer.extend({
         this.uid = uid;
         this.challenger = challenger;
         this.setState( GameLayer.STATE.END );
-        this._initBackground();
         this._chooseLanguage();
+        this._initBackground();
         this._initMapData();
         this._initObjIO();
     },
@@ -55,7 +58,9 @@ var GameLayer = cc.Layer.extend({
 
     onLoadMapdata: function() {
         this.map.unserializeObjs();
+        this._initTitle();
         this._initLabels();
+        this._initButtons();
         this._initDirArrow();
         //this._initCtrlPad();
         this._registerInputs();
@@ -138,6 +143,15 @@ var GameLayer = cc.Layer.extend({
         this.addChild( sprite, GameLayer.Z.BACK );
     },
 
+    _initTitle: function() {
+        var label = new MyLabel( "12345", 60, {x:1.2, y:1.4} );
+        label.label.setString( this.map.owner+this.txtCfg.title );
+        label.x = g_size.width * 0.50;
+        label.y = g_size.height * 0.94;
+        this.titleLabel = label;
+        this.addChild( label, GameLayer.Z.UI );
+    },
+
     _initLabels: function() {
         // timer label
         var height = 0.12;
@@ -154,32 +168,60 @@ var GameLayer = cc.Layer.extend({
         label.y = g_size.height * height;
         label.color = cc.color.BLACK;
         this.addChild( label, GameLayer.Z.UI );
-        // restart label
-        var label = new cc.LabelTTF(this.txtCfg.replay, "Arial", 80);
-        var self = this;
-        var restart = new cc.MenuItemLabel( label, function(){ self.restartGame(); } );
-        var menu = new cc.Menu(restart);
-        this.restartMenu = menu;
-        this.addChild( menu, GameLayer.Z.UI );
-        // reborn label
-        var label = new cc.LabelTTF(this.txtCfg.reborn, "Arial", 80);
-        var self = this;
-        var reborn = new cc.MenuItemLabel( label, function(){ self.reborn(); } );
-        var menu = new cc.Menu(reborn);
-        this.rebornMenu = menu;
-        this.addChild( menu, GameLayer.Z.UI );
-        // editor label
-        var label = new cc.LabelTTF(this.txtCfg.share, "Arial", 80);
-        var self = this;
-        var editor = new cc.MenuItemLabel( label, function(){ self.toEditorLevel(); } );
-        var menu = new cc.Menu(editor);
-        this.editorMenu = menu;
-        this.addChild( menu, GameLayer.Z.UI );
         // result label
-        var label = new cc.LabelTTF(this.txtCfg.win1, "Arial", 54,
+        var label = new cc.LabelTTF(this.txtCfg.win1, "Arial", 40,
             cc.size(1200,800), cc.TEXT_ALIGNMENT_LEFT, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
         this.resultLabel = label;
+        label.color = Def.COLOR.GREEN;
         this.addChild( label, GameLayer.Z.UI );
+        var img = new cc.Sprite("#msgbox1.png");
+        img.attr({
+            anchorX: 0.5,
+            anchorY: 0.5,
+            x: g_size.width * 100,
+            y: g_size.height * 100
+        });
+        img.setScaleX( 3.5 );
+        img.setScaleY( 3.0 );
+        this.resultImg = img;
+        this.addChild( img, GameLayer.Z.UI_BACK );
+    },
+
+    _initButtons: function() {
+        var self = this;
+        // button manager
+        this.btnMgr = new ButtonMgr();
+        this.addChild( this.btnMgr, GameLayer.Z.UI );
+        // reborn btn
+        var btn = new MyButton( "12345", {x:1.2, y:1.0} );
+        btn.label.setString( this.txtCfg.reborn );
+        btn.x = g_size.width * 0.50;
+        btn.y = g_size.height * 0.60;
+        btn.label.setFontSize( 60 );
+        btn.setCallBack( function() { self.reborn(); } );
+        this.rebornBtn = btn;
+        btn.setVisible( false );
+        this.btnMgr.addButton( btn );
+        // restart btn
+        var btn = new MyButton( "12345", {x:1.2, y:1.0} );
+        btn.label.setString( this.txtCfg.replay );
+        btn.x = g_size.width * 0.50;
+        btn.y = g_size.height * 0.55;
+        btn.label.setFontSize( 60 );
+        btn.setCallBack( function() { self.restartGame(); } );
+        this.restartBtn = btn;
+        btn.setVisible( false );
+        this.btnMgr.addButton( btn );
+        // to editor btn
+        var btn = new MyButton( "1234567", {x:1.2, y:1.0} );
+        btn.label.setString( this.txtCfg.share );
+        btn.x = g_size.width * 0.50;
+        btn.y = g_size.height * 0.40;
+        btn.label.setFontSize( 60 );
+        btn.setCallBack( function() { self.toEditorLevel(); } );
+        this.editorBtn = btn;
+        btn.setVisible( false );
+        this.btnMgr.addButton( btn );
     },
 
     _initDirArrow: function() {
@@ -251,11 +293,15 @@ var GameLayer = cc.Layer.extend({
         if( isShow ) {
             var str = this.txtCfg.frag1+this.map.owner+this.txtCfg.frag2+"\n\n\""+this.secretFrag+"\"";
             this.resultLabel.setString( str );
-            this.resultLabel.x = g_size.width * 0.70;
+            this.resultLabel.x = g_size.width * 0.76;
             this.resultLabel.y = g_size.height * 0.60;
+            this.resultImg.x = g_size.width * 0.50;
+            this.resultImg.y = g_size.height * 0.60;
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
+            this.resultImg.x = g_size.width * 100;
+            this.resultImg.y = g_size.height * 100;
         }
     },
 
@@ -268,13 +314,17 @@ var GameLayer = cc.Layer.extend({
             }
             var str = this.txtCfg.key;
             this.resultLabel.setString( str );
-            this.resultLabel.x = g_size.width * 0.70;
+            this.resultLabel.x = g_size.width * 0.76;
             this.resultLabel.y = g_size.height * 0.60;
+            this.resultImg.x = g_size.width * 0.50;
+            this.resultImg.y = g_size.height * 0.60;
             this.pauseGame();
             this.schedule( function() { this.showNeedKey( false ) }, showTime, 0 );
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
+            this.resultImg.x = g_size.width * 100;
+            this.resultImg.y = g_size.height * 100;
             this.resumeGame();
         }
     },
@@ -321,45 +371,44 @@ var GameLayer = cc.Layer.extend({
         if( isShow ) {
             var str = this.txtCfg.trap1+this.map.owner+this.txtCfg.trap2;
             this.resultLabel.setString( str );
-            this.resultLabel.x = g_size.width * 0.72;
+            this.resultLabel.x = g_size.width * 0.76;
             this.resultLabel.y = g_size.height * 0.60;
+            this.resultImg.x = g_size.width * 0.50;
+            this.resultImg.y = g_size.height * 0.60;
         } else {
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
+            this.resultImg.x = g_size.width * 100;
+            this.resultImg.y = g_size.height * 100;
         }
     },
 
     showResult: function( isShow, isWin ) {
+        this.restartBtn.setVisible( isShow );
         if( isShow ) {
-            this.restartMenu.x = g_size.width * 0.52;
-            this.restartMenu.y = g_size.height * 0.60;
             if( isWin ) {
-                this.editorMenu.x = g_size.width * 0.52;
-                this.editorMenu.y = g_size.height * 0.5;
-                this.resultLabel.x = g_size.width * 0.72;
-                this.resultLabel.y = g_size.height * 0.82;
+                this.editorBtn.setVisible( true );
+                this.resultLabel.x = g_size.width * 0.74;
+                this.resultLabel.y = g_size.height * 0.76;
+                this.resultImg.x = g_size.width * 0.50;
+                this.resultImg.y = g_size.height * 0.76;
             } else {
                 this.resultLabel.x = g_size.width * 0.8;
                 this.resultLabel.y = g_size.height * 0.72;
+                this.resultImg.x = g_size.width * 0.50;
+                this.resultImg.y = g_size.height * 0.72;
             }
         } else {
-            this.restartMenu.x = g_size.width * 100;
-            this.restartMenu.y = g_size.height * 100;
-            this.editorMenu.x = g_size.width * 100;
-            this.editorMenu.y = g_size.height * 100;
+            this.editorBtn.setVisible( false );
             this.resultLabel.x = g_size.width * 100;
             this.resultLabel.y = g_size.height * 100;
+            this.resultImg.x = g_size.width * 100;
+            this.resultImg.y = g_size.height * 100;
         }
     },
 
     showReborn: function( isShow ) {
-        if( isShow ) {
-            this.rebornMenu.x = g_size.width * 0.52;
-            this.rebornMenu.y = g_size.height * 0.60;
-        } else {
-            this.rebornMenu.x = g_size.width * 100;
-            this.rebornMenu.y = g_size.height * 100;
-        }
+        this.rebornBtn.setVisible( isShow );
     },
 
     clearObjs: function() {
@@ -429,9 +478,10 @@ var GameLayer = cc.Layer.extend({
                 guard.init();
             }
         }
+        this.thief.setState( Mover.STATE.IDLE );
         this.thief.startMove();
         // test
-        //this.endGame( true );
+        //this.endGame( false );
     },
 
     startGame: function() {
@@ -525,6 +575,7 @@ var GameLayer = cc.Layer.extend({
 
     toEditorLevel: function() {
         var scene = this.scene;
+        this.btnMgr.onDelete();
         cc.eventManager.removeAllListeners();
         scene.removeChild( scene.layer );
         scene.layer = new EditorLayer( scene, this.uid, this.challenger );
@@ -622,21 +673,6 @@ var GameLayer = cc.Layer.extend({
         for( var i=0; i<map.width; i++ ) {
             for (var j = 0; j < map.height; j++) {
                 var grid = map.grids[i][j];
-                // money
-                if (grid.money) {
-                    var money = new Money(this);
-                    if( grid.guard ) {
-                        money.isFake = true;
-                        money.guard = grid.guard;
-                    } else {
-                        this.maxMoney++;
-                    }
-                    grid.money = money;
-                    money.setGrid(grid);
-                    this.moneys.push(money);
-                    //money.setVisible( false );
-                    this.addChild( money, GameLayer.Z.MONEY );
-                }
                 // guards
                 if (grid.guard ) {
                     var guard = new Guard(this);
@@ -655,6 +691,21 @@ var GameLayer = cc.Layer.extend({
                     this.thief.setCurGrid(grid);
                     grid.thief = this.thief;
                     this.addChild( this.thief, GameLayer.Z.THIEF );
+                }
+                // money
+                if (grid.money) {
+                    var money = new Money(this);
+                    if( grid.guard ) {
+                        money.isFake = true;
+                        money.guard = grid.guard;
+                    } else {
+                        this.maxMoney++;
+                    }
+                    grid.money = money;
+                    money.setGrid(grid);
+                    this.moneys.push(money);
+                    //money.setVisible( false );
+                    this.addChild( money, GameLayer.Z.MONEY );
                 }
                 // trap
 //                if (grid.trap) {
@@ -847,6 +898,7 @@ GameLayer.Z = {
     GUARD: 5,
     THIEF: 6,
     ANIM: 90,
+    UI_BACK: 98,
     UI: 99
 };
 
@@ -869,6 +921,7 @@ GameLayer.SWIPE_DIST = 5;
 //GameLayer.LV_TIME = [ 8, 10 ];
 GameLayer.MAX_LV = 1;
 GameLayer.CHN = {
+    title: "的秘密",
     timer: "剩余时间：",
     life: "生命：",
     replay: "再玩一次",
@@ -885,6 +938,7 @@ GameLayer.CHN = {
     share: "我也要留一个秘密！"
 };
 GameLayer.ENG = {
+    title: "'s secret",
     timer: "rest time: ",
     life: "life: ",
     replay: "Play Again",
@@ -898,5 +952,5 @@ GameLayer.ENG = {
     win2: "'s secret is: ",
     lose1: "You've got killed by ",
     lose2: " T_T",
-    share: "I wanna leave a secret too!"
+    share: "leave my secret!"
 };

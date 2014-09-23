@@ -40,7 +40,7 @@ var MenuLayer = cc.Layer.extend({
 //            this._askChallengerName();
 //        }
         if( !Def.USE_MENU ) {
-            this.startGame();
+            this.toGameLevel();
         }
     },
 
@@ -83,7 +83,7 @@ var MenuLayer = cc.Layer.extend({
         }
         this.challenger = name;
         this.hasName = true;
-        this.startGame();
+        this.toGameLevel();
     },
 
     _initBackground: function() {
@@ -99,7 +99,8 @@ var MenuLayer = cc.Layer.extend({
     },
 
     _initTitleLabel: function() {
-        var label = new MyLabel( this.owner+this.txtCfg.title1, 80, {x:1.2, y:1.8} );
+        var label = new MyLabel( this.owner+"123", 80, {x:1.2, y:1.8} );
+        label.label.setString( this.owner+this.txtCfg.title1 );
         label.x = g_size.width * 0.5;
         label.y = g_size.height * 0.8;
         this.titleLabel = label;
@@ -112,14 +113,16 @@ var MenuLayer = cc.Layer.extend({
         this.btnMgr = new ButtonMgr();
         this.addChild( this.btnMgr, MenuLayer.Z.UI );
         // start button
-        var btn = new MyButton( this.txtCfg.title2 );
+        var btn = new MyButton( "12345" );
+        btn.label.setString( this.txtCfg.title2 );
         btn.x = g_size.width * 0.5;
         btn.y = g_size.height * 0.6;
         btn.setCallBack( function() { self.onClickStart(); } );
         this.startBtn = btn;
         this.btnMgr.addButton( btn );
         // share button
-        var btn = new MyButton( this.txtCfg.title3 );
+        var btn = new MyButton( "1234567" );
+        btn.label.setString( this.txtCfg.title3 );
         btn.x = g_size.width * 0.5;
         btn.y = g_size.height * 0.4;
         btn.setCallBack( function() { self.onClickShare(); } );
@@ -130,13 +133,13 @@ var MenuLayer = cc.Layer.extend({
     onClickStart: function() {
         if( Def.ASK_NAME ) {
             if( this.hasName ) {
-                this.startGame();
+                this.toGameLevel();
             } else {
                 var self = this;
                 this.schedule( function() { self._askChallengerName(); }, 0.1, 0 );
             }
         } else {
-            this.startGame();
+            this.toGameLevel();
         }
     },
 
@@ -231,7 +234,7 @@ var MenuLayer = cc.Layer.extend({
         }
     },
 
-    startGame: function() {
+    toGameLevel: function() {
         var scene = this.scene;
         this.btnMgr.onDelete();
         cc.eventManager.removeAllListeners();

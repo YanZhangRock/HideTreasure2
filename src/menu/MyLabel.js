@@ -27,8 +27,14 @@ var MyLabel = cc.Node.extend({
         this.addChild( this.label, MyLabel.Z.LABEL );
     },
 
+    setLabel: function( label ) {
+        this.removeChild( this.label );
+        this.label = label;
+        this.addChild( this.label, MyLabel.Z.LABEL );
+    },
+
     _getScale: function( str ) {
-        var scale = ( str.length - 3 ) * 0.6;
+        var scale = ( str.length - 2 ) * 0.2;
         scale = scale < 0 ? 0 : scale;
         return scale + 1;
     }

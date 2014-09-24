@@ -12,6 +12,8 @@ var EditorLayer = cc.Layer.extend({
     objIO: null,
     map: null,
     moneys: [],
+    guardNum: 0,
+    keyNum: 0,
     titleLabel: null,
     remindLabel: null,
     remindString: "",
@@ -145,6 +147,7 @@ var EditorLayer = cc.Layer.extend({
                 this.setCurTile( "GUARD", "guard.png" );
                 this._clearObjs();
                 this._playFakeRemindAnim();
+                this.guardNum = 0;
                 break;
             case EditorLayer.PHASE.KEY:
                 this.setCurTile( "KEY", "key.png" );
@@ -153,6 +156,7 @@ var EditorLayer = cc.Layer.extend({
                 this.saveBtn.setVisible( true );
                 this.saveBtn.label.setString(this.txtCfg.submit2);
                 this._playKeyRemindAnim();
+                this.keyNum = 0;
                 break;
         }
         this.phase = phase;
@@ -355,6 +359,32 @@ var EditorLayer = cc.Layer.extend({
         //this._askSecret();
     },
 
+    onAddGuard: function( guard ) {
+        this.guardNum++;
+        this.addChild( guard, EditorLayer.Z.OBJ );
+        if( this.guardNum >= EditorLayer.MAX_FAKE_CHEST ) {
+            new HighlightEffect( this.saveBtn, null, 1.2, 0.2, 0.4 );
+        }
+    },
+
+    onAddKey: function( key ) {
+        this.keyNum++;
+        this.addChild( key, EditorLayer.Z.OBJ );
+        if( this.keyNum >= EditorLayer.MAX_KEY ) {
+            new HighlightEffect( this.saveBtn, null, 1.2, 0.2, 0.4 );
+        }
+    },
+
+    onRemoveKey: function( key ) {
+        this.keyNum--;
+        this.removeChild( key );
+    },
+
+    onRemoveGuard: function( guard ) {
+        this.guardNum--;
+        this.removeChild( guard );
+    },
+
     _askSecret: function() {
         var self = this;
         var msg = Util.createTextField(
@@ -398,6 +428,9 @@ var EditorLayer = cc.Layer.extend({
     }
 
 });
+
+EditorLayer.MAX_FAKE_CHEST = 2;
+EditorLayer.MAX_KEY = 1;
 
 EditorLayer.Z = {
     BACK: 0,

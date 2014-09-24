@@ -88,12 +88,13 @@ var MapEditor = cc.Class.extend({
     addGuard: function( grid ) {
         if( grid.guard ) {
             if( grid.money ) {
-                this.layer.removeChild( grid.guard );
+                this.layer.onRemoveGuard( grid.guard );
                 grid.guard = null;
             }
             return;
         }
         if( !this.gridHasObj( grid ) || grid.thief ) return;
+        if( this.layer.guardNum >= EditorLayer.MAX_FAKE_CHEST ) return;
         if( grid.tile == "TREES" ) return;
         var p = Util.grid2World( grid );
         var guard = new cc.Sprite( "#guard.png" );
@@ -104,17 +105,18 @@ var MapEditor = cc.Class.extend({
             y: p.y,
             scale: Def.GRID_SCALE
         });
-        this.layer.addChild( guard, EditorLayer.Z.OBJ );
         grid.guard = guard;
+        this.layer.onAddGuard( guard );
     },
 
     addTrap: function( grid ) {
         if( grid.trap ) {
-            this.layer.removeChild( grid.trap );
+            this.layer.onRemoveKey( grid.trap );
             grid.trap = null;
             this.trapNum--;
             return;
         }
+        if( this.layer.keyNum >= EditorLayer.MAX_KEY ) return;
         if( this.trapNum >= MapEditor.MAX_TRAP ) return;
         if( this.gridHasObj( grid ) ) return;
         if( grid.tile == "TREES" ) return;
@@ -128,7 +130,7 @@ var MapEditor = cc.Class.extend({
             scale: Def.GRID_SCALE
         });
         this.trapNum++;
-        this.layer.addChild( trap, EditorLayer.Z.OBJ );
+        this.layer.onAddKey( trap );
         grid.trap = trap;
     },
 

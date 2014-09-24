@@ -19,16 +19,6 @@ var Trap = Item.extend({
         this.subImg.setVisible( false );
     },
 
-    highLight: function( t1, t2, t3 ) {
-        var oriScale = this.getScale();
-        var self = this
-        this.runAction(cc.sequence(
-            cc.scaleTo( t1, 3*oriScale ),
-            cc.scaleTo( t2, oriScale )
-            //cc.fadeOut( t3 )
-            ));
-    },
-
     onCatch: function( thief ) {
         this.runAction( cc.fadeIn(0.1) );
         this.thief = thief;

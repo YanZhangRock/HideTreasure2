@@ -13,8 +13,9 @@
     "jsList" : [
         "src/resource.js",
         "src/app.js",
-        "src/Def.js",
-        "src/Util.js",
+        "src/misc/Def.js",
+        "src/misc/Util.js",
+        "src/misc/HighlightEffect.js",
         "src/map/MapData.js",
         "src/map/MapIO.js",
         "src/map/ObjIO.js",

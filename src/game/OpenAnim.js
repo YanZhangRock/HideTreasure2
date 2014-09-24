@@ -170,7 +170,7 @@ var OpenAnim = cc.Layer.extend({
                 var mark = self.marks[idx++];
                 mark.setVisible( true );
                 mark.runAction( cc. fadeIn( 0.1 ) );
-                mark.highLight( 0.3, 0.4 );
+                new HighlightEffect( mark, null, -1, 0.3, 0.4 );
             }, totalTime, 0 );
             totalTime += time;
         }
@@ -186,7 +186,7 @@ var OpenAnim = cc.Layer.extend({
     _highLightKey: function() {
         var t1 = 0.5, t2 = 1.0;
         for( var i in this.layer.keys ) {
-            this.layer.keys[i].highLight( t1, t2 );
+            new HighlightEffect( this.layer.keys[i], null, -1, t1, t2 );
         }
         this.schedule( function(){
             this._onHighLightKeyEnd();
@@ -199,12 +199,8 @@ var OpenAnim = cc.Layer.extend({
 
     _highLightObjs: function() {
         var t1 = 0.5, t2 = 1.0;
-//        for( var i in this.layer.moneys ) {
-//            this.layer.moneys[i].setVisible( true );
-//            this.layer.moneys[i].highLight( t1, t2 );
-//        }
         this.layer.thief.setVisible( true );
-        this.layer.thief.highLight( t1, t2 );
+        new HighlightEffect( this.layer.thief, null, -1, t1, t2 );
         this.schedule( function(){
             this._onHightObjsEnd();
         }, t1+t2, 0 );

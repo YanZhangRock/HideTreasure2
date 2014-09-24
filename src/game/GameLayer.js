@@ -352,7 +352,7 @@ var GameLayer = cc.Layer.extend({
                 var t1 = 0.6, t2 = 1.2
                 var animTime = t1+t2;
                 var waitTime = 1.6;
-                guard.highLight( t1, t2 );
+                new HighlightEffect( guard, null, -1, t1, t2 );
                 this.schedule(
                     function(){
                         this.resumeGame();

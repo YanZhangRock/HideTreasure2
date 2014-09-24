@@ -43,14 +43,6 @@ var Mover = cc.Sprite.extend({
         this.type = type;
     },
 
-    highLight: function( t1, t2 ) {
-        var oriScale = this.getScale();
-        this.runAction(cc.sequence(
-            cc.scaleTo( t1, 3*oriScale ),
-            cc.scaleTo( t2, oriScale )
-        ));
-    },
-
     startMove: function() {
         if( this.state == Mover.STATE.MOVE ) return;
         this.realGrid = Util.world2Grid(this.getPosition());

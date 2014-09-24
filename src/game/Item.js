@@ -21,14 +21,6 @@ var Item = cc.Sprite.extend({
         this.map = layer.map;
     },
 
-    highLight: function( t1, t2 ) {
-        var oriScale = this.getScale();
-        this.runAction(cc.sequence(
-            cc.scaleTo( t1, 3*oriScale ),
-            cc.scaleTo( t2, oriScale )
-        ));
-    },
-
     setGrid: function( grid ) {
         this.grid = grid;
         this.setPosition( Util.grid2World( grid ) );

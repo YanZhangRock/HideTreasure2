@@ -55,6 +55,7 @@ var MapPainter = cc.Class.extend({
                         scale: Def.GRID_SCALE
                     });
                     grid.money = money;
+                    this.layer.moneys.push( money );
                     this.layer.addChild( money, this.zOrder+MapPainter.Z.OBJ );
                 }
                 // draw thief

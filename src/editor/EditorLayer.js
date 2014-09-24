@@ -11,6 +11,7 @@ var EditorLayer = cc.Layer.extend({
     mapIO: null,
     objIO: null,
     map: null,
+    moneys: [],
     titleLabel: null,
     remindLabel: null,
     remindString: "",
@@ -33,6 +34,7 @@ var EditorLayer = cc.Layer.extend({
         this.uid = uid;
         this.challenger = challenger;
         this.phase = EditorLayer.PHASE.MSG;
+        this.moneys = [];
         this._chooseLanguage();
         this._initBackground();
         this._initTitles();
@@ -110,6 +112,22 @@ var EditorLayer = cc.Layer.extend({
         }
     },
 
+    _playFakeRemindAnim: function() {
+        var t1 = 0.4, t2 = 0.8;
+        new HighlightEffect( this.remindLabel, null, 1.2, t1, t2 );
+        this.schedule( function() {
+            var t1 = 0.4, t2 = 0.8;
+            for( var i in this.moneys ) {
+                new HighlightEffect( this.moneys[i], null, 2.0, t1, t2 );
+            }
+        }, t1+t2, 0 );
+    },
+
+    _playKeyRemindAnim: function() {
+        var t1 = 0.4, t2 = 0.8;
+        new HighlightEffect( this.remindLabel, null, 1.2, t1, t2 );
+    },
+
     setPhase: function( phase ) {
         switch ( phase ) {
             case EditorLayer.PHASE.MSG:
@@ -126,6 +144,7 @@ var EditorLayer = cc.Layer.extend({
                 this.saveBtn.label.setString(this.txtCfg.next);
                 this.setCurTile( "GUARD", "guard.png" );
                 this._clearObjs();
+                this._playFakeRemindAnim();
                 break;
             case EditorLayer.PHASE.KEY:
                 this.setCurTile( "KEY", "key.png" );
@@ -133,6 +152,7 @@ var EditorLayer = cc.Layer.extend({
                 this.remindLabel.label.setString( this.txtCfg.key );
                 this.saveBtn.setVisible( true );
                 this.saveBtn.label.setString(this.txtCfg.submit2);
+                this._playKeyRemindAnim();
                 break;
         }
         this.phase = phase;

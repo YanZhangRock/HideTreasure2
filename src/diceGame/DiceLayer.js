@@ -138,6 +138,7 @@ var DiceLayer = cc.Layer.extend({
 
     onSaveMsg: function() {
         this.titleLabel.setString("message saved!");
+        this.msgHandler.setMsgArray( this.msgArray );
     },
 
     getSaveURL: function() {

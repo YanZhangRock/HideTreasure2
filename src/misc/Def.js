@@ -32,6 +32,7 @@ Def.OBJ2IMG = {
 Def.CHN = 1;
 Def.ENG = 2;
 // menu cfg
+Def.USE_DICE = true;
 Def.ASK_NAME = true;
 // game cfg
 Def.USE_MENU = true;

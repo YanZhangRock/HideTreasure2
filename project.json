@@ -19,6 +19,8 @@
         "src/map/MapData.js",
         "src/map/MapIO.js",
         "src/map/ObjIO.js",
+        "src/diceGame/StrHandler.js",
+        "src/diceGame/DiceLayer.js",
         "src/menu/MenuLayer.js",
         "src/menu/MyLabel.js",
         "src/menu/MyButton.js",

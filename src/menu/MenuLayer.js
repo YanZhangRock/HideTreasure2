@@ -21,6 +21,10 @@ var MenuLayer = cc.Layer.extend({
     ctor: function ( scene ) {
         this._super();
         this.scene = scene;
+        if( Def.USE_DICE ) {
+            this.toDiceLevel();
+            return;
+        }
         this._initBackground();
         //this._initTitleLabel();
         this._loadUserID();
@@ -36,9 +40,6 @@ var MenuLayer = cc.Layer.extend({
         this._initTitleLabel();
         this._initButtons();
         this._initShareMenu();
-//        if( Def.ASK_NAME ) {
-//            this._askChallengerName();
-//        }
         if( !Def.USE_MENU ) {
             this.toGameLevel();
         }
@@ -241,6 +242,14 @@ var MenuLayer = cc.Layer.extend({
         scene.removeChild( scene.layer );
         scene.layer = new GameLayer( scene, this.uid, this.challenger );
         //scene.layer = new EditorLayer( scene, this.uid, this.challenger );
+        scene.addChild( scene.layer );
+    },
+
+    toDiceLevel: function() {
+        var scene = this.scene;
+        cc.eventManager.removeAllListeners();
+        scene.removeChild( scene.layer );
+        scene.layer = new DiceLayer( scene, this.uid );
         scene.addChild( scene.layer );
     }
 });

@@ -81,7 +81,7 @@ var DiceLayer = cc.Layer.extend({
         menu.x = g_size.width * 0.5;
         menu.y = g_size.height * 0.2;
         this.saveMenu = menu;
-        this.addChild( menu, 0 );
+        //this.addChild( menu, 0 );
     },
 
     _loadMsgs: function() {
@@ -117,6 +117,7 @@ var DiceLayer = cc.Layer.extend({
             return;
         }
         this.myMsg = msg;
+        this.saveMsg();
     },
 
     rollDice: function() {

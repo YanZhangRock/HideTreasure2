@@ -41,6 +41,10 @@ var StrHandler = cc.Class.extend({
         }
     },
 
+    getRealMsg: function() {
+        return "宇宙的奥秘就是：~~~~  42 ！";
+    },
+
     getMixedMsg: function() {
         var str = "";
         var lastIdx = -1;

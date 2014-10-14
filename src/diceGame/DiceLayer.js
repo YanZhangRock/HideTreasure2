@@ -10,14 +10,14 @@ var DiceLayer = cc.Layer.extend({
     scene: null,
     titleLabel: null,
     secretLabel: null,
+    numLabel: null,
     btnMgr: null,
     msgBtn: null,
-    inputMenu: null,
-    rollMenu: null,
-    saveMenu: null,
+    rollBtn: null,
     msgArray: ["老岩哥的人马，用的特别吊！"],
     myMsg: "",
     msgHandler: null,
+    owner: "火星人",
     uid: 10001,
 
     ctor: function ( scene ) {
@@ -31,7 +31,6 @@ var DiceLayer = cc.Layer.extend({
     onLoadMsgs: function( txt ) {
         this._pargeMsgs( txt );
         this._initLabels();
-        this._initMenus();
         this._initButtons();
         this.msgHandler = new StrHandler( this.msgArray );
         this._addWeChatFunc();
@@ -68,17 +67,26 @@ var DiceLayer = cc.Layer.extend({
 
     _initLabels: function() {
         // title label
-        var label = new cc.LabelTTF( "title", "Arial", 60 );
+        var label = new cc.LabelTTF( "title", "Arial", 50 );
         label.x = g_size.width * 0.5;
         label.y = g_size.height * 0.8;
         this.titleLabel = label;
-        this.addChild( label, 0 );
-        // secret label
-        var label = new cc.LabelTTF( "lalala", "Arial", 60 );
+        label.setString( this.txtCfg.instr );
+        this.addChild( label, DiceLayer.Z.UI );
+        // number label
+        var label = new cc.LabelTTF( "", "Arial", 80 );
         label.x = g_size.width * 0.5;
-        label.y = g_size.height * 0.7;
+        label.y = g_size.height * 0.5;
+        this.numLabel = label;
+        this.addChild( label, DiceLayer.Z.UI );
+        // secret label
+        var label = new MyLabel( "123", 50, {x:2.8, y:2.0} );
+        label.label.setString( "lalala\nlalala" );
+        label.x = g_size.width * 0.50;
+        label.y = g_size.height * 0.76;
         this.secretLabel = label;
-        this.addChild( label, 0 );
+        this.addChild( label, DiceLayer.Z.UI );
+        this.secretLabel.setVisible( false );
     },
 
     _initButtons: function() {
@@ -86,57 +94,28 @@ var DiceLayer = cc.Layer.extend({
         this.btnMgr = new ButtonMgr();
         this.addChild( this.btnMgr, DiceLayer.Z.UI );
         // leave msg btn
-        var btn = new MyButton( "123", {x:1.2, y:0.8} );
-        btn.label.setString( this.txtCfg.leaveMsg );
-        btn.x = g_size.width * 0.50;
-        btn.y = g_size.height * 0.30;
-        btn.label.setFontSize( 40 );
+        var param = {
+            scale: { x: 1.1, y: 0.7 },
+            pos: { x: 0.5, y: 0.25 },
+            txt: this.txtCfg.leaveMsg,
+            fontSize: 36
+        }
+        var btn = new MyButton( "123", param );
         btn.setCallBack( function() { self.onClickLeaveMsg(); } );
         this.msgBtn = btn;
         //btn.setVisible( false );
         this.btnMgr.addButton( btn );
-    },
-
-    _initMenus: function() {
-        // input menu
-//        var label = new cc.LabelTTF("leave msg", "Arial", 60);
-//        var self = this;
-//        var menuLabel = new cc.MenuItemLabel( label,
-//            function(){
-//                self.onClickLeaveMsg();
-//            }
-//        );
-//        var menu = new cc.Menu( menuLabel );
-//        menu.x = g_size.width * 0.5;
-//        menu.y = g_size.height * 0.3;
-//        this.inputMenu = menu;
-//        this.addChild( menu, 0 );
-        // roll menu
-        var label = new cc.LabelTTF("roll dice", "Arial", 60);
-        var self = this;
-        var menuLabel = new cc.MenuItemLabel( label,
-            function(){
-                self.rollDice();
-            }
-        );
-        var menu = new cc.Menu( menuLabel );
-        menu.x = g_size.width * 0.5;
-        menu.y = g_size.height * 0.4;
-        this.rollMenu = menu;
-        this.addChild( menu, 0 );
-        // save menu
-        var label = new cc.LabelTTF("save msg", "Arial", 60);
-        var self = this;
-        var menuLabel = new cc.MenuItemLabel( label,
-            function(){
-                self.saveMsg();
-            }
-        );
-        var menu = new cc.Menu( menuLabel );
-        menu.x = g_size.width * 0.5;
-        menu.y = g_size.height * 0.2;
-        this.saveMenu = menu;
-        //this.addChild( menu, 0 );
+        // roll dice btn
+        var param = {
+            scale: { x: 1.4, y: 1.0 },
+            pos: { x: 0.5, y: 0.4 },
+            txt: this.txtCfg.roll,
+            fontSize: 50
+        }
+        var btn = new MyButton( "123", param );
+        btn.setCallBack( function() { self.rollDice(); } );
+        this.rollBtn = btn;
+        this.btnMgr.addButton( btn );
     },
 
     _loadMsgs: function() {
@@ -176,7 +155,35 @@ var DiceLayer = cc.Layer.extend({
     },
 
     rollDice: function() {
-        this.secretLabel.setString( this.msgHandler.getMixedMsg() );
+        this.secretLabel.setVisible( true );
+        this.titleLabel.setString("");
+        this.secretLabel.label.setString("");
+        var self = this;
+        var diceNum = 1;
+        var time = 20;
+        this.schedule( function() {
+            diceNum = diceNum % 6 + 1;
+            time--;
+            self.numLabel.setString( diceNum );
+            if( time < 0 ) {
+                self.onRollDiceResult();
+            }
+        }, 0.015, time );
+    },
+
+    onRollDiceResult: function() {
+        var num = Math.floor( Math.random() * 6 ) + 1;
+        this.numLabel.setString( num );
+        var self = this;
+        new HighlightEffect( this.numLabel, function(){
+            self.onRollDiceEnd(num);
+        }, -1, 0.3, 0.5 );
+    },
+
+    onRollDiceEnd: function( num ) {
+        var msg = num == 6 ? this.msgHandler.getRealMsg() : this.msgHandler.getMixedMsg();
+        this.secretLabel.label.setString( msg );
+
     },
 
     saveMsg: function() {
@@ -208,6 +215,7 @@ DiceLayer.Z = {
 
 DiceLayer.CHN = {
     title: "破碎的秘密",
+    roll: " 丢你一骰子！",
     leaveMsg: "我也要留秘密",
-    instr: "玩法说明"
+    instr: "玩法说明：\n\n        骰子丢到6可以看到真正的秘密，\n否则会看到别人的秘密碎了一地..."
 }

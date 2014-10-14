@@ -11,9 +11,10 @@ var MyButton = cc.Node.extend({
     oriStrScale: 1.0,
     callBackFunc: null,
 
-    ctor: function( str, scale ) {
+    ctor: function( str, param ) {
         this._super();
-        var scale = scale ? scale : { x:1, y:1 }
+        var p = param || {};
+        var scale = p.scale ? p.scale : { x:1, y:1 }
         var scaleX = this._getScale( str ) * scale.x;
         var scaleY = MyButton.SCALE_Y * scale.y;
         var img = new cc.Sprite( "#button.png" );
@@ -43,6 +44,11 @@ var MyButton = cc.Node.extend({
         this.myHeight = MyButton.HEIGHT * scaleY;
         this.myWidth = MyButton.WIDTH * scaleX;
         this.img2.setVisible( false );
+        var pos = p.pos || {x:0,y:0};
+        this.x = g_size.width * pos.x;
+        this.y = g_size.height * pos.y;
+        this.label.setFontSize( p.fontSize || 40 );
+        this.label.setString( p.txt || str );
     },
 
     _getScale: function( str ) {

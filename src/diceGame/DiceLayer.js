@@ -46,7 +46,7 @@ var DiceLayer = cc.Layer.extend({
         //document.addEventListener('WeixinJSBridgeReady', function() {
             // 隐藏按钮，对应的展示参数是：showOptionMenu
             //WeixinJSBridge.call('hideOptionMenu');
-            self.titleLabel.setString("WeixinJSBridgeReady");
+            //self.titleLabel.setString("WeixinJSBridgeReady");
             WeixinJSBridge.on('menu:share:appmessage', function (argv) {
                 self.onShareToFriends( argv );
                 WeixinJSBridge.invoke('sendAppMessage', {
@@ -95,10 +95,10 @@ var DiceLayer = cc.Layer.extend({
         this.addChild( this.btnMgr, DiceLayer.Z.UI );
         // leave msg btn
         var param = {
-            scale: { x: 1.1, y: 0.7 },
-            pos: { x: 0.5, y: 0.25 },
+            scale: { x: 1.4, y: 1.0 },
+            pos: { x: 0.5, y: 0.16 },
             txt: this.txtCfg.leaveMsg,
-            fontSize: 36
+            fontSize: 46
         }
         var btn = new MyButton( "123", param );
         btn.setCallBack( function() { self.onClickLeaveMsg(); } );
@@ -107,10 +107,10 @@ var DiceLayer = cc.Layer.extend({
         this.btnMgr.addButton( btn );
         // roll dice btn
         var param = {
-            scale: { x: 1.4, y: 1.0 },
-            pos: { x: 0.5, y: 0.4 },
+            scale: { x: 1.6, y: 1.2 },
+            pos: { x: 0.5, y: 0.36 },
             txt: this.txtCfg.roll,
-            fontSize: 50
+            fontSize: 58
         }
         var btn = new MyButton( "123", param );
         btn.setCallBack( function() { self.rollDice(); } );
@@ -160,7 +160,7 @@ var DiceLayer = cc.Layer.extend({
         this.secretLabel.label.setString("");
         var self = this;
         var diceNum = 1;
-        var time = 20;
+        var time = 15;
         this.schedule( function() {
             diceNum = diceNum % 6 + 1;
             time--;

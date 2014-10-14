@@ -17,7 +17,7 @@ var DiceLayer = cc.Layer.extend({
     msgArray: ["老岩哥的人马，用的特别吊！"],
     myMsg: "",
     msgHandler: null,
-    owner: "火星人",
+    owner: "岩哥",
     uid: 10001,
 
     ctor: function ( scene ) {
@@ -175,15 +175,19 @@ var DiceLayer = cc.Layer.extend({
         var num = Math.floor( Math.random() * 6 ) + 1;
         this.numLabel.setString( num );
         var self = this;
-        new HighlightEffect( this.numLabel, function(){
-            self.onRollDiceEnd(num);
-        }, -1, 0.3, 0.5 );
+        new HighlightEffect( this.numLabel, null, -1, 0.3, 0.5 );
+        this.onRollDiceEnd(num);
     },
 
     onRollDiceEnd: function( num ) {
-        var msg = num == 6 ? this.msgHandler.getRealMsg() : this.msgHandler.getMixedMsg();
-        this.secretLabel.label.setString( msg );
-
+        var isOK = num == 6 ? true : false;
+        if( isOK ) {
+            this.secretLabel.label.setString( this.msgHandler.getRealMsg() );
+            this.titleLabel.setString( this.owner + this.txtCfg.result );
+        } else {
+            this.secretLabel.label.setString( this.msgHandler.getMixedMsg() );
+            this.titleLabel.setString("");
+        }
     },
 
     saveMsg: function() {
@@ -217,5 +221,6 @@ DiceLayer.CHN = {
     title: "破碎的秘密",
     roll: " 丢你一骰子！",
     leaveMsg: "我也要留秘密",
-    instr: "玩法说明：\n\n        骰子丢到6可以看到真正的秘密，\n否则会看到别人的秘密碎了一地..."
+    instr: "玩法说明：\n\n        骰子丢到6可以看到真正的秘密，\n否则会看到别人的秘密碎了一地...",
+    result: "说:\n\n\n"
 }

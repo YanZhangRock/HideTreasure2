@@ -56,8 +56,18 @@ var StrHandler = cc.Class.extend({
             lastIdx = idx;
             str += this.msgFragArrays[i][idx];
         }
-        return str;
+        return this.filterStr(str);
+    },
+
+    filterStr: function( str ) {
+        var ret = str
+        if( str.length > StrHandler.LINE_STRLEN ) {
+            ret = str.substr( 0, StrHandler.LINE_STRLEN ) + "\n" +
+                str.substr( StrHandler.LINE_STRLEN );
+        }
+        return ret;
     }
 })
 
 StrHandler.FRAG_NUM = 2;
+StrHandler.LINE_STRLEN = 15;

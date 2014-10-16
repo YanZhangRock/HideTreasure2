@@ -175,7 +175,12 @@ var DiceLayer = cc.Layer.extend({
         var num = Math.floor( Math.random() * 6 ) + 1;
         this.numLabel.setString( num );
         var self = this;
-        new HighlightEffect( this.numLabel, null, -1, 0.3, 0.5 );
+        if( !this.numLabelHighlightEffect ) {
+            this.numLabelHighlightEffect = new HighlightEffect( this.numLabel, function(){
+                self.numLabelHighlightEffect = null;
+            }, -1, 0.3, 0.5 );
+        }
+
         this.onRollDiceEnd(num);
     },
 

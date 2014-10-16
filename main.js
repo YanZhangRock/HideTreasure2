@@ -17,7 +17,7 @@ cc.game.onStart = function(){
     g_size = cc.winSize;
     //load resources
     cc.LoaderScene.preload(g_resources, function () {
-        cc.director.runScene(new GameScene());
+        cc.director.runScene( new GameScene() );
     }, this);
 };
 cc.game.run();

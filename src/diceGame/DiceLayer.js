@@ -2,10 +2,6 @@
  * Created by Rock on 10/3/14.
  */
 
-document.addEventListener('WeixinJSBridgeReady', function() {
-    //WeixinJSBridge.call('hideOptionMenu');
-});
-
 var DiceLayer = cc.Layer.extend({
     scene: null,
     titleLabel: null,
@@ -16,6 +12,8 @@ var DiceLayer = cc.Layer.extend({
     rollBtn: null,
     msgArray: ["老岩哥的人马，用的特别吊！"],
     myMsg: "",
+    myName: "",
+    hasMsg: false,
     msgHandler: null,
     owner: "岩哥",
     uid: 10001,
@@ -25,6 +23,7 @@ var DiceLayer = cc.Layer.extend({
         this.scene = scene;
         this._chooseLanguage();
         document.title = this.txtCfg.title;
+        this.myName = this.txtCfg.unknownName;
         this._loadMsgs();
     },
 
@@ -33,36 +32,10 @@ var DiceLayer = cc.Layer.extend({
         this._initLabels();
         this._initButtons();
         this.msgHandler = new StrHandler( this.msgArray );
-        this._addWeChatFunc();
     },
 
     _chooseLanguage: function() {
         this.txtCfg = g_language == Def.CHN ? DiceLayer.CHN : DiceLayer.ENG;
-    },
-
-    _addWeChatFunc: function() {
-        if( cc.sys.browserType != cc.sys.BROWSER_TYPE_WECHAT ) return;
-        var self = this;
-        //document.addEventListener('WeixinJSBridgeReady', function() {
-            // 隐藏按钮，对应的展示参数是：showOptionMenu
-            //WeixinJSBridge.call('hideOptionMenu');
-            //self.titleLabel.setString("WeixinJSBridgeReady");
-            WeixinJSBridge.on('menu:share:appmessage', function (argv) {
-                self.onShareToFriends( argv );
-                WeixinJSBridge.invoke('sendAppMessage', {
-                    "img_url": location.origin+"/HideTreasure2/res/money.png",
-                    "img_width": "120",
-                    "img_height": "120",
-                    "link": location.href,
-                    "desc": "这是一段废话",
-                    "title": "破碎的秘密"
-                }, function () {});
-            });
-        //});
-    },
-
-    onShareToFriends: function(argv) {
-        this.titleLabel.setString( typeof(argv) );
     },
 
     _initLabels: function() {
@@ -138,10 +111,10 @@ var DiceLayer = cc.Layer.extend({
     askMsg: function() {
         var self = this;
         var msg = Util.createTextField(
-            "what's your message?",
+            this.txtCfg.askMsg,
             function(){ self.onGetMsg(this); }
         );
-        this.addChild( msg, 1 );
+        this.addChild( msg, DiceLayer.Z.UI );
     },
 
     onGetMsg: function( msg ) {
@@ -151,6 +124,27 @@ var DiceLayer = cc.Layer.extend({
             return;
         }
         this.myMsg = msg;
+        var self = this;
+        this.schedule( function() { self.askName(); }, 0.1, 0 );
+    },
+
+    askName: function() {
+        var self = this;
+        var msg = Util.createTextField(
+            this.txtCfg.askName,
+            function(){ self.onGetName(this); }
+        );
+        this.addChild( msg, DiceLayer.Z.UI );
+    },
+
+    onGetName: function( msg ) {
+        var msg = msg.getString();
+        this.removeChild( msg );
+        if(msg.length <= 0) {
+            msg = this.txtCfg.unknownName;
+        }
+        this.myName = msg;
+        this.hasMsg = true;
         this.saveMsg();
     },
 
@@ -180,7 +174,6 @@ var DiceLayer = cc.Layer.extend({
                 self.numLabelHighlightEffect = null;
             }, -1, 0.3, 0.5 );
         }
-
         this.onRollDiceEnd(num);
     },
 
@@ -215,6 +208,27 @@ var DiceLayer = cc.Layer.extend({
 
     getSaveURL: function() {
         return ObjIO.URL+this.uid+"&name="+"Rock"+"&mid=0";
+    },
+
+    _getShareDesc: function() {
+        var desc = "";
+        if( this.hasMsg ) {
+            desc = this.myName + this.txtCfg.shareDesc1 + this.owner + this.txtCfg.shareDesc2;
+        } else {
+            desc = this.owner + this.txtCfg.shareDesc3;
+        }
+        return desc;
+    },
+
+    onShareToFriends: function(argv) {
+        WeixinJSBridge.invoke('sendAppMessage', {
+            "img_url": location.origin+"/HideTreasure2/res/money.png",
+            "img_width": "120",
+            "img_height": "120",
+            "link": location.href,
+            "desc": this._getShareDesc(),
+            "title": this.txtCfg.title
+        }, function () {});
     }
 })
 
@@ -226,6 +240,23 @@ DiceLayer.CHN = {
     title: "破碎的秘密",
     roll: " 丢你一骰子！",
     leaveMsg: "我也要留秘密",
+    askMsg: "用逗号把秘密切成两半",
+    askName: "请问施主如何称呼？",
+    unknownName: "火星人",
     instr: "玩法说明：\n\n        骰子丢到6可以看到真正的秘密，\n否则会看到别人的秘密碎了一地...",
-    result: "说:\n\n\n"
+    result: "说:\n\n\n",
+    shareDesc1: "捡起了",
+    shareDesc2: "碎了一地的秘密，并丢下了自己的",
+    shareDesc3: "不小心把秘密掉了一地...怎么破 囧"
 }
+
+DiceLayer.test2 = function(){
+    return g_scene.layer.test();
+}
+
+document.addEventListener('WeixinJSBridgeReady', function() {
+    //WeixinJSBridge.call('hideOptionMenu');
+    WeixinJSBridge.on('menu:share:appmessage', function (argv) {
+        g_layer.onShareToFriends( argv );
+    });
+});

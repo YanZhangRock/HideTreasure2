@@ -24,6 +24,7 @@ var MyLabel = cc.Node.extend({
         this.addChild( img, MyLabel.Z.IMG );
         this.label = new cc.LabelTTF( str, "Arial", size );
         this.label.color = Def.COLOR.GREEN;
+        //this.label.color = cc.color.BLACK;
         this.addChild( this.label, MyLabel.Z.LABEL );
     },
 

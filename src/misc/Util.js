@@ -117,6 +117,6 @@ Util.isNearPos = function( from, to ) {
 };
 
 Util.randomInt = function( min, max ) {
-    if( max < min ) return 0;
+    if( max < min ) return min;
     return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
 };

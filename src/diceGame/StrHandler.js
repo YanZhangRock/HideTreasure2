@@ -68,6 +68,7 @@ var StrHandler = cc.Class.extend({
             idx = Util.randomInt( idx, msg.length-rest );
             str += msg.charAt( idx );
             str = this._insertUnknownStr( str, Util.randomInt(1,3) );
+            idx++;
         }
         return str;
     },

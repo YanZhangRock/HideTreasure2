@@ -152,6 +152,7 @@ var DiceLayer = cc.Layer.extend({
     },
 
     onClickRollBtn: function() {
+        if( this.state == DiceLayer.STATE.SHOW_ANSWER ) return;
         if( this.state == DiceLayer.STATE.INSTR ) {
             this.closeInstruction();
         } else {
@@ -162,7 +163,7 @@ var DiceLayer = cc.Layer.extend({
     closeInstruction: function() {
         this.msgBtn.setVisible( true );
         this.rollBtn.label.setString( this.txtCfg.roll );
-        this.state = DiceLayer.STATE.UNKNOWN;
+        this.state = DiceLayer.STATE.INIT;
         this.secretLabel.setVisible( true );
         this.titleLabel.setString("");
         this.secretLabel.label.setString( this.msgHandler.getMysteriousMsg() );
@@ -173,25 +174,37 @@ var DiceLayer = cc.Layer.extend({
         this.secretLabel.label.setString("");
         var self = this;
         var diceNum = 1;
-        var time = 15;
+        var times = 15;
         this.schedule( function() {
             diceNum = diceNum % 6 + 1;
-            time--;
+            times--;
             self.numLabel.setString( diceNum );
-            if( time < 0 ) {
+            if( times < 0 ) {
                 self.onRollDiceResult();
             }
-        }, 0.015, time );
+        }, 0.015, times );
+    },
+
+    _getDiceNum: function() {
+        var num = 1;
+        if( this.state == DiceLayer.STATE.INIT ) {
+            num = Util.randomInt( 1, 5 );
+            num = 6;
+        } else {
+            if( Util.randomInt(1,100) < 50 ) {
+                num = 6;
+            } else {
+                num = Util.randomInt( 1, 5 );
+            }
+        }
+        return num;
     },
 
     onRollDiceResult: function() {
-        var num = Util.randomInt( 1, 6 );
+        var num = this._getDiceNum();
         this.numLabel.setString( num );
-        var self = this;
-        if( !this.numLabelHighlightEffect ) {
-            this.numLabelHighlightEffect = new HighlightEffect( this.numLabel, function(){
-                self.numLabelHighlightEffect = null;
-            }, -1, 0.3, 0.5 );
+        if( this.state == DiceLayer.STATE.INIT ) {
+            this.state = DiceLayer.STATE.UNKNOWN;
         }
         this.onRollDiceEnd(num);
     },
@@ -199,12 +212,37 @@ var DiceLayer = cc.Layer.extend({
     onRollDiceEnd: function( num ) {
         var isOK = num == 6 ? true : false;
         if( isOK ) {
-            this.secretLabel.label.setString( this.msgHandler.getRealMsg() );
-            this.titleLabel.setString( this.owner + this.txtCfg.result );
+            this.state = DiceLayer.STATE.SHOW_ANSWER;
+            // highlight
+            var self = this;
+            if( !this.numLabelHighlightEffect ) {
+                this.numLabelHighlightEffect = new HighlightEffect( this.numLabel, function(){
+                    self.numLabelHighlightEffect = null;
+                    self.onRollAnswer();
+                }, -1, 0.3, 0.5 );
+            }
         } else {
             this.secretLabel.label.setString( this.msgHandler.getMixedMsg() );
             this.titleLabel.setString("");
         }
+    },
+
+    onRollAnswer: function() {
+        // show msg
+        var self = this;
+        this.secretLabel.label.setString( this.msgHandler.getRealMsg() );
+        this.titleLabel.setString( this.owner + this.txtCfg.result );
+        this.secretLabel.label.setOpacity(0);
+        this.secretLabel.label.runAction( cc.sequence(
+            cc.fadeTo( 0.8, 80 ),
+            cc.callFunc( function() {
+                    new HighlightEffect( self.secretLabel.label,
+                        function () {
+                            self.state = DiceLayer.STATE.KNOWN;
+                        }, 1.3, 0.5, 0.6 )
+                } ),
+            cc.fadeTo( 0.8, 255 )
+        ) );
     },
 
     saveMsg: function() {
@@ -256,7 +294,7 @@ DiceLayer.Z = {
 };
 
 DiceLayer.STATE = {
-    INSTR: 0, UNKNOWN: 1
+    INSTR: 0, INIT: 1, UNKNOWN: 2, SHOW_ANSWER:3, KNOWN: 4
 };
 
 DiceLayer.CHN = {

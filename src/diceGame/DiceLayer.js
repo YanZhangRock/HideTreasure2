@@ -15,6 +15,7 @@ var DiceLayer = cc.Layer.extend({
     myName: "",
     hasMsg: false,
     msgHandler: null,
+    state: null,
     owner: "岩哥",
     uid: 10001,
 
@@ -24,6 +25,7 @@ var DiceLayer = cc.Layer.extend({
         this._chooseLanguage();
         document.title = this.txtCfg.title;
         this.myName = this.txtCfg.unknownName;
+        this.state = DiceLayer.STATE.INSTR;
         this._loadMsgs();
     },
 
@@ -76,17 +78,18 @@ var DiceLayer = cc.Layer.extend({
         var btn = new MyButton( "123", param );
         btn.setCallBack( function() { self.onClickLeaveMsg(); } );
         this.msgBtn = btn;
+        btn.setVisible( false );
         //btn.setVisible( false );
         this.btnMgr.addButton( btn );
         // roll dice btn
         var param = {
             scale: { x: 1.6, y: 1.2 },
             pos: { x: 0.5, y: 0.36 },
-            txt: this.txtCfg.roll,
+            txt: this.txtCfg.start,
             fontSize: 58
         }
         var btn = new MyButton( "123", param );
-        btn.setCallBack( function() { self.rollDice(); } );
+        btn.setCallBack( function() { self.onClickRollBtn(); } );
         this.rollBtn = btn;
         this.btnMgr.addButton( btn );
     },
@@ -148,9 +151,25 @@ var DiceLayer = cc.Layer.extend({
         this.saveMsg();
     },
 
-    rollDice: function() {
+    onClickRollBtn: function() {
+        if( this.state == DiceLayer.STATE.INSTR ) {
+            this.closeInstruction();
+        } else {
+            this.rollDice();
+        }
+    },
+
+    closeInstruction: function() {
+        this.msgBtn.setVisible( true );
+        this.rollBtn.label.setString( this.txtCfg.roll );
+        this.state = DiceLayer.STATE.UNKNOWN;
         this.secretLabel.setVisible( true );
         this.titleLabel.setString("");
+        this.secretLabel.label.setString( this.msgHandler.getMysteriousMsg() );
+        this.titleLabel.setString( this.owner + this.txtCfg.result );
+    },
+
+    rollDice: function() {
         this.secretLabel.label.setString("");
         var self = this;
         var diceNum = 1;
@@ -166,7 +185,7 @@ var DiceLayer = cc.Layer.extend({
     },
 
     onRollDiceResult: function() {
-        var num = Math.floor( Math.random() * 6 ) + 1;
+        var num = Util.randomInt( 1, 6 );
         this.numLabel.setString( num );
         var self = this;
         if( !this.numLabelHighlightEffect ) {
@@ -236,8 +255,13 @@ DiceLayer.Z = {
     UI: 9
 };
 
+DiceLayer.STATE = {
+    INSTR: 0, UNKNOWN: 1
+};
+
 DiceLayer.CHN = {
     title: "破碎的秘密",
+    start: "开始",
     roll: " 丢你一骰子！",
     leaveMsg: "我也要留秘密",
     askMsg: "用逗号把秘密切成两半",
@@ -248,10 +272,6 @@ DiceLayer.CHN = {
     shareDesc1: "捡起了",
     shareDesc2: "碎了一地的秘密，并丢下了自己的",
     shareDesc3: "不小心把秘密掉了一地...怎么破 囧"
-}
-
-DiceLayer.test2 = function(){
-    return g_scene.layer.test();
 }
 
 document.addEventListener('WeixinJSBridgeReady', function() {

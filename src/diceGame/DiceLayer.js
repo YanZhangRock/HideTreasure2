@@ -15,12 +15,13 @@ var DiceLayer = cc.Layer.extend({
     curMsg: "",
     myMsg: "",
     myName: "",
+    hasName: false,
     msgHandler: null,
     shareMenu: null,
     state: null,
     oriState: null,
     shareState: null,
-    owner: "火星人",
+    owner: "",
     uid: 10001,
     msgid: 10001,
     myid: 10001,
@@ -32,6 +33,7 @@ var DiceLayer = cc.Layer.extend({
         this._chooseLanguage();
         document.title = this.txtCfg.title;
         this.myName = this.txtCfg.unknownName;
+        this.owner = this.owner.length <= 0 ? this.txtCfg.unknownName : this.owner;
         this.setState( DiceLayer.STATE.INSTR );
         this.setShareState( DiceLayer.SHARE_STATE.EMPTY );
         this._loadRealMsg();
@@ -196,7 +198,9 @@ var DiceLayer = cc.Layer.extend({
         this.myMsg = msg;
         this.msgHandler.setMyMsg( msg );
         var self = this;
-        this.schedule( function() { self.askName(); }, 0.1, 0 );
+        if( !this.hasName ) {
+            this.schedule( function() { self.askName(); }, 0.1, 0 );
+        }
     },
 
     askName: function() {
@@ -215,6 +219,7 @@ var DiceLayer = cc.Layer.extend({
             msg = this.txtCfg.unknownName;
         }
         this.myName = msg;
+        this.hasName = true;
         this.setShareState( DiceLayer.SHARE_STATE.MYMSG );
         this.saveMsg();
     },
@@ -407,7 +412,8 @@ var DiceLayer = cc.Layer.extend({
                 desc = this.myName + this.txtCfg.shareDesc1 + this.owner + this.txtCfg.shareDesc2;
                 break;
             case DiceLayer.SHARE_STATE.OTHERMSG:
-                desc = this.myName + this.txtCfg.shareDesc4;
+                var myName = this.hasName ? this.myName : this.txtCfg.defaultMyName;
+                desc = myName + this.txtCfg.shareDesc4;
                 break;
         }
         return desc;
@@ -421,14 +427,19 @@ var DiceLayer = cc.Layer.extend({
         }
         var msgid = this.myid
         if( this.shareState == DiceLayer.SHARE_STATE.EMPTY ) {
-            msgid = this.msgid;;
+            msgid = this.msgid;
         }
         return url + "?uid="+this.uid+"&mid="+msgid;
     },
 
+    getUrlPath: function() {
+        var path = location.pathname.replace( "index.html", "" );
+        return location.origin + path;
+    },
+
     onShareToFriends: function(argv) {
         WeixinJSBridge.invoke('sendAppMessage', {
-            "img_url": location.origin+"/HideTreasure2/res/money.png",
+            "img_url": this.getUrlPath() + "res/money.png",
             "img_width": "120",
             "img_height": "120",
             "link": this._getUrlParam(),
@@ -458,7 +469,8 @@ DiceLayer.CHN = {
     leaveMsg: "我也要留言",
     askMsg: "用逗号把留言切成两半",
     askName: "请问施主如何称呼？",
-    unknownName: "火星人",
+    unknownName: "楼主",
+    defaultMyName: "我",
     instr: "玩法说明：\n\n        骰子丢到6可以拼出楼主的留言，\n否则会看到别人的留言碎了一地...",
     result: "说:\n\n\n",
     shareDesc1: "捡起了",

@@ -20,6 +20,7 @@
         "src/gui/MyButton.js",
         "src/gui/ButtonMgr.js",
         "src/diceGame/StrHandler.js",
+        "src/diceGame/ShareMenu.js",
         "src/diceGame/DiceLayer.js"
     ]
 }

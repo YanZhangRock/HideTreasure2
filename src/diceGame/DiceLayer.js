@@ -15,7 +15,9 @@ var DiceLayer = cc.Layer.extend({
     myName: "",
     hasMsg: false,
     msgHandler: null,
+    shareMenu: null,
     state: null,
+    oriState: null,
     owner: "火星人",
     uid: 10001,
     msgid: 10001,
@@ -28,7 +30,7 @@ var DiceLayer = cc.Layer.extend({
         this._chooseLanguage();
         document.title = this.txtCfg.title;
         this.myName = this.txtCfg.unknownName;
-        this.state = DiceLayer.STATE.INSTR;
+        this.setState( DiceLayer.STATE.INSTR );
         this._loadRealMsg();
 
     },
@@ -43,6 +45,8 @@ var DiceLayer = cc.Layer.extend({
         this._initLabels();
         this._initButtons();
         this.msgHandler = new StrHandler( this.msgArray, this.realMsg );
+        this.shareMenu = new ShareMenu( this, DiceLayer.Z.SHARE );
+        //this.msgHandler.setMyMsg("爸爸爸爸，妈妈妈妈")
     },
 
     _chooseLanguage: function() {
@@ -146,6 +150,10 @@ var DiceLayer = cc.Layer.extend({
 //        }
     },
 
+    setState: function( state ) {
+        this.state = state;
+    },
+
     onClickLeaveMsg: function() {
         var self = this;
         this.schedule( function() { self.askMsg(); }, 0.1, 0 );
@@ -167,6 +175,7 @@ var DiceLayer = cc.Layer.extend({
             return;
         }
         this.myMsg = msg;
+        this.msgHandler.setMyMsg( msg );
         var self = this;
         this.schedule( function() { self.askName(); }, 0.1, 0 );
     },
@@ -203,14 +212,23 @@ var DiceLayer = cc.Layer.extend({
     closeInstruction: function() {
         this.msgBtn.setVisible( true );
         this.rollBtn.label.setString( this.txtCfg.roll );
-        this.state = DiceLayer.STATE.INIT;
+        this.setState( DiceLayer.STATE.INIT );
         this.secretLabel.setVisible( true );
         this.titleLabel.setString("");
         this.secretLabel.label.setString( this.msgHandler.getMysteriousMsg() );
         this.titleLabel.setString( this.owner + this.txtCfg.result );
+        // remind
+        var self = this;
+        this.schedule( function(){
+            if( self.state != DiceLayer.STATE.INIT ) return;
+            new HighlightEffect( self.rollBtn.label, null, 1.2, 0.25, 0.25, 2 );
+        }, 1.5, 0 );
     },
 
     rollDice: function() {
+        if( this.state == DiceLayer.STATE.ROLLING ) return;
+        this.oriState = this.state;
+        this.setState( DiceLayer.STATE.ROLLING );
         this.secretLabel.label.setString("");
         var self = this;
         var diceNum = 1;
@@ -229,7 +247,7 @@ var DiceLayer = cc.Layer.extend({
         var num = 1;
         if( this.state == DiceLayer.STATE.INIT ) {
             num = Util.randomInt( 1, 5 );
-        } else if( this.state = DiceLayer.STATE.UNKNOWN ) {
+        } else if( this.state == DiceLayer.STATE.UNKNOWN ) {
             if( Util.randomInt(1,100) < 14 ) {
                 num = 6;
             } else {
@@ -246,10 +264,11 @@ var DiceLayer = cc.Layer.extend({
     },
 
     onRollDiceResult: function() {
+        this.setState( this.oriState );
         var num = this._getDiceNum();
         this.numLabel.setString( num );
         if( this.state == DiceLayer.STATE.INIT ) {
-            this.state = DiceLayer.STATE.UNKNOWN;
+            this.setState( DiceLayer.STATE.UNKNOWN );
         }
         this.onRollDiceEnd(num);
     },
@@ -257,7 +276,7 @@ var DiceLayer = cc.Layer.extend({
     onRollDiceEnd: function( num ) {
         var isOK = num == 6 ? true : false;
         if( isOK ) {
-            this.state = DiceLayer.STATE.SHOW_ANSWER;
+            this.setState( DiceLayer.STATE.SHOW_ANSWER );
             // highlight
             var self = this;
             if( !this.numLabelHighlightEffect ) {
@@ -283,11 +302,14 @@ var DiceLayer = cc.Layer.extend({
             cc.callFunc( function() {
                     new HighlightEffect( self.secretLabel.label,
                         function () {
-                            self.state = DiceLayer.STATE.KNOWN;
+                            self.setState( DiceLayer.STATE.KNOWN );
                         }, 1.3, 0.5, 0.6 )
                 } ),
             cc.fadeTo( 0.8, 255 )
         ) );
+        this.schedule( function(){
+            new HighlightEffect( self.msgBtn.label, null, 1.4, 0.3, 0.3, 2 );
+        }, 2, 0 );
     },
 
     saveMsg: function() {
@@ -320,8 +342,9 @@ var DiceLayer = cc.Layer.extend({
     },
 
     onSaveMsg: function() {
-        this.titleLabel.setString("message saved!");
+        //this.titleLabel.setString("message saved!");
         this.msgHandler.setMsgArray( this.msgArray );
+        this.shareMenu.activate();
     },
 
     getRealMsgURL: function() {
@@ -369,11 +392,11 @@ var DiceLayer = cc.Layer.extend({
 })
 
 DiceLayer.Z = {
-    UI: 9
+    UI: 9, SHARE: 900
 };
 
 DiceLayer.STATE = {
-    INSTR: 0, INIT: 1, UNKNOWN: 2, SHOW_ANSWER:3, KNOWN: 4
+    INSTR: 0, INIT: 1, UNKNOWN: 2, SHOW_ANSWER:3, KNOWN: 4, ROLLING: 5
 };
 
 DiceLayer.CHN = {

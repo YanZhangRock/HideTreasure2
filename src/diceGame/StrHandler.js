@@ -6,6 +6,8 @@ var StrHandler = cc.Class.extend({
     realMsg: "",
     msgArray: [],
     msgFragArrays: [],
+    myMsg: null,
+    myMsgArray: null,
 
     ctor: function ( msgArray, realMsg ) {
         this.setMsgArray( msgArray );
@@ -18,6 +20,11 @@ var StrHandler = cc.Class.extend({
     setMsgArray: function( msgArray ) {
         this.msgArray = msgArray;
         this._parseMsg();
+    },
+
+    setMyMsg: function( str ) {
+        this.myMsg = str;
+        this.myMsgArray = this._parseSingleMsg(str);
     },
 
     _parseMsg: function() {
@@ -87,12 +94,26 @@ var StrHandler = cc.Class.extend({
         var str = "";
         var lastIdx = -1;
         var idx = -1;
+        var msgArray = [];
         for( var i=0; i<StrHandler.FRAG_NUM; i++ ) {
             while( idx == lastIdx ) {
                 idx = Util.randomInt( 0, this.msgFragArrays[i].length-1 );
             }
             lastIdx = idx;
-            str += this.msgFragArrays[i][idx];
+            msgArray.push( this.msgFragArrays[i][idx] );
+        }
+        var useMyMsg = false;
+        if( this.myMsg ) {
+            if( Util.randomInt(1,100) < 80 ) {
+                useMyMsg = true;
+            }
+        }
+        if( useMyMsg ) {
+            var idx = Util.randomInt( 0, StrHandler.FRAG_NUM-1 );
+            msgArray[idx] = this.myMsgArray[idx];
+        }
+        for( var i=0; i<StrHandler.FRAG_NUM; i++ ) {
+            str += msgArray[i];
         }
         return this.filterStr(str);
     },

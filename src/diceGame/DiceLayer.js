@@ -328,12 +328,13 @@ var DiceLayer = cc.Layer.extend({
                     self.onRollAnswer();
                 }, -1, 0.3, 0.5 );
             }
+            this.shareBtn.setVisible( false );
         } else {
             this.curMsg = this.msgHandler.getMixedMsg();
             this.secretLabel.label.setString( this.curMsg );
             this.titleLabel.setString("");
+            this.shareBtn.setVisible( true );
         }
-        this.shareBtn.setVisible( true );
     },
 
     onRollAnswer: function() {
@@ -469,7 +470,7 @@ DiceLayer.CHN = {
     title: "失落的留言",
     start: "开始",
     roll: " 丢你一骰子！",
-    shareMsg: "分享此留言",
+    shareMsg: "分享这一句",
     leaveMsg: "我也要留言",
     askMsg: "用逗号把留言切成两半",
     askName: "请问施主如何称呼？",

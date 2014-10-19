@@ -7,9 +7,12 @@ var StrHandler = cc.Class.extend({
     msgArray: [],
     msgFragArrays: [],
 
-    ctor: function ( msgArray ) {
+    ctor: function ( msgArray, realMsg ) {
         this.setMsgArray( msgArray );
         this.getMysteriousMsg();
+        this.realMsg = realMsg || this.realMsg;
+        var frags = this._parseSingleMsg( this.realMsg );
+        this.realMsg = frags[0] + frags[1];
     },
 
     setMsgArray: function( msgArray ) {

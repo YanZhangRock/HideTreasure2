@@ -16,7 +16,7 @@ var DiceLayer = cc.Layer.extend({
     hasMsg: false,
     msgHandler: null,
     state: null,
-    owner: "岩哥",
+    owner: "火星人",
     uid: 10001,
     msgid: 10001,
     myid: 10001,
@@ -122,7 +122,7 @@ var DiceLayer = cc.Layer.extend({
 
     _loadMsgs: function() {
         var self = this;
-        Util.getHTML( ObjIO.URL+this.uid, function(txt){self.onLoadMsgs(txt)} );
+        Util.getHTML( DiceLayer.UID_URL+this.uid, function(txt){self.onLoadMsgs(txt)} );
     },
 
     _loadRealMsg: function() {
@@ -131,7 +131,9 @@ var DiceLayer = cc.Layer.extend({
     },
 
     _parseRealMsg: function( txt ) {
-        this.realMsg = JSON.parse( txt).msg;
+        var content = JSON.parse( txt)
+        this.realMsg = content.msg || this.realMsg;
+        this.owner = content.owner || this.owner;
     },
 
     _pargeMsgs: function( txt ) {
@@ -209,7 +211,6 @@ var DiceLayer = cc.Layer.extend({
     },
 
     rollDice: function() {
-        cc.log(this._getUrlParam());
         this.secretLabel.label.setString("");
         var self = this;
         var diceNum = 1;
@@ -228,8 +229,14 @@ var DiceLayer = cc.Layer.extend({
         var num = 1;
         if( this.state == DiceLayer.STATE.INIT ) {
             num = Util.randomInt( 1, 5 );
+        } else if( this.state = DiceLayer.STATE.UNKNOWN ) {
+            if( Util.randomInt(1,100) < 14 ) {
+                num = 6;
+            } else {
+                num = Util.randomInt( 1, 5 );
+            }
         } else {
-            if( Util.randomInt(1,100) < 50 ) {
+            if( Util.randomInt(1,100) < 0 ) {
                 num = 6;
             } else {
                 num = Util.randomInt( 1, 5 );
@@ -285,9 +292,11 @@ var DiceLayer = cc.Layer.extend({
 
     saveMsg: function() {
         var self = this;
-        var content = { msg: this.myMsg }
+        var content = {
+            owner: this.myName,
+            msg: this.myMsg
+        }
         this.myid = Util.randomInt( 10001, 19999 );
-        this.myid = 10003;
         Util.postHTML( this.getMyMsgURL(), JSON.stringify( content ),
             function(){
                 if( self.onSaveRealMsg ) {
@@ -316,15 +325,15 @@ var DiceLayer = cc.Layer.extend({
     },
 
     getRealMsgURL: function() {
-        return MapIO.URL + this.msgid;
+        return DiceLayer.MID_URL + this.msgid;
     },
 
     getMyMsgURL: function() {
-        return MapIO.URL + this.myid;
+        return DiceLayer.MID_URL + this.myid;
     },
 
     getSaveURL: function() {
-        return ObjIO.URL+this.uid+"&name="+"Rock"+"&mid=0";
+        return DiceLayer.UID_URL+this.uid+"&name="+"Rock"+"&mid=0";
     },
 
     _getShareDesc: function() {
@@ -380,7 +389,10 @@ DiceLayer.CHN = {
     shareDesc1: "捡起了",
     shareDesc2: "碎了一地的留言，并丢下了自己的",
     shareDesc3: "不小心把要说的话掉了一地...哪位能帮个忙给拼起来 囧"
-}
+};
+
+DiceLayer.UID_URL = "http://minihugscorecenter.appspot.com/user?uid=";
+DiceLayer.MID_URL = "http://minihugscorecenter.appspot.com/map?mid=";
 
 document.addEventListener('WeixinJSBridgeReady', function() {
     //WeixinJSBridge.call('hideOptionMenu');

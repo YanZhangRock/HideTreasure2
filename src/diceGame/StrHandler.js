@@ -3,7 +3,7 @@
  */
 
 var StrHandler = cc.Class.extend({
-    realMsg: "宇宙的奥秘就是：~~~~  42 ！",
+    realMsg: "",
     msgArray: [],
     msgFragArrays: [],
 

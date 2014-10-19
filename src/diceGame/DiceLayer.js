@@ -15,11 +15,11 @@ var DiceLayer = cc.Layer.extend({
     curMsg: "",
     myMsg: "",
     myName: "",
-    hasMsg: false,
     msgHandler: null,
     shareMenu: null,
     state: null,
     oriState: null,
+    shareState: null,
     owner: "火星人",
     uid: 10001,
     msgid: 10001,
@@ -33,6 +33,7 @@ var DiceLayer = cc.Layer.extend({
         document.title = this.txtCfg.title;
         this.myName = this.txtCfg.unknownName;
         this.setState( DiceLayer.STATE.INSTR );
+        this.setShareState( DiceLayer.SHARE_STATE.EMPTY );
         this._loadRealMsg();
 
     },
@@ -168,6 +169,10 @@ var DiceLayer = cc.Layer.extend({
         this.state = state;
     },
 
+    setShareState: function( state ) {
+        this.shareState = state;
+    },
+
     onClickLeaveMsg: function() {
         var self = this;
         this.schedule( function() { self.askMsg(); }, 0.1, 0 );
@@ -210,18 +215,22 @@ var DiceLayer = cc.Layer.extend({
             msg = this.txtCfg.unknownName;
         }
         this.myName = msg;
-        this.hasMsg = true;
+        this.setShareState( DiceLayer.SHARE_STATE.MYMSG );
         this.saveMsg();
     },
 
     onClickShareBtn: function() {
         this.myid = Util.randomInt( 10001, 19999 );
+        this.setShareState( DiceLayer.SHARE_STATE.OTHERMSG );
         var content = {
             owner: this.myName,
             msg: this.curMsg
         }
         Util.postHTML( this.getMyMsgURL(), JSON.stringify( content ) );
         this.shareMenu.activate();
+
+        cc.log(this._getShareDesc());
+        cc.log(this._getUrlParam());
     },
 
     onClickRollBtn: function() {
@@ -390,10 +399,16 @@ var DiceLayer = cc.Layer.extend({
 
     _getShareDesc: function() {
         var desc = "";
-        if( this.hasMsg ) {
-            desc = this.myName + this.txtCfg.shareDesc1 + this.owner + this.txtCfg.shareDesc2;
-        } else {
-            desc = this.owner + this.txtCfg.shareDesc3;
+        switch ( this.shareState ) {
+            case DiceLayer.SHARE_STATE.EMPTY:
+                desc = this.owner + this.txtCfg.shareDesc3;
+                break;
+            case DiceLayer.SHARE_STATE.MYMSG:
+                desc = this.myName + this.txtCfg.shareDesc1 + this.owner + this.txtCfg.shareDesc2;
+                break;
+            case DiceLayer.SHARE_STATE.OTHERMSG:
+                desc = this.myName + this.txtCfg.shareDesc4;
+                break;
         }
         return desc;
     },
@@ -404,7 +419,10 @@ var DiceLayer = cc.Layer.extend({
         if( location.pathname.search(index) < 0 ) {
             url += index
         }
-        var msgid = this.hasMsg ? this.myid : this.msgid;
+        var msgid = this.myid
+        if( this.shareState == DiceLayer.SHARE_STATE.EMPTY ) {
+            msgid = this.msgid;;
+        }
         return url + "?uid="+this.uid+"&mid="+msgid;
     },
 
@@ -428,11 +446,15 @@ DiceLayer.STATE = {
     INSTR: 0, INIT: 1, UNKNOWN: 2, SHOW_ANSWER:3, KNOWN: 4, ROLLING: 5
 };
 
+DiceLayer.SHARE_STATE = {
+    EMPTY: 1, MYMSG: 2, OTHERMSG: 3
+};
+
 DiceLayer.CHN = {
     title: "留言碎一地",
     start: "开始",
     roll: " 丢你一骰子！",
-    shareMsg: "分享这句话",
+    shareMsg: "分享此留言",
     leaveMsg: "我也要留言",
     askMsg: "用逗号把留言切成两半",
     askName: "请问施主如何称呼？",
@@ -441,7 +463,8 @@ DiceLayer.CHN = {
     result: "说:\n\n\n",
     shareDesc1: "捡起了",
     shareDesc2: "碎了一地的留言，并丢下了自己的",
-    shareDesc3: "不小心把要说的话掉了一地...哪位能帮个忙给拼起来 囧"
+    shareDesc3: "不小心把要说的话掉了一地...哪位能帮个忙给拼起来 囧",
+    shareDesc4: "拼出了一句碉堡了的留言，大伙儿有没有兴趣捡起来看看"
 };
 
 DiceLayer.UID_URL = "http://minihugscorecenter.appspot.com/user?uid=";

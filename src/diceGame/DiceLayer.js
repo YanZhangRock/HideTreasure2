@@ -33,7 +33,7 @@ var DiceLayer = cc.Layer.extend({
         this._chooseLanguage();
         document.title = this.txtCfg.title;
         this.myName = this.txtCfg.unknownName;
-        this.owner = this.owner.length <= 0 ? this.txtCfg.unknownName : this.owner;
+        this.owner = this.owner.length <= 0 ? this.txtCfg.defaultOwner : this.owner;
         this.setState( DiceLayer.STATE.INSTR );
         this.setShareState( DiceLayer.SHARE_STATE.EMPTY );
         this._loadRealMsg();
@@ -200,6 +200,8 @@ var DiceLayer = cc.Layer.extend({
         var self = this;
         if( !this.hasName ) {
             this.schedule( function() { self.askName(); }, 0.1, 0 );
+        } else {
+            this.shareMenu.activate();
         }
     },
 
@@ -222,6 +224,7 @@ var DiceLayer = cc.Layer.extend({
         this.hasName = true;
         this.setShareState( DiceLayer.SHARE_STATE.MYMSG );
         this.saveMsg();
+        this.shareMenu.activate();
     },
 
     onClickShareBtn: function() {
@@ -253,7 +256,8 @@ var DiceLayer = cc.Layer.extend({
         this.secretLabel.setVisible( true );
         this.titleLabel.setString("");
         this.secretLabel.label.setString( this.msgHandler.getMysteriousMsg() );
-        this.titleLabel.setString( this.owner + this.txtCfg.result );
+        var owner = this.owner == this.txtCfg.unknownName ? this.txtCfg.defaultOwner : this.owner;
+        this.titleLabel.setString( owner + this.txtCfg.result );
         // remind
         var self = this;
         this.schedule( function(){
@@ -337,7 +341,8 @@ var DiceLayer = cc.Layer.extend({
         var self = this;
         this.curMsg = this.msgHandler.getRealMsg();
         this.secretLabel.label.setString( this.curMsg );
-        this.titleLabel.setString( this.owner + this.txtCfg.result );
+        var owner = this.owner == this.txtCfg.unknownName ? this.txtCfg.defaultOwner : this.owner;
+        this.titleLabel.setString( owner + this.txtCfg.result );
         this.secretLabel.label.setOpacity(0);
         this.secretLabel.label.runAction( cc.sequence(
             cc.fadeTo( 0.4, 80 ),
@@ -386,7 +391,6 @@ var DiceLayer = cc.Layer.extend({
     onSaveMsg: function() {
         //this.titleLabel.setString("message saved!");
         this.msgHandler.setMsgArray( this.msgArray );
-        this.shareMenu.activate();
     },
 
     getRealMsgURL: function() {
@@ -405,14 +409,15 @@ var DiceLayer = cc.Layer.extend({
         var desc = "";
         switch ( this.shareState ) {
             case DiceLayer.SHARE_STATE.EMPTY:
-                desc = this.owner + this.txtCfg.shareDesc3;
+                desc = this.txtCfg.defaultMyName + this.txtCfg.shareDesc3
+                    + this.owner + this.txtCfg.shareDesc4;
                 break;
             case DiceLayer.SHARE_STATE.MYMSG:
                 desc = this.myName + this.txtCfg.shareDesc1 + this.owner + this.txtCfg.shareDesc2;
                 break;
             case DiceLayer.SHARE_STATE.OTHERMSG:
                 var myName = this.hasName ? this.myName : this.txtCfg.defaultMyName;
-                desc = myName + this.txtCfg.shareDesc4;
+                desc = myName + this.txtCfg.shareDesc5;
                 break;
         }
         return desc;
@@ -468,14 +473,16 @@ DiceLayer.CHN = {
     leaveMsg: "我也要留言",
     askMsg: "用逗号把留言切成两半",
     askName: "请问施主如何称呼？",
-    unknownName: "楼主",
+    unknownName: "某人",
+    defaultOwner: "楼主",
     defaultMyName: "我",
     instr: "玩法说明：\n\n        骰子丢到6可以拼出楼主的留言，\n否则会看到别人的留言碎了一地...",
     result: "说:\n\n\n",
     shareDesc1: "捡起了",
     shareDesc2: "碎了一地的留言，并丢下了自己的",
-    shareDesc3: "不小心把要说的话掉了一地...哪位能帮个忙给拼起来 囧",
-    shareDesc4: "拼出了一句碉堡了的留言，大伙儿有没有兴趣捡起来看看"
+    shareDesc3: "发现",
+    shareDesc4: "的留言很赞，推荐一下",
+    shareDesc5: "拼出了一句碉堡了的留言，大伙儿有没有兴趣捡起来看看"
 };
 
 DiceLayer.UID_URL = "http://minihugscorecenter.appspot.com/user?uid=";

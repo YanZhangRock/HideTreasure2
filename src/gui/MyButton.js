@@ -10,6 +10,7 @@ var MyButton = cc.Node.extend({
     myWidth: 0,
     oriStrScale: 1.0,
     callBackFunc: null,
+    isDisable: false,
 
     ctor: function( str, param ) {
         this._super();
@@ -51,6 +52,15 @@ var MyButton = cc.Node.extend({
         this.label.setString( p.txt || str );
     },
 
+    setDisable: function( val ) {
+        this.isDisable = val;
+        if( val ) {
+            //this.label.setColor( Def.COLOR.GREY );
+        } else {
+            //this.label.color = cc.color.WHITE;
+        }
+    },
+
     _getScale: function( str ) {
         var scale = ( str.length - 2 ) * 0.5;
         scale = scale < 0 ? 0 : scale;
@@ -62,6 +72,7 @@ var MyButton = cc.Node.extend({
     },
 
     onTouchBegan: function( touch ) {
+        if( this.isDisable ) return;
         this.img2.setVisible( true );
         this.label.color = Def.COLOR.YELLOW;
         this.oriStrScale = this.label.getScale();
@@ -69,6 +80,7 @@ var MyButton = cc.Node.extend({
     },
 
     onTouchEnded: function( touch, isOut ) {
+        if( this.isDisable ) return;
         this.img2.setVisible( false );
         this.label.color = cc.color.WHITE;
         this.label.setScale( this.oriStrScale );

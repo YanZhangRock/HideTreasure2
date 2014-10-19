@@ -10,7 +10,9 @@ var DiceLayer = cc.Layer.extend({
     btnMgr: null,
     msgBtn: null,
     rollBtn: null,
+    shareBtn: null,
     msgArray: ["老岩哥的人马，用的特别吊！"],
+    curMsg: "",
     myMsg: "",
     myName: "",
     hasMsg: false,
@@ -122,6 +124,18 @@ var DiceLayer = cc.Layer.extend({
         btn.setCallBack( function() { self.onClickRollBtn(); } );
         this.rollBtn = btn;
         this.btnMgr.addButton( btn );
+        // share btn
+        var param = {
+            scale: { x: 0.9, y: 0.6 },
+            pos: { x: 0.51, y: 0.66 },
+            txt: this.txtCfg.shareMsg,
+            fontSize: 36
+        }
+        var btn = new MyButton( "123", param );
+        btn.setCallBack( function() { self.onClickShareBtn(); } );
+        this.shareBtn = btn;
+        btn.setVisible( false );
+        this.btnMgr.addButton( btn );
     },
 
     _loadMsgs: function() {
@@ -200,6 +214,16 @@ var DiceLayer = cc.Layer.extend({
         this.saveMsg();
     },
 
+    onClickShareBtn: function() {
+        this.myid = Util.randomInt( 10001, 19999 );
+        var content = {
+            owner: this.myName,
+            msg: this.curMsg
+        }
+        Util.postHTML( this.getMyMsgURL(), JSON.stringify( content ) );
+        this.shareMenu.activate();
+    },
+
     onClickRollBtn: function() {
         if( this.state == DiceLayer.STATE.SHOW_ANSWER ) return;
         if( this.state == DiceLayer.STATE.INSTR ) {
@@ -229,6 +253,7 @@ var DiceLayer = cc.Layer.extend({
         if( this.state == DiceLayer.STATE.ROLLING ) return;
         this.oriState = this.state;
         this.setState( DiceLayer.STATE.ROLLING );
+        this.shareBtn.setDisable( true );
         this.secretLabel.label.setString("");
         var self = this;
         var diceNum = 1;
@@ -265,6 +290,7 @@ var DiceLayer = cc.Layer.extend({
 
     onRollDiceResult: function() {
         this.setState( this.oriState );
+        this.shareBtn.setDisable( false );
         var num = this._getDiceNum();
         this.numLabel.setString( num );
         if( this.state == DiceLayer.STATE.INIT ) {
@@ -286,15 +312,18 @@ var DiceLayer = cc.Layer.extend({
                 }, -1, 0.3, 0.5 );
             }
         } else {
-            this.secretLabel.label.setString( this.msgHandler.getMixedMsg() );
+            this.curMsg = this.msgHandler.getMixedMsg();
+            this.secretLabel.label.setString( this.curMsg );
             this.titleLabel.setString("");
         }
+        this.shareBtn.setVisible( true );
     },
 
     onRollAnswer: function() {
         // show msg
         var self = this;
-        this.secretLabel.label.setString( this.msgHandler.getRealMsg() );
+        this.curMsg = this.msgHandler.getRealMsg();
+        this.secretLabel.label.setString( this.curMsg );
         this.titleLabel.setString( this.owner + this.txtCfg.result );
         this.secretLabel.label.setOpacity(0);
         this.secretLabel.label.runAction( cc.sequence(
@@ -330,7 +359,7 @@ var DiceLayer = cc.Layer.extend({
 
     onSaveRealMsg: function() {
         if( this.myMsg.length <= 0 ) return;
-        //this.msgArray.push( this.myMsg );
+        this.msgArray.push( this.myMsg );
         var self = this;
         Util.postHTML( this.getSaveURL(), JSON.stringify( this.msgArray ),
             function(){
@@ -403,6 +432,7 @@ DiceLayer.CHN = {
     title: "留言碎一地",
     start: "开始",
     roll: " 丢你一骰子！",
+    shareMsg: "分享这句话",
     leaveMsg: "我也要留言",
     askMsg: "用逗号把留言切成两半",
     askName: "请问施主如何称呼？",

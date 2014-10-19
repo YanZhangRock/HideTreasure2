@@ -7,7 +7,8 @@ var Def = new Object();
 Def.IMG_SCALE = 2.5
 Def.COLOR = {
     GREEN: { r:162, g:199, b:74 },
-    YELLOW: { r:253, g:240, b:98 }
+    YELLOW: { r:253, g:240, b:98 },
+    GREY: { r:150, g:150, b:150 }
 };
 Def.UID = 2000;
 Def.MID = 2000;

@@ -7,6 +7,7 @@ var ShareMenu = cc.Class.extend({
     coverMenu: null,
     contentSprite: null,
     zOrder: 0,
+    isActive: false,
 
     ctor: function ( layer, zOrder ) {
         this.layer = layer;
@@ -14,12 +15,19 @@ var ShareMenu = cc.Class.extend({
     },
 
     activate: function() {
-        this._addCoverMenu();
+        if( this.isActive ) return;
+        this.isActive = true;
+        var self = this;
+        //this._addCoverMenu();
         this._addContentSprite();
+        new HighlightEffect( this.contentSprite, function(){
+            self.layer.schedule( function(){self.cancel();}, 1.4, 0 );
+        }, 1.2, 0.25, 0.25, 2 );
     },
 
     cancel: function() {
-        this.layer.removeChild( this.coverMenu );
+        this.isActive = false;
+        //this.layer.removeChild( this.coverMenu );
         if( this.contentSprite == null ) return;
         this.layer.removeChild( this.contentSprite );
         this.contentSprite = null;

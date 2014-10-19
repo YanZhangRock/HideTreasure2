@@ -466,7 +466,7 @@ DiceLayer.SHARE_STATE = {
 };
 
 DiceLayer.CHN = {
-    title: "留言碎一地",
+    title: "失落的留言",
     start: "开始",
     roll: " 丢你一骰子！",
     shareMsg: "分享此留言",

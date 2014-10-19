@@ -233,9 +233,8 @@ var DiceLayer = cc.Layer.extend({
         }
         Util.postHTML( this.getMyMsgURL(), JSON.stringify( content ) );
         this.shareMenu.activate();
-
-        cc.log(this._getShareDesc());
-        cc.log(this._getUrlParam());
+//        cc.log(this._getShareDesc());
+//        cc.log(this._getUrlParam());
     },
 
     onClickRollBtn: function() {

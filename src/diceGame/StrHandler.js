@@ -104,7 +104,7 @@ var StrHandler = cc.Class.extend({
         }
         var useMyMsg = false;
         if( this.myMsg ) {
-            if( Util.randomInt(1,100) < 80 ) {
+            if( Util.randomInt(1,100) < 101 ) {
                 useMyMsg = true;
             }
         }

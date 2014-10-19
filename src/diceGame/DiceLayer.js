@@ -438,9 +438,9 @@ var DiceLayer = cc.Layer.extend({
 
     onShareToFriends: function(argv) {
         WeixinJSBridge.invoke('sendAppMessage', {
-            //img_url": this.getUrlPath() + "res/money.png",
-            //img_width": "120",
-            //img_height": "120",
+            "img_url": this.getUrlPath() + "res/money.png",
+            "img_width": "120",
+            "img_height": "120",
             "link": this._getUrlParam(),
             "desc": this._getShareDesc(),
             "title": this.txtCfg.title

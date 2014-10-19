@@ -33,7 +33,7 @@ var DiceLayer = cc.Layer.extend({
         this._chooseLanguage();
         document.title = this.txtCfg.title;
         this.myName = this.txtCfg.unknownName;
-        this.owner = this.owner.length <= 0 ? this.txtCfg.defaultOwner : this.owner;
+        this.owner = this.owner.length <= 0 ? this.txtCfg.unknownName: this.owner;
         this.setState( DiceLayer.STATE.INSTR );
         this.setShareState( DiceLayer.SHARE_STATE.EMPTY );
         this._loadRealMsg();

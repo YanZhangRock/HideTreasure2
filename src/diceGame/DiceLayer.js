@@ -22,7 +22,7 @@ var DiceLayer = cc.Layer.extend({
     oriState: null,
     shareState: null,
     owner: "",
-    uid: 10001,
+    uid: 10001, // eng ver see 10011
     msgid: 10001,
     myid: 10001,
 
@@ -434,7 +434,11 @@ var DiceLayer = cc.Layer.extend({
         if( this.shareState == DiceLayer.SHARE_STATE.EMPTY ) {
             msgid = this.msgid;
         }
-        return url + "?uid="+this.uid+"&mid="+msgid;
+        var ret = url + "?uid="+this.uid+"&mid="+msgid;
+        if( g_language == Def.ENG ) {
+            ret += "&lan=e";
+        }
+        return ret;
     },
 
     getUrlPath: function() {
@@ -473,7 +477,7 @@ DiceLayer.CHN = {
     shareMsg: "分享这一句",
     leaveMsg: "我也要留言",
     askMsg: "用逗号把留言切成两半",
-    askName: "请问施主如何称呼？",
+    askName: "请问楼主如何称呼？",
     unknownName: "某人",
     defaultOwner: "楼主",
     defaultMyName: "我",
@@ -484,6 +488,30 @@ DiceLayer.CHN = {
     shareDesc3: "发现",
     shareDesc4: "的留言很赞，推荐一下",
     shareDesc5: "拼出了一句碉堡了的留言，大伙儿有没有兴趣捡起来看看"
+};
+
+DiceLayer.ENG = {
+    title: "lost message",
+    start: "Start",
+    roll: "Roll",
+    shareMsg: "share it",
+    leaveMsg: "leave mine",
+    askMsg: "use comma to split the message",
+    askName: "May I know your name?",
+    unknownName: "some one",
+    defaultOwner: "the host",
+    defaultMyName: "I",
+    instr: "Instruction:\n\n" +
+        "You can see the host's message when \n" +
+        "you roll six.\n\n" +
+        "Otherwise you will see other people's\n" +
+        "scattered messages.",
+    result: " said:\n\n\n",
+    shareDesc1: "pick up",
+    shareDesc2: "'s lost message, and then left a new one",
+    shareDesc3: " found ",
+    shareDesc4: "'s message is funny, I recommend you to take a look.",
+    shareDesc5: " met an awesome sentence. I guess you may want to take a look."
 };
 
 DiceLayer.UID_URL = "http://minihugscorecenter.appspot.com/user?uid=";

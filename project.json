@@ -13,6 +13,7 @@
     "jsList" : [
         "src/resource.js",
         "src/app.js",
+        "src/misc/WeixinApi.js",
         "src/misc/Def.js",
         "src/misc/Util.js",
         "src/misc/HighlightEffect.js",

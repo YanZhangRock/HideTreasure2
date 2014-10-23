@@ -36,6 +36,7 @@ var DiceLayer = cc.Layer.extend({
         this.owner = this.owner.length <= 0 ? this.txtCfg.unknownName: this.owner;
         this.setState( DiceLayer.STATE.INSTR );
         this.setShareState( DiceLayer.SHARE_STATE.EMPTY );
+        this.updateShareParam();
         this._loadRealMsg();
 
     },
@@ -79,21 +80,22 @@ var DiceLayer = cc.Layer.extend({
         // title label
         var label = new cc.LabelTTF( "title", "Arial", 50 );
         label.x = g_size.width * 0.5;
-        label.y = g_size.height * 0.8;
+        label.y = g_size.height * 0.7;
         this.titleLabel = label;
         label.setString( this.txtCfg.instr );
         this.addChild( label, DiceLayer.Z.UI );
         // number label
         var label = new cc.LabelTTF( "", "Arial", 80 );
         label.x = g_size.width * 0.5;
-        label.y = g_size.height * 0.5;
+        label.y = g_size.height * 0.66;
+        label.setColor( Def.COLOR.GREEN );
         this.numLabel = label;
-        this.addChild( label, DiceLayer.Z.UI );
+        this.addChild( label, DiceLayer.Z.NUM );
         // secret label
         var label = new MyLabel( "123", 50, {x:2.8, y:2.0} );
         label.label.setString( "lalala\nlalala" );
         label.x = g_size.width * 0.50;
-        label.y = g_size.height * 0.76;
+        label.y = g_size.height * 0.66;
         this.secretLabel = label;
         this.addChild( label, DiceLayer.Z.UI );
         this.secretLabel.setVisible( false );
@@ -130,7 +132,7 @@ var DiceLayer = cc.Layer.extend({
         // share btn
         var param = {
             scale: { x: 0.9, y: 0.6 },
-            pos: { x: 0.51, y: 0.66 },
+            pos: { x: 0.51, y: 0.56 },
             txt: this.txtCfg.shareMsg,
             fontSize: 36
         }
@@ -168,6 +170,7 @@ var DiceLayer = cc.Layer.extend({
     },
 
     setState: function( state ) {
+        this.oriState = this.state;
         this.state = state;
     },
 
@@ -202,6 +205,7 @@ var DiceLayer = cc.Layer.extend({
             this.schedule( function() { self.askName(); }, 0.1, 0 );
         } else {
             this.shareMenu.activate();
+            this.updateShareParam();
         }
     },
 
@@ -225,6 +229,7 @@ var DiceLayer = cc.Layer.extend({
         this.setShareState( DiceLayer.SHARE_STATE.MYMSG );
         this.saveMsg();
         this.shareMenu.activate();
+        this.updateShareParam();
     },
 
     onClickShareBtn: function() {
@@ -236,6 +241,7 @@ var DiceLayer = cc.Layer.extend({
         }
         Util.postHTML( this.getMyMsgURL(), JSON.stringify( content ) );
         this.shareMenu.activate();
+        this.updateShareParam();
 //        cc.log(this._getShareDesc());
 //        cc.log(this._getUrlParam());
     },
@@ -267,9 +273,11 @@ var DiceLayer = cc.Layer.extend({
     },
 
     rollDice: function() {
+//        this.onShareToFriends();
+//        return;
         if( this.state == DiceLayer.STATE.ROLLING ) return;
-        this.oriState = this.state;
         this.setState( DiceLayer.STATE.ROLLING );
+        this.numLabel.runAction(cc.fadeIn(0.1));
         this.shareBtn.setDisable( true );
         this.secretLabel.label.setString("");
         var self = this;
@@ -310,18 +318,15 @@ var DiceLayer = cc.Layer.extend({
         this.shareBtn.setDisable( false );
         var num = this._getDiceNum();
         this.numLabel.setString( num );
-        if( this.state == DiceLayer.STATE.INIT ) {
-            this.setState( DiceLayer.STATE.UNKNOWN );
-        }
         this.onRollDiceEnd(num);
     },
 
     onRollDiceEnd: function( num ) {
         var isOK = num == 6 ? true : false;
+        this.setState( DiceLayer.STATE.SHOW_ANSWER );
+        var self = this;
         if( isOK ) {
-            this.setState( DiceLayer.STATE.SHOW_ANSWER );
             // highlight
-            var self = this;
             if( !this.numLabelHighlightEffect ) {
                 this.numLabelHighlightEffect = new HighlightEffect( this.numLabel, function(){
                     self.numLabelHighlightEffect = null;
@@ -330,11 +335,27 @@ var DiceLayer = cc.Layer.extend({
             }
             this.shareBtn.setVisible( false );
         } else {
-            this.curMsg = this.msgHandler.getMixedMsg();
-            this.secretLabel.label.setString( this.curMsg );
-            this.titleLabel.setString("");
-            this.shareBtn.setVisible( true );
+            this.numLabel.runAction( cc.sequence(
+                    cc.fadeTo( 0.4, 255 ),
+                    cc.fadeOut( 0.2 ),
+                    cc.callFunc( function() {
+                       self.onRollMixedMsg();
+                    })
+                )
+            );
         }
+    },
+
+    onRollMixedMsg: function() {
+        if( this.oriState == DiceLayer.STATE.INIT ) {
+            this.setState( DiceLayer.STATE.UNKNOWN );
+        } else {
+            this.setState( this.oriState );
+        }
+        this.curMsg = this.msgHandler.getMixedMsg();
+        this.secretLabel.label.setString( this.curMsg );
+        this.titleLabel.setString("");
+        this.shareBtn.setVisible( true );
     },
 
     onRollAnswer: function() {
@@ -344,8 +365,13 @@ var DiceLayer = cc.Layer.extend({
         this.secretLabel.label.setString( this.curMsg );
         var owner = this.owner == this.txtCfg.unknownName ? this.txtCfg.defaultOwner : this.owner;
         this.titleLabel.setString( owner + this.txtCfg.result );
+        this.numLabel.runAction( cc.sequence(
+            cc.fadeTo( 0.3, 255 ),
+            cc.fadeOut( 0.3 )
+        ) );
         this.secretLabel.label.setOpacity(0);
         this.secretLabel.label.runAction( cc.sequence(
+            cc.fadeTo( 0.6, 0 ),
             cc.fadeTo( 0.4, 80 ),
             cc.callFunc( function() {
                     new HighlightEffect( self.secretLabel.label,
@@ -447,6 +473,8 @@ var DiceLayer = cc.Layer.extend({
     },
 
     onShareToFriends: function(argv) {
+        this.secretLabel.label.setString("~~~");
+        //this.secretLabel.label.setString(this._getUrlParam());
         WeixinJSBridge.invoke('sendAppMessage', {
             //"img_url": this.getUrlPath() + "res/money.png",
             //"img_width": "120",
@@ -455,11 +483,17 @@ var DiceLayer = cc.Layer.extend({
             "desc": this._getShareDesc(),
             "title": this.txtCfg.title
         }, function () {});
+    },
+
+    updateShareParam: function() {
+        g_weixinData["link"] = this._getUrlParam();
+        g_weixinData["desc"] = this._getShareDesc();
+        g_weixinData["title"] = this.txtCfg.title
     }
 })
 
 DiceLayer.Z = {
-    UI: 9, SHARE: 900
+    UI: 1, NUM:2, SHARE: 900
 };
 
 DiceLayer.STATE = {
@@ -517,9 +551,94 @@ DiceLayer.ENG = {
 DiceLayer.UID_URL = "http://minihugscorecenter.appspot.com/user?uid=";
 DiceLayer.MID_URL = "http://minihugscorecenter.appspot.com/map?mid=";
 
-document.addEventListener('WeixinJSBridgeReady', function() {
-    //WeixinJSBridge.call('hideOptionMenu');
-    WeixinJSBridge.on('menu:share:appmessage', function (argv) {
-        g_layer.onShareToFriends( argv );
-    });
+//var onWeixinReady = function() {
+//    WeixinJSBridge.call('hideOptionMenu');
+//    WeixinJSBridge.on('menu:share:appmessage', function (argv) {
+//        g_layer.onShareToFriends( argv );
+//    });
+//};
+
+//if( document.addEventListener ) {
+//    document.addEventListener('WeixinJSBridgeReady', onWeixinReady );
+//} else if( document.attachEvent ) {
+//    document.attachEvent('WeixinJSBridgeReady', onWeixinReady);
+//    document.attachEvent('onWeixinJSBridgeReady', onWeixinReady);
+//}
+//
+//function wxJsBridgeReady(readyCallback) {
+//    if (readyCallback && typeof readyCallback == 'function') {
+//        var Api = this;
+//        var wxReadyFunc = function () {
+//            readyCallback(Api);
+//        };
+//        if (typeof window.WeixinJSBridge == "undefined"){
+//            if (document.addEventListener) {
+//                document.addEventListener('WeixinJSBridgeReady', wxReadyFunc, false);
+//            } else if (document.attachEvent) {
+//                document.attachEvent('WeixinJSBridgeReady', wxReadyFunc);
+//                document.attachEvent('onWeixinJSBridgeReady', wxReadyFunc);
+//            }
+//        }else{
+//            wxReadyFunc();
+//        }
+//    }
+//}
+
+g_weixinData = {
+    "link" : 'http://www.baidufe.com',
+    "desc" : '大家好，我是Alien，Web前端&Android客户端码农，喜欢技术上的瞎倒腾！欢迎多交流',
+    "title" : "大家好，我是岩哥"
+};
+// 需要分享的内容，请放到ready里
+WeixinApi.ready(function(Api) {
+    // 微信分享的数据
+    var wxData = {
+//		            "appId": "", // 服务号可以填写appId
+//		            "imgUrl" : 'http://www.baidufe.com/fe/blog/static/img/weixin-qrcode-2.jpg',
+        "link" : 'http://www.baidufe.com',
+        "desc" : '大家好，我是Alien，Web前端&Android客户端码农，喜欢技术上的瞎倒腾！欢迎多交流',
+        "title" : "大家好，我是赵先烈"
+    };
+
+    // 分享的回调
+    var wxCallbacks = {
+        // 分享操作开始之前
+//		            ready : function() {
+//		                // 你可以在这里对分享的数据进行重组
+//		                alert("准备分享");
+//		            },
+//		            // 分享被用户自动取消
+//		            cancel : function(resp) {
+//		                // 你可以在你的页面上给用户一个小Tip，为什么要取消呢？
+//		                alert("分享被取消，msg=" + resp.err_msg);
+//		            },
+//		            // 分享失败了
+//		            fail : function(resp) {
+//		                // 分享失败了，是不是可以告诉用户：不要紧，可能是网络问题，一会儿再试试？
+//		                alert("分享失败，msg=" + resp.err_msg);
+//		            },
+//		            // 分享成功
+//		            confirm : function(resp) {
+//		                // 分享成功了，我们是不是可以做一些分享统计呢？
+//		                alert("分享成功，msg=" + resp.err_msg);
+//		            },
+//		            // 整个分享过程结束
+//		            all : function(resp,shareTo) {
+//		                // 如果你做的是一个鼓励用户进行分享的产品，在这里是不是可以给用户一些反馈了？
+//		                alert("分享" + (shareTo ? "到" + shareTo : "") + "结束，msg=" + resp.err_msg);
+//		            }
+    };
+
+    // 用户点开右上角popup菜单后，点击分享给好友，会执行下面这个代码
+    Api.shareToFriend(g_weixinData, wxCallbacks);
+
+    // 点击分享到朋友圈，会执行下面这个代码
+    Api.shareToTimeline(g_weixinData, wxCallbacks);
+
+    // 点击分享到腾讯微博，会执行下面这个代码
+    Api.shareToWeibo(g_weixinData, wxCallbacks);
+
+    // iOS上，可以直接调用这个API进行分享，一句话搞定
+    Api.generalShare(g_weixinData,wxCallbacks);
 });
+

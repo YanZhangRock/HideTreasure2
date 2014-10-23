@@ -473,7 +473,6 @@ var DiceLayer = cc.Layer.extend({
     },
 
     onShareToFriends: function(argv) {
-        this.secretLabel.label.setString("~~~");
         //this.secretLabel.label.setString(this._getUrlParam());
         WeixinJSBridge.invoke('sendAppMessage', {
             //"img_url": this.getUrlPath() + "res/money.png",
@@ -486,6 +485,7 @@ var DiceLayer = cc.Layer.extend({
     },
 
     updateShareParam: function() {
+        g_weixinData["imgUrl"] = this.getUrlPath() + "res/money.png";
         g_weixinData["link"] = this._getUrlParam();
         g_weixinData["desc"] = this._getShareDesc();
         g_weixinData["title"] = this.txtCfg.title

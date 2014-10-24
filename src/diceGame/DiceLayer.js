@@ -207,6 +207,7 @@ var DiceLayer = cc.Layer.extend({
         if( !this.hasName ) {
             this.schedule( function() { self.askName(); }, 0.1, 0 );
         } else {
+            this.saveMsg();
             this.shareMenu.activate();
             this.updateShareParam();
         }

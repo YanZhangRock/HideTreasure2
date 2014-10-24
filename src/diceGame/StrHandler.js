@@ -8,6 +8,7 @@ var StrHandler = cc.Class.extend({
     msgFragArrays: [],
     myMsg: null,
     myMsgArray: null,
+    lastIdx: [-1,-1],
 
     ctor: function ( msgArray, realMsg ) {
         this.setMsgArray( msgArray );
@@ -96,12 +97,13 @@ var StrHandler = cc.Class.extend({
         var idx = -1;
         var msgArray = [];
         for( var i=0; i<StrHandler.FRAG_NUM; i++ ) {
-            var tryTime = 200;
-            while( idx == lastIdx && tryTime >= 0 ) {
+            var tryTime = 500;
+            while( idx == lastIdx || idx == this.lastIdx[i] && tryTime >= 0 ) {
                 tryTime--;
                 idx = Util.randomInt( 0, this.msgFragArrays[i].length-1 );
             }
             lastIdx = idx;
+            this.lastIdx[i] = idx;
             msgArray.push( this.msgFragArrays[i][idx] );
         }
         var useMyMsg = false;

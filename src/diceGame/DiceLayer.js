@@ -22,7 +22,7 @@ var DiceLayer = cc.Layer.extend({
     oriState: null,
     shareState: null,
     owner: "",
-    uid: 10003, // eng ver see 10011
+    uid: 10004, // eng ver see 10011
     msgid: 10001,
     myid: 10001,
 

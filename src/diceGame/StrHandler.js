@@ -98,7 +98,7 @@ var StrHandler = cc.Class.extend({
         var msgArray = [];
         for( var i=0; i<StrHandler.FRAG_NUM; i++ ) {
             var tryTime = 500;
-            while( idx == lastIdx || idx == this.lastIdx[i] && tryTime >= 0 ) {
+            while( (idx == lastIdx || idx == this.lastIdx[i]) && tryTime >= 0 ) {
                 tryTime--;
                 idx = Util.randomInt( 0, this.msgFragArrays[i].length-1 );
             }

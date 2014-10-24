@@ -22,7 +22,7 @@ var DiceLayer = cc.Layer.extend({
     oriState: null,
     shareState: null,
     owner: "",
-    uid: 10002, // eng ver see 10011
+    uid: 10003, // eng ver see 10011
     msgid: 10001,
     myid: 10001,
 
@@ -395,7 +395,7 @@ var DiceLayer = cc.Layer.extend({
             owner: this.myName,
             msg: this.myMsg
         }
-        this.myid = Util.randomInt( 10001, 19999 );
+        this.myid = Util.randomInt( 12001, 19999 );
         Util.postHTML( this.getMyMsgURL(), JSON.stringify( content ),
             function(){
                 if( self.onSaveRealMsg ) {

@@ -22,7 +22,7 @@ var DiceLayer = cc.Layer.extend({
     oriState: null,
     shareState: null,
     owner: "",
-    uid: 10001, // eng ver see 10011
+    uid: 10002, // eng ver see 10011
     msgid: 10001,
     myid: 10001,
 
@@ -163,6 +163,9 @@ var DiceLayer = cc.Layer.extend({
         if( txt == "null" ) return;
         var idx = txt.indexOf("[");
         var content = txt.substr( idx );
+        if( content.length < 3 ) {
+            return;
+        }
         this.msgArray = JSON.parse( content );
 //        for(var i in this.msgArray) {
 //            cc.log(this.msgArray[i]);
